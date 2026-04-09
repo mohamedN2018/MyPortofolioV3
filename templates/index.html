@@ -52,7 +52,7 @@
               {% if personal_info.profile_image %}
                 <img src="{{ personal_info.profile_image.url }}" alt="{{ personal_info.name }}" class="profile-image">
               {% else %}
-                <img src="{% static 'assets/img/profile/profile-2.webp' %}" alt="{{ personal_info.name }}" class="profile-image">
+                <img src="{% static 'assets/img/profile/profile-2.png' %}" alt="{{ personal_info.name }}" class="profile-image">
               {% endif %}
             </div>
           </div>
@@ -73,7 +73,7 @@
               {% if personal_info.profile_image %}
                 <img src="{{ personal_info.profile_image.url }}" alt="{{ personal_info.name }}" class="img-fluid">
               {% else %}
-                <img src="{% static 'assets/img/profile/profile-square-3.webp' %}" alt="Profile" class="img-fluid">
+                <img src="{% static 'assets/img/profile/profile-square-3.png' %}" alt="Profile" class="img-fluid">
               {% endif %}
             </div>
             <div class="profile-badge">
@@ -284,7 +284,7 @@
             {% if personal_info.profile_image %}
               <img src="{{ personal_info.profile_image.url }}" alt="Profile" class="img-fluid rounded">
             {% else %}
-              <img src="{% static 'assets/img/profile/profile-square-2.webp' %}" alt="Profile" class="img-fluid rounded">
+              <img src="{% static 'assets/img/profile/profile-square-2.png' %}" alt="Profile" class="img-fluid rounded">
             {% endif %}
           </div>
 
@@ -364,7 +364,7 @@
               {% if portfolio.cover_image %}
               <img src="{{ portfolio.cover_image.url }}" class="img-fluid" alt="{{ portfolio.title }}" loading="lazy">
               {% else %}
-              <img src="{% static 'assets/img/portfolio/portfolio-1.webp' %}" class="img-fluid" alt="{{ portfolio.title }}" loading="lazy">
+              <img src="{% static 'assets/img/portfolio/portfolio-1.png' %}" class="img-fluid" alt="{{ portfolio.title }}" loading="lazy">
               {% endif %}
               <div class="portfolio-info">
                 <div class="content">
@@ -374,7 +374,7 @@
                     {% if portfolio.cover_image %}
                     <a href="{{ portfolio.cover_image.url }}" class="glightbox" title="{{ portfolio.title }}"><i class="bi bi-plus-lg"></i></a>
                     {% else %}
-                    <a href="{% static 'assets/img/portfolio/portfolio-1.webp' %}" class="glightbox" title="{{ portfolio.title }}"><i class="bi bi-plus-lg"></i></a>
+                    <a href="{% static 'assets/img/portfolio/portfolio-1.png' %}" class="glightbox" title="{{ portfolio.title }}"><i class="bi bi-plus-lg"></i></a>
                     {% endif %}
                     <a href="{% url 'portfolio_detail' portfolio.slug %}" title="More Details"><i class="bi bi-arrow-right"></i></a>
                   </div>
@@ -466,7 +466,7 @@
                 {% if testimonial.client_image %}
                   <img src="{{ testimonial.client_image.url }}" alt="{{ testimonial.client_name }}">
                 {% else %}
-                  <img src="{% static 'assets/img/person/person-f-7.webp' %}" alt="{{ testimonial.client_name }}">
+                  <img src="{% static 'assets/img/person/person-f-7.png' %}" alt="{{ testimonial.client_name }}">
                 {% endif %}
               </div>
               <div class="client-details">
