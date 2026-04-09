@@ -1,19 +1,67 @@
 {% extends 'base.html' %}
 {% load static i18n %}
 
-{% block title %}{{ portfolio.title }} | {% trans "Portfolio Details" %}{% endblock %}
+{% block title %}{{ portfolio.title }} | {% trans "Portfolio Details" %} | {{ site_settings.get_site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Additional styles for portfolio detail page */
+  .tech-badge {
+    transition: all 0.3s ease;
+  }
+  
+  .tech-badge:hover {
+    transform: translateY(-3px);
+    background-color: var(--accent-color) !important;
+    box-shadow: 0 5px 15px color-mix(in srgb, var(--accent-color), transparent 70%);
+  }
+  
+  .feature-item {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Project stats styling */
+  .project-stats {
+    background: linear-gradient(135deg, var(--surface-color), color-mix(in srgb, var(--accent-color), transparent 95%));
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+  
+  .stat-item {
+    text-align: center;
+    padding: 10px;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-color);
+  }
+  
+  .stat-label {
+    font-size: 0.8rem;
+    color: color-mix(in srgb, var(--default-color), transparent 30%);
+  }
+</style>
+{% endblock %}
 
 {% block content %}
 
-<!-- Page Title -->
+<!-- Page Title with animation -->
 <div class="page-title dark-background">
   <div class="container d-lg-flex justify-content-between align-items-center">
-    <h1 class="mb-2 mb-lg-0">{% trans "Portfolio Details" %}</h1>
-    <nav class="breadcrumbs">
+    <h1 class="mb-2 mb-lg-0 animate__animated animate__fadeInUp">{% trans "Portfolio Details" %}</h1>
+    <nav class="breadcrumbs animate__animated animate__fadeInRight">
       <ol>
         <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
         <li><a href="{% url 'portfolio' %}">{% trans "Portfolio" %}</a></li>
-        <li class="current">{{ portfolio.title }}</li>
+        <li class="current">{{ portfolio.title|truncatechars:50 }}</li>
       </ol>
     </nav>
   </div>
@@ -21,95 +69,196 @@
 
 <!-- Portfolio Details Section -->
 <section id="portfolio-details" class="portfolio-details section">
-  <div class="container" data-aos="fade-up" data-aos-delay="100">
+  <div class="container" data-aos="fade-up">
     <div class="row gy-4">
+      <!-- Gallery Slider -->
       <div class="col-lg-8">
         <div class="portfolio-details-slider swiper init-swiper">
           <script type="application/json" class="swiper-config">
             {
               "loop": true,
               "speed": 600,
-              "autoplay": { "delay": 5000 },
-              "slidesPerView": "auto",
-              "pagination": { "el": ".swiper-pagination", "clickable": true }
+              "autoplay": { "delay": 5000, "disableOnInteraction": false },
+              "slidesPerView": 1,
+              "spaceBetween": 30,
+              "pagination": { "el": ".swiper-pagination", "clickable": true },
+              "navigation": { "nextEl": ".swiper-button-next", "prevEl": ".swiper-button-prev" },
+              "effect": "slide"
             }
           </script>
           <div class="swiper-wrapper align-items-center">
             <!-- Main cover image with fallback -->
             <div class="swiper-slide">
               {% if portfolio.cover_image and portfolio.cover_image.url %}
-                <img src="{{ portfolio.cover_image.url }}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
+                <div class="gallery-item">
+                  <img src="{{ portfolio.cover_image.url }}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
+                  <div class="gallery-overlay">
+                    <a href="{{ portfolio.cover_image.url }}" class="glightbox" data-gallery="portfolio-gallery">
+                      <i class="bi bi-zoom-in"></i>
+                    </a>
+                  </div>
+                </div>
               {% else %}
-                <img src="{% static 'assets/img/portfolio/placeholder.jpg' %}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy">
+                <div class="gallery-item">
+                  <img src="{% static 'assets/img/portfolio/placeholder.jpg' %}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy">
+                </div>
               {% endif %}
             </div>
             <!-- Gallery images -->
             {% if portfolio.gallery_images %}
               {% for image in portfolio.gallery_images %}
                 <div class="swiper-slide">
-                  <img src="{{ image }}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
+                  <div class="gallery-item">
+                    <img src="{{ image }}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
+                    <div class="gallery-overlay">
+                      <a href="{{ image }}" class="glightbox" data-gallery="portfolio-gallery">
+                        <i class="bi bi-zoom-in"></i>
+                      </a>
+                    </div>
+                  </div>
                 </div>
               {% endfor %}
             {% endif %}
           </div>
           <div class="swiper-pagination"></div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
         </div>
       </div>
 
+      <!-- Project Info -->
       <div class="col-lg-4">
         <div class="portfolio-info" data-aos="fade-left" data-aos-delay="200">
-          <h3>{% trans "Project Information" %}</h3>
+          <h3><i class="bi bi-info-circle"></i> {% trans "Project Information" %}</h3>
           <ul>
-            <li><strong>{% trans "Category" %}:</strong> {{ portfolio.category.name|default:_('Web Development') }}</li>
-            <li><strong>{% trans "Client" %}:</strong> {{ portfolio.client_name }}</li>
-            <li><strong>{% trans "Project date" %}:</strong> {{ portfolio.project_date|date:"d F, Y" }}</li>
+            <li>
+              <strong><i class="bi bi-tag"></i> {% trans "Category" %}:</strong>
+              <span class="badge bg-primary">{{ portfolio.category.name|default:_('Web Development') }}</span>
+            </li>
+            <li>
+              <strong><i class="bi bi-person-badge"></i> {% trans "Client" %}:</strong>
+              {{ portfolio.client_name }}
+            </li>
+            <li>
+              <strong><i class="bi bi-calendar"></i> {% trans "Project Date" %}:</strong>
+              {{ portfolio.project_date|date:"F d, Y" }}
+            </li>
             {% if portfolio.project_url %}
-              <li><strong>{% trans "Project URL" %}:</strong> <a href="{{ portfolio.project_url }}" target="_blank" rel="noopener noreferrer">{{ portfolio.project_url|truncatechars:40 }}</a></li>
+              <li>
+                <strong><i class="bi bi-link-45deg"></i> {% trans "Project URL" %}:</strong>
+                <a href="{{ portfolio.project_url }}" target="_blank" rel="noopener noreferrer" class="project-link">
+                  {{ portfolio.project_url|truncatechars:35 }} <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+              </li>
             {% endif %}
             {% if portfolio.project_duration %}
-              <li><strong>{% trans "Duration" %}:</strong> {{ portfolio.project_duration }}</li>
+              <li>
+                <strong><i class="bi bi-hourglass-split"></i> {% trans "Duration" %}:</strong>
+                {{ portfolio.project_duration }}
+              </li>
             {% endif %}
             {% if portfolio.team_size %}
-              <li><strong>{% trans "Team Size" %}:</strong> {{ portfolio.team_size }}</li>
+              <li>
+                <strong><i class="bi bi-people"></i> {% trans "Team Size" %}:</strong>
+                {{ portfolio.team_size }} {% trans "members" %}
+              </li>
             {% endif %}
           </ul>
+          
+          <!-- Action Buttons -->
+          <div class="portfolio-actions mt-4">
+            {% if portfolio.project_url %}
+              <a href="{{ portfolio.project_url }}" target="_blank" class="btn btn-primary w-100 mb-2">
+                <i class="bi bi-eye"></i> {% trans "Live Demo" %}
+              </a>
+            {% endif %}
+            <a href="{% url 'contact' %}" class="btn btn-outline-primary w-100">
+              <i class="bi bi-chat-dots"></i> {% trans "Discuss Similar Project" %}
+            </a>
+          </div>
         </div>
+        
+        <!-- Project Stats (if available) -->
+        {% if portfolio.team_size or portfolio.project_duration %}
+        <div class="project-stats mt-4" data-aos="fade-left" data-aos-delay="250">
+          <div class="row">
+            <div class="col-6">
+              <div class="stat-item">
+                <div class="stat-number">{{ portfolio.team_size|default:1 }}</div>
+                <div class="stat-label">{% trans "Team Members" %}</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="stat-item">
+                <div class="stat-number">{{ portfolio.project_duration|default:_("3 months") }}</div>
+                <div class="stat-label">{% trans "Development Time" %}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
       </div>
 
+      <!-- Project Description -->
       <div class="col-lg-12">
         <div class="portfolio-description" data-aos="fade-up" data-aos-delay="300">
-          <h2>{% trans "Project Overview" %}</h2>
-          <p>{{ portfolio.overview|linebreaks }}</p>
+          <!-- Overview -->
+          <div class="description-section">
+            <h2><i class="bi bi-file-text"></i> {% trans "Project Overview" %}</h2>
+            <div class="description-content">
+              {{ portfolio.overview|linebreaks }}
+            </div>
+          </div>
           
+          <!-- Challenge -->
           {% if portfolio.challenge %}
-            <h3>{% trans "Challenge" %}</h3>
-            <p>{{ portfolio.challenge|linebreaks }}</p>
+          <div class="description-section challenge-section">
+            <h3><i class="bi bi-exclamation-triangle"></i> {% trans "The Challenge" %}</h3>
+            <div class="description-content">
+              {{ portfolio.challenge|linebreaks }}
+            </div>
+          </div>
           {% endif %}
           
+          <!-- Solution -->
           {% if portfolio.solution %}
-            <h3>{% trans "Solution" %}</h3>
-            <p>{{ portfolio.solution|linebreaks }}</p>
+          <div class="description-section solution-section">
+            <h3><i class="bi bi-lightbulb"></i> {% trans "Our Solution" %}</h3>
+            <div class="description-content">
+              {{ portfolio.solution|linebreaks }}
+            </div>
+          </div>
           {% endif %}
           
+          <!-- Results -->
           {% if portfolio.result %}
-            <h3>{% trans "Results" %}</h3>
-            <p>{{ portfolio.result|linebreaks }}</p>
+          <div class="description-section results-section">
+            <h3><i class="bi bi-trophy"></i> {% trans "Results & Impact" %}</h3>
+            <div class="description-content">
+              {{ portfolio.result|linebreaks }}
+            </div>
+          </div>
           {% endif %}
 
+          <!-- Key Features -->
           {% if features %}
-            <div class="features mt-4">
-              <h3>{% trans "Key Features" %}</h3>
-              <div class="row gy-3">
+            <div class="features-section mt-5">
+              <h3><i class="bi bi-star"></i> {% trans "Key Features" %}</h3>
+              <div class="row gy-4">
                 {% for feature in features %}
-                  <div class="col-md-6">
-                    <div class="feature-item" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
-                      {% if feature.feature_icon %}
-                        <i class="bi bi-{{ feature.feature_icon }}"></i>
-                      {% else %}
-                        <i class="bi bi-check-circle-fill"></i>
-                      {% endif %}
-                      <h4>{{ feature.feature_title }}</h4>
-                      <p>{{ feature.feature_description|truncatechars:150 }}</p>
+                  <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 50 %}">
+                    <div class="feature-card">
+                      <div class="feature-icon">
+                        {% if feature.feature_icon %}
+                          <i class="bi bi-{{ feature.feature_icon }}"></i>
+                        {% else %}
+                          <i class="bi bi-check-circle-fill"></i>
+                        {% endif %}
+                      </div>
+                      <div class="feature-content">
+                        <h4>{{ feature.feature_title }}</h4>
+                        <p>{{ feature.feature_description|truncatechars:120 }}</p>
+                      </div>
                     </div>
                   </div>
                 {% endfor %}
@@ -117,12 +266,15 @@
             </div>
           {% endif %}
           
+          <!-- Technologies Used -->
           {% if portfolio.technologies %}
-            <div class="technologies mt-4">
-              <h3>{% trans "Technologies Used" %}</h3>
-              <div class="d-flex flex-wrap gap-2">
+            <div class="technologies-section mt-5">
+              <h3><i class="bi bi-code-square"></i> {% trans "Technologies Used" %}</h3>
+              <div class="tech-cloud">
                 {% for tech in portfolio.technologies %}
-                  <span class="badge bg-primary">{{ tech }}</span>
+                  <span class="tech-badge badge bg-primary">
+                    <i class="bi bi-code-slash"></i> {{ tech }}
+                  </span>
                 {% endfor %}
               </div>
             </div>
@@ -135,32 +287,37 @@
 
 <!-- Related Projects Section -->
 {% if related_portfolios %}
-<section class="related-portfolios section light-background">
-  <div class="container">
-    <div class="section-title" data-aos="fade-up">
+<section class="related-projects section light-background">
+  <div class="container" data-aos="fade-up">
+    <div class="section-title">
       <h2>{% trans "Related Projects" %}</h2>
       <p>{% trans "Explore more projects in the same category" %}</p>
     </div>
     <div class="row gy-4">
       {% for related in related_portfolios %}
         <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
-          <div class="portfolio-wrap">
-            <!-- Related project image with fallback -->
-            {% if related.cover_image and related.cover_image.url %}
-              <img src="{{ related.cover_image.url }}" class="img-fluid" alt="{{ related.title }}" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
-            {% else %}
-              <img src="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="img-fluid" alt="{{ related.title }}" loading="lazy">
-            {% endif %}
-            <div class="portfolio-info">
-              <div class="content">
-                <span class="category">{{ related.category.name|default:_('Portfolio') }}</span>
-                <h4>{{ related.title }}</h4>
-                <div class="portfolio-links">
-                  <a href="{% url 'portfolio_detail' related.slug %}" title="{% trans 'View Details' %}">
-                    <i class="bi bi-arrow-right"></i> {% trans "View Details" %}
-                  </a>
-                </div>
+          <div class="related-project-card">
+            <div class="card-img-wrapper">
+              {% if related.cover_image and related.cover_image.url %}
+                <img src="{{ related.cover_image.url }}" class="img-fluid" alt="{{ related.title }}" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
+              {% else %}
+                <img src="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="img-fluid" alt="{{ related.title }}" loading="lazy">
+              {% endif %}
+              <div class="card-overlay">
+                <a href="{% url 'portfolio_detail' related.slug %}" class="btn-overlay">
+                  <i class="bi bi-eye"></i>
+                </a>
               </div>
+            </div>
+            <div class="card-content">
+              <span class="project-category">{{ related.category.name|default:_('Portfolio') }}</span>
+              <h4>
+                <a href="{% url 'portfolio_detail' related.slug %}">{{ related.title|truncatechars:50 }}</a>
+              </h4>
+              <a href="{% url 'portfolio_detail' related.slug %}" class="read-more">
+                {% trans "View Project" %}
+                <i class="bi bi-arrow-right"></i>
+              </a>
             </div>
           </div>
         </div>
@@ -170,6 +327,383 @@
 </section>
 {% endif %}
 
+<style>
+  /* Portfolio Detail Page Styles */
+  
+  .gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+  
+  .gallery-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .gallery-item:hover .gallery-overlay {
+    opacity: 1;
+  }
+  
+  .gallery-overlay a {
+    width: 50px;
+    height: 50px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    transition: transform 0.3s ease;
+    transform: scale(0);
+  }
+  
+  .gallery-item:hover .gallery-overlay a {
+    transform: scale(1);
+  }
+  
+  .portfolio-info {
+    background: var(--surface-color);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  }
+  
+  .portfolio-info h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--accent-color);
+  }
+  
+  .portfolio-info ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .portfolio-info li {
+    padding: 12px 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  }
+  
+  .portfolio-info li:last-child {
+    border-bottom: none;
+  }
+  
+  .portfolio-info li strong {
+    display: inline-block;
+    width: 110px;
+  }
+  
+  .portfolio-info li strong i {
+    margin-right: 8px;
+    color: var(--accent-color);
+  }
+  
+  .project-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .project-link:hover {
+    text-decoration: underline;
+  }
+  
+  .description-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--surface-color);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+  }
+  
+  .description-section:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+  
+  body[dir="rtl"] .description-section:hover {
+    transform: translateX(-5px);
+  }
+  
+  .challenge-section {
+    border-left: 4px solid #ffc107;
+  }
+  
+  .solution-section {
+    border-left: 4px solid #28a745;
+  }
+  
+  .results-section {
+    border-left: 4px solid var(--accent-color);
+  }
+  
+  body[dir="rtl"] .challenge-section,
+  body[dir="rtl"] .solution-section,
+  body[dir="rtl"] .results-section {
+    border-left: none;
+    border-right: 4px solid;
+  }
+  
+  body[dir="rtl"] .challenge-section { border-right-color: #ffc107; }
+  body[dir="rtl"] .solution-section { border-right-color: #28a745; }
+  body[dir="rtl"] .results-section { border-right-color: var(--accent-color); }
+  
+  .description-section h2,
+  .description-section h3 {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .description-section h2 i,
+  .description-section h3 i {
+    color: var(--accent-color);
+  }
+  
+  .feature-card {
+    background: var(--surface-color);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    border: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent-color);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px;
+    background: color-mix(in srgb, var(--accent-color), transparent 85%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+  }
+  
+  .feature-card:hover .feature-icon {
+    background: var(--accent-color);
+    transform: scale(1.1);
+  }
+  
+  .feature-icon i {
+    font-size: 32px;
+    color: var(--accent-color);
+    transition: all 0.3s ease;
+  }
+  
+  .feature-card:hover .feature-icon i {
+    color: var(--contrast-color);
+  }
+  
+  .feature-content h4 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+  
+  .feature-content p {
+    font-size: 0.9rem;
+    color: color-mix(in srgb, var(--default-color), transparent 20%);
+    line-height: 1.5;
+  }
+  
+  .tech-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .tech-badge {
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: default;
+  }
+  
+  /* Related Projects Cards */
+  .related-project-card {
+    background: var(--surface-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  }
+  
+  .related-project-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-img-wrapper {
+    position: relative;
+    overflow: hidden;
+    height: 220px;
+  }
+  
+  .card-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .related-project-card:hover .card-img-wrapper img {
+    transform: scale(1.1);
+  }
+  
+  .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .card-img-wrapper:hover .card-overlay {
+    opacity: 1;
+  }
+  
+  .btn-overlay {
+    width: 50px;
+    height: 50px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    transition: transform 0.3s ease;
+    transform: scale(0);
+  }
+  
+  .card-img-wrapper:hover .btn-overlay {
+    transform: scale(1);
+  }
+  
+  .btn-overlay:hover {
+    transform: scale(1.1);
+    background: color-mix(in srgb, var(--accent-color), black 10%);
+  }
+  
+  .card-content {
+    padding: 20px;
+  }
+  
+  .project-category {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+  }
+  
+  .card-content h4 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    line-height: 1.4;
+  }
+  
+  .card-content h4 a {
+    color: var(--heading-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .card-content h4 a:hover {
+    color: var(--accent-color);
+  }
+  
+  .read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: gap 0.3s ease;
+  }
+  
+  .read-more:hover {
+    gap: 12px;
+  }
+  
+  /* Swiper Navigation */
+  .swiper-button-prev,
+  .swiper-button-next {
+    background: var(--surface-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .swiper-button-prev:after,
+  .swiper-button-next:after {
+    font-size: 18px;
+    color: var(--accent-color);
+  }
+  
+  .swiper-pagination-bullet-active {
+    background: var(--accent-color);
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .portfolio-info li strong {
+      width: 100%;
+      display: block;
+      margin-bottom: 5px;
+    }
+    
+    .description-section {
+      padding: 1rem;
+    }
+    
+    .feature-card {
+      padding: 15px;
+    }
+    
+    .feature-icon {
+      width: 50px;
+      height: 50px;
+    }
+    
+    .feature-icon i {
+      font-size: 24px;
+    }
+  }
+</style>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -177,29 +711,41 @@
   (function() {
     'use strict';
     
-    // Initialize Swiper for portfolio details
-    if (typeof Swiper !== 'undefined') {
-      const swiperElements = document.querySelectorAll('.portfolio-details-slider');
-      swiperElements.forEach(element => {
-        const configElement = element.querySelector('.swiper-config');
-        if (configElement) {
-          try {
-            const config = JSON.parse(configElement.textContent);
-            new Swiper(element, config);
-          } catch(e) {
-            console.error('Error initializing swiper:', e);
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Swiper for portfolio details
+      if (typeof Swiper !== 'undefined') {
+        const swiperElements = document.querySelectorAll('.portfolio-details-slider');
+        swiperElements.forEach(element => {
+          const configElement = element.querySelector('.swiper-config');
+          if (configElement) {
+            try {
+              const config = JSON.parse(configElement.textContent);
+              new Swiper(element, config);
+            } catch(e) {
+              console.error('Error initializing swiper:', e);
+            }
           }
-        }
-      });
-    }
-    
-    // Handle image loading errors globally
-    document.querySelectorAll('img').forEach(img => {
-      img.addEventListener('error', function() {
-        if (!this.hasAttribute('data-fallback')) {
-          this.setAttribute('data-fallback', 'true');
-          this.src = '{% static "assets/img/portfolio/placeholder.jpg" %}';
-        }
+        });
+      }
+      
+      // Initialize GLightbox for gallery
+      if (typeof GLightbox !== 'undefined') {
+        const lightbox = GLightbox({
+          selector: '.glightbox',
+          touchNavigation: true,
+          loop: true,
+          autoplayVideos: true
+        });
+      }
+      
+      // Handle image loading errors globally
+      document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', function() {
+          if (!this.hasAttribute('data-fallback')) {
+            this.setAttribute('data-fallback', 'true');
+            this.src = '{% static "assets/img/portfolio/placeholder.jpg" %}';
+          }
+        });
       });
     });
   })();

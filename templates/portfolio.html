@@ -5,11 +5,11 @@
 
 {% block content %}
 
-<!-- Page Title -->
+<!-- Page Title with animation -->
 <div class="page-title dark-background">
   <div class="container d-lg-flex justify-content-between align-items-center">
-    <h1 class="mb-2 mb-lg-0">{% trans "Portfolio" %}</h1>
-    <nav class="breadcrumbs">
+    <h1 class="mb-2 mb-lg-0 animate__animated animate__fadeInUp">{% trans "Portfolio" %}</h1>
+    <nav class="breadcrumbs animate__animated animate__fadeInRight">
       <ol>
         <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
         <li class="current">{% trans "Portfolio" %}</li>
@@ -20,64 +20,124 @@
 
 <!-- Portfolio Section -->
 <section id="portfolio" class="portfolio section">
-  <div class="container" data-aos="fade-up" data-aos-delay="100">
+  <div class="container" data-aos="fade-up">
     <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
       <div class="row">
-        <div class="col-lg-3 filter-sidebar">
+        <!-- Sidebar Filters -->
+        <div class="col-lg-3">
           <div class="filters-wrapper" data-aos="fade-right" data-aos-delay="150">
+            <h4 class="filters-title">
+              <i class="bi bi-funnel"></i> {% trans "Filter Projects" %}
+            </h4>
             <ul class="portfolio-filters isotope-filters">
-              <li data-filter="*" class="filter-active">{% trans "All Projects" %}</li>
+              <li data-filter="*" class="filter-active">
+                <i class="bi bi-grid-3x3-gap-fill"></i> {% trans "All Projects" %}
+                <span class="filter-count">{{ total_projects|default:portfolios.paginator.count }}</span>
+              </li>
               {% for category in categories %}
-                <li data-filter=".filter-{{ category.slug }}">{{ category.name }}</li>
+                <li data-filter=".filter-{{ category.slug }}">
+                  <i class="bi bi-folder"></i> {{ category.name }}
+                  <span class="filter-count">{{ category.portfolios.count }}</span>
+                </li>
               {% endfor %}
             </ul>
             
             <!-- Search Box -->
             <div class="search-box mt-4">
-              <h4>{% trans "Search" %}</h4>
-              <form method="get" action="{% url 'portfolio' %}">
+              <h5><i class="bi bi-search"></i> {% trans "Search Projects" %}</h5>
+              <form method="get" action="{% url 'portfolio' %}" class="search-form">
                 <div class="input-group">
-                  <input type="text" name="search" class="form-control" placeholder="{% trans 'Search projects...' %}" value="{{ search_query }}">
+                  <input type="text" name="search" class="form-control" placeholder="{% trans 'Search by title, client...' %}" value="{{ search_query }}">
                   <button class="btn btn-primary" type="submit">
                     <i class="bi bi-search"></i>
                   </button>
                 </div>
               </form>
+              {% if search_query %}
+                <div class="search-results-info mt-2">
+                  <small class="text-muted">
+                    {% trans "Found" %} {{ portfolios.paginator.count }} {% trans "results for" %} "{{ search_query }}"
+                    <a href="{% url 'portfolio' %}" class="clear-search">
+                      <i class="bi bi-x-circle"></i> {% trans "Clear" %}
+                    </a>
+                  </small>
+                </div>
+              {% endif %}
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats-box mt-4 p-3 rounded">
+              <h5><i class="bi bi-bar-chart"></i> {% trans "Statistics" %}</h5>
+              <div class="stat-item">
+                <span class="stat-label">{% trans "Total Projects" %}:</span>
+                <span class="stat-value">{{ total_projects|default:portfolios.paginator.count }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">{% trans "Categories" %}:</span>
+                <span class="stat-value">{{ categories|length }}</span>
+              </div>
             </div>
           </div>
         </div>
 
+        <!-- Portfolio Grid -->
         <div class="col-lg-9">
           <div class="row gy-4 portfolio-container isotope-container">
             {% for item in portfolios %}
               <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-{{ item.category.slug|default:'all' }}">
-                <div class="portfolio-wrap">
-                  {% if item.cover_image and item.cover_image.url %}
-                    <img src="{{ item.cover_image.url }}" class="img-fluid" alt="{{ item.title }}" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
-                  {% else %}
-                    <img src="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="img-fluid" alt="{{ item.title }}" loading="lazy">
-                  {% endif %}
-                  <div class="portfolio-info">
-                    <div class="content">
-                      <span class="category">{{ item.category.name|default:'Portfolio' }}</span>
-                      <h4>{{ item.title }}</h4>
-                      <div class="portfolio-links">
+                <div class="portfolio-card">
+                  <div class="card-img-wrapper">
+                    {% if item.cover_image and item.cover_image.url %}
+                      <img src="{{ item.cover_image.url }}" class="img-fluid" alt="{{ item.title }}" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
+                    {% else %}
+                      <img src="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="img-fluid" alt="{{ item.title }}" loading="lazy">
+                    {% endif %}
+                    <div class="card-overlay">
+                      <div class="overlay-buttons">
                         {% if item.cover_image and item.cover_image.url %}
-                          <a href="{{ item.cover_image.url }}" class="glightbox" title="{{ item.title }}"><i class="bi bi-plus-lg"></i></a>
+                          <a href="{{ item.cover_image.url }}" class="glightbox btn-icon" title="{{ item.title }}">
+                            <i class="bi bi-zoom-in"></i>
+                          </a>
                         {% else %}
-                          <a href="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="glightbox" title="{{ item.title }}"><i class="bi bi-plus-lg"></i></a>
+                          <a href="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="glightbox btn-icon" title="{{ item.title }}">
+                            <i class="bi bi-zoom-in"></i>
+                          </a>
                         {% endif %}
-                        <a href="{% url 'portfolio_detail' item.slug %}" title="{% trans 'More Details' %}"><i class="bi bi-arrow-right"></i></a>
+                        <a href="{% url 'portfolio_detail' item.slug %}" class="btn-icon" title="{% trans 'View Details' %}">
+                          <i class="bi bi-link-45deg"></i>
+                        </a>
                       </div>
+                    </div>
+                    {% if item.is_featured %}
+                      <span class="featured-badge">
+                        <i class="bi bi-star-fill"></i> {% trans "Featured" %}
+                      </span>
+                    {% endif %}
+                  </div>
+                  <div class="card-content">
+                    <span class="project-category">{{ item.category.name|default:_('Portfolio') }}</span>
+                    <h3 class="project-title">
+                      <a href="{% url 'portfolio_detail' item.slug %}">{{ item.title }}</a>
+                    </h3>
+                    <p class="project-description">{{ item.short_description|truncatechars:100 }}</p>
+                    <div class="card-footer">
+                      <a href="{% url 'portfolio_detail' item.slug %}" class="btn-details">
+                        {% trans "View Details" %}
+                        <i class="bi bi-arrow-right"></i>
+                      </a>
                     </div>
                   </div>
                 </div>
               </div>
             {% empty %}
-              <div class="col-12 text-center">
-                <div class="alert alert-info">
-                  <i class="bi bi-info-circle"></i>
-                  {% trans "No portfolio items found." %}
+              <div class="col-12">
+                <div class="empty-state text-center py-5">
+                  <i class="bi bi-inbox display-1 text-muted"></i>
+                  <h4 class="mt-3">{% trans "No projects found" %}</h4>
+                  <p class="text-muted">{% trans "Try adjusting your search or filter criteria." %}</p>
+                  <a href="{% url 'portfolio' %}" class="btn btn-primary">
+                    <i class="bi bi-arrow-repeat"></i> {% trans "Reset Filters" %}
+                  </a>
                 </div>
               </div>
             {% endfor %}
@@ -85,7 +145,7 @@
           
           <!-- Pagination -->
           {% if portfolios.has_other_pages %}
-            <div class="pagination-container mt-5">
+            <div class="pagination-wrapper mt-5">
               <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
                   {% if portfolios.has_previous %}
@@ -131,6 +191,327 @@
   </div>
 </section>
 
+<style>
+  /* Portfolio Page Styles */
+  
+  .filters-wrapper {
+    background: var(--surface-color);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 100px;
+  }
+  
+  .filters-title {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--accent-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .portfolio-filters {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .portfolio-filters li {
+    padding: 12px 15px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+  }
+  
+  .portfolio-filters li i {
+    margin-right: 10px;
+    font-size: 18px;
+  }
+  
+  .portfolio-filters li:hover {
+    background: color-mix(in srgb, var(--accent-color), transparent 88%);
+    transform: translateX(5px);
+  }
+  
+  body[dir="rtl"] .portfolio-filters li:hover {
+    transform: translateX(-5px);
+  }
+  
+  .portfolio-filters li.filter-active {
+    background: var(--accent-color);
+    color: var(--contrast-color);
+  }
+  
+  .filter-count {
+    background: color-mix(in srgb, var(--default-color), transparent 85%);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .filter-active .filter-count {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--contrast-color);
+  }
+  
+  .search-box h5 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+  
+  .clear-search {
+    margin-left: 10px;
+    color: var(--accent-color);
+    text-decoration: none;
+  }
+  
+  .stats-box {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-color), transparent 90%), var(--surface-color));
+    border: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
+  }
+  
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed color-mix(in srgb, var(--default-color), transparent 85%);
+  }
+  
+  .stat-item:last-child {
+    border-bottom: none;
+  }
+  
+  .stat-value {
+    font-weight: 700;
+    color: var(--accent-color);
+  }
+  
+  /* Portfolio Card */
+  .portfolio-card {
+    background: var(--surface-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  }
+  
+  .portfolio-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-img-wrapper {
+    position: relative;
+    overflow: hidden;
+    height: 250px;
+  }
+  
+  .card-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .portfolio-card:hover .card-img-wrapper img {
+    transform: scale(1.1);
+  }
+  
+  .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .card-img-wrapper:hover .card-overlay {
+    opacity: 1;
+  }
+  
+  .overlay-buttons {
+    display: flex;
+    gap: 15px;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+  }
+  
+  .card-img-wrapper:hover .overlay-buttons {
+    transform: translateY(0);
+  }
+  
+  .btn-icon {
+    width: 45px;
+    height: 45px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-icon:hover {
+    transform: scale(1.1);
+    background: color-mix(in srgb, var(--accent-color), black 10%);
+    color: white;
+  }
+  
+  .featured-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 2;
+  }
+  
+  .featured-badge i {
+    margin-right: 5px;
+  }
+  
+  .card-content {
+    padding: 20px;
+  }
+  
+  .project-category {
+    display: inline-block;
+    font-size: 12px;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+  }
+  
+  .project-title {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  
+  .project-title a {
+    color: var(--heading-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .project-title a:hover {
+    color: var(--accent-color);
+  }
+  
+  .project-description {
+    color: color-mix(in srgb, var(--default-color), transparent 20%);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+  }
+  
+  .card-footer {
+    padding-top: 15px;
+    border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  }
+  
+  .btn-details {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: gap 0.3s ease;
+  }
+  
+  .btn-details:hover {
+    gap: 12px;
+  }
+  
+  /* Empty State */
+  .empty-state {
+    background: var(--surface-color);
+    border-radius: 20px;
+    padding: 60px 20px;
+  }
+  
+  /* Pagination */
+  .pagination-wrapper {
+    margin-top: 40px;
+  }
+  
+  .pagination {
+    gap: 8px;
+  }
+  
+  .page-link {
+    border-radius: 12px !important;
+    padding: 10px 16px;
+    background: var(--surface-color);
+    color: var(--default-color);
+    border: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
+    transition: all 0.3s ease;
+  }
+  
+  .page-link:hover {
+    background: var(--accent-color);
+    color: var(--contrast-color);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+  }
+  
+  .page-item.active .page-link {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--contrast-color);
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .filters-wrapper {
+      position: static;
+      margin-bottom: 30px;
+    }
+    
+    .portfolio-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .portfolio-filters li {
+      margin-bottom: 0;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .card-img-wrapper {
+      height: 200px;
+    }
+    
+    .project-title {
+      font-size: 1rem;
+    }
+  }
+</style>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -141,38 +522,66 @@
     document.addEventListener('DOMContentLoaded', function() {
       // Initialize Isotope for portfolio filtering
       const portfolioContainer = document.querySelector('.portfolio-container');
-      if (portfolioContainer) {
+      if (portfolioContainer && typeof Isotope !== 'undefined') {
         // Wait for images to load
-        imagesLoaded(portfolioContainer, function() {
+        if (typeof imagesLoaded !== 'undefined') {
+          imagesLoaded(portfolioContainer, function() {
+            const iso = new Isotope(portfolioContainer, {
+              itemSelector: '.portfolio-item',
+              layoutMode: 'masonry',
+              percentPosition: true,
+              masonry: {
+                columnWidth: '.portfolio-item'
+              },
+              transitionDuration: '0.4s'
+            });
+            
+            // Filter buttons
+            const filters = document.querySelectorAll('.isotope-filters li');
+            filters.forEach(filter => {
+              filter.addEventListener('click', function(e) {
+                e.preventDefault();
+                const filterValue = this.getAttribute('data-filter');
+                filters.forEach(f => f.classList.remove('filter-active'));
+                this.classList.add('filter-active');
+                iso.arrange({ filter: filterValue });
+                
+                // Smooth scroll to top of portfolio section
+                const portfolioSection = document.getElementById('portfolio');
+                if (portfolioSection) {
+                  portfolioSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+              });
+            });
+          });
+        } else {
+          // Fallback if imagesLoaded is not available
           const iso = new Isotope(portfolioContainer, {
             itemSelector: '.portfolio-item',
             layoutMode: 'masonry',
-            percentPosition: true,
-            masonry: {
-              columnWidth: '.portfolio-item'
-            }
+            percentPosition: true
           });
-          
-          // Filter buttons
-          const filters = document.querySelectorAll('.isotope-filters li');
-          filters.forEach(filter => {
-            filter.addEventListener('click', function(e) {
-              e.preventDefault();
-              const filterValue = this.getAttribute('data-filter');
-              filters.forEach(f => f.classList.remove('filter-active'));
-              this.classList.add('filter-active');
-              iso.arrange({ filter: filterValue });
-            });
-          });
-        });
+        }
       }
       
       // Initialize GLightbox
-      const lightbox = GLightbox({
-        selector: '.glightbox',
-        touchNavigation: true,
-        loop: true,
-        autoplayVideos: true
+      if (typeof GLightbox !== 'undefined') {
+        const lightbox = GLightbox({
+          selector: '.glightbox',
+          touchNavigation: true,
+          loop: true,
+          autoplayVideos: true
+        });
+      }
+      
+      // Handle image loading errors
+      document.querySelectorAll('img').forEach(img => {
+        img.addEventListener('error', function() {
+          if (!this.hasAttribute('data-fallback')) {
+            this.setAttribute('data-fallback', 'true');
+            this.src = '{% static "assets/img/portfolio/placeholder.jpg" %}';
+          }
+        });
       });
     });
   })();
