@@ -30,8 +30,15 @@ RUN pipenv requirements > requirements.txt
 RUN pip3 install -r requirements.txt
 
 # create static dir
-RUN mkdir -p /usr/src/app/static/ && chmod 755 /usr/src/app/static/
+RUN mkdir -p /usr/src/app/static \
+             /usr/src/app/media \
+             /tmp/django_uploads && \
+    chmod -R 777 /usr/src/app/media \
+             /tmp/django_uploads \
+             /usr/src/app/static \
 RUN mkdir -p /s3files
+
+RUN python manage.py collectstatic --noinput || true
 
 # expose port
 EXPOSE 80
