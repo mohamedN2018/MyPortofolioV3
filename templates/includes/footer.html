@@ -1,17 +1,19 @@
 {% load i18n %}
+
 <footer id="footer" class="footer position-relative">
   <div class="container">
     <div class="copyright text-center">
       <p>
         © <span>{% trans "Copyright" %}</span> 
-        <strong class="px-1 sitename">{{ site_settings.site_name|default:'SnapFolio' }}</strong> 
-        <span>{% trans " All Rights Reserved" %}</span> <span class="text-success fw-bold"> {% trans "verstion 3.0.0" %}  </span>
+        <strong class="px-1 sitename">{{ site_settings.get_site_name|default:'SnapFolio' }}</strong> 
+        <span>{% trans "All Rights Reserved" %}</span> 
+        <span class="text-success fw-bold">{% trans "version 3.0.0" %}</span>
       </p>
     </div>
     <div class="credits text-center">
       {% trans "Designed by" %} <a href="https://bootstrapmade.com/" target="_blank">BootstrapMade</a>
-      {% if site_settings.footer_text %}
-        <br><small>{{ site_settings.footer_text }}</small>
+      {% if site_settings.get_footer_text %}
+        <br><small>{{ site_settings.get_footer_text }}</small>
       {% endif %}
     </div>
   </div>

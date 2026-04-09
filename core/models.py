@@ -1,17 +1,23 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.utils import translation
+from django.urls import reverse
+
 
 class Language(models.Model):
     """نموذج اللغات المدعومة"""
     code = models.CharField(max_length=10, unique=True)  # 'en', 'ar'
     name = models.CharField(max_length=50)  # 'English', 'العربية'
+    native_name = models.CharField(max_length=50, blank=True)  # 'English', 'العربية'
     is_default = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     direction = models.CharField(max_length=10, choices=[('ltr', 'LTR'), ('rtl', 'RTL')], default='ltr')
+    flag_icon = models.CharField(max_length=50, blank=True, help_text="FontAwesome or Bootstrap icon class")
     
     class Meta:
         verbose_name = _("Language")
         verbose_name_plural = _("Languages")
+        ordering = ['name']
     
     def __str__(self):
         return self.name
@@ -21,28 +27,32 @@ class Language(models.Model):
             Language.objects.filter(is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
 
-class TranslationMixin(models.Model):
-    """Mixin للترجمات - كل المحتوى القابل للترجمة يرث هذا"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name="%(class)s_set")
+
+class TranslatableModel(models.Model):
+    """Model base للترجمة"""
+    language = models.ForeignKey(Language, on_delete=models.CASCADE)
     
     class Meta:
         abstract = True
-        unique_together = [('language', 'content_type', 'object_id')]
 
-# ========== المحتوى الأساسي ==========
 
 class SiteSetting(models.Model):
-    """إعدادات الموقع العامة - يمكن تعديلها من لوحة التحكم"""
-    # معلومات أساسية
-    site_name = models.CharField(max_length=100, default="SnapFolio")
+    """إعدادات الموقع العامة - متعددة اللغات"""
+    # حقول غير مترجمة
     site_logo = models.ImageField(upload_to='logo/', blank=True, null=True)
     favicon = models.ImageField(upload_to='favicon/', blank=True, null=True)
-    footer_text = models.CharField(max_length=200, blank=True)
     
-    # إعدادات التواصل
+    # حقول مترجمة
+    site_name_ar = models.CharField(max_length=100, default="سناب فوليو", verbose_name="Site Name (Arabic)")
+    site_name_en = models.CharField(max_length=100, default="SnapFolio", verbose_name="Site Name (English)")
+    footer_text_ar = models.CharField(max_length=200, blank=True, verbose_name="Footer Text (Arabic)")
+    footer_text_en = models.CharField(max_length=200, blank=True, verbose_name="Footer Text (English)")
+    
+    # إعدادات التواصل (غير مترجمة)
     contact_email = models.EmailField(default="snapfolio@gmail.com")
     contact_phone = models.CharField(max_length=20, blank=True)
-    contact_address = models.TextField(blank=True)
+    contact_address_ar = models.TextField(blank=True, verbose_name="Address (Arabic)")
+    contact_address_en = models.TextField(blank=True, verbose_name="Address (English)")
     
     # روابط التواصل الاجتماعي
     facebook_url = models.URLField(blank=True)
@@ -61,7 +71,28 @@ class SiteSetting(models.Model):
         verbose_name_plural = _("Site Settings")
     
     def __str__(self):
-        return self.site_name
+        return self.get_site_name()
+    
+    def get_site_name(self):
+        """جلب اسم الموقع حسب اللغة الحالية"""
+        current_lang = translation.get_language()
+        if current_lang == 'ar' and self.site_name_ar:
+            return self.site_name_ar
+        return self.site_name_en or self.site_name_ar
+    
+    def get_footer_text(self):
+        """جلب نص الفوتر حسب اللغة الحالية"""
+        current_lang = translation.get_language()
+        if current_lang == 'ar' and self.footer_text_ar:
+            return self.footer_text_ar
+        return self.footer_text_en or self.footer_text_ar
+    
+    def get_contact_address(self):
+        """جلب العنوان حسب اللغة الحالية"""
+        current_lang = translation.get_language()
+        if current_lang == 'ar' and self.contact_address_ar:
+            return self.contact_address_ar
+        return self.contact_address_en or self.contact_address_ar
 
 class DynamicSection(models.Model):
     """أقسام الموقع - يمكنك إضافة أي قسم تريده"""
@@ -122,12 +153,10 @@ class SectionContent(models.Model):
 
 # ========== المعلومات الشخصية ==========
 
-class PersonalInfo(models.Model):
-    """المعلومات الشخصية - متعددة اللغات"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='personal_infos')
-    
+class PersonalInfo(TranslatableModel):
+    """المعلومات الشخصية - مترجمة"""
     name = models.CharField(max_length=100)
-    title = models.CharField(max_length=200)  # Web Designer, Developer
+    title = models.CharField(max_length=200)
     bio = models.TextField()
     short_bio = models.CharField(max_length=300, blank=True)
     
@@ -141,7 +170,7 @@ class PersonalInfo(models.Model):
     profile_image = models.ImageField(upload_to='profile/', blank=True, null=True)
     resume_file = models.FileField(upload_to='resume/', blank=True, null=True)
     
-    # كلمات مفتاحية للسيرة
+    # كلمات مفتاحية
     keywords = models.CharField(max_length=500, blank=True, help_text="SEO keywords")
     
     class Meta:
@@ -151,21 +180,23 @@ class PersonalInfo(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.language.name}"
+    
+    def get_absolute_url(self):
+        return reverse('personal_info', args=[self.language.code])
+    
 
 # ========== التعليم ==========
 
-class Education(models.Model):
-    """الشهادات التعليمية - متعددة اللغات"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='educations')
-    
-    degree = models.CharField(max_length=200)  # Bachelor of Science
-    field_of_study = models.CharField(max_length=200)  # Computer Science
-    institution = models.CharField(max_length=200)  # University name
+class Education(TranslatableModel):
+    """الشهادات التعليمية - مترجمة"""
+    degree = models.CharField(max_length=200)
+    field_of_study = models.CharField(max_length=200)
+    institution = models.CharField(max_length=200)
     start_year = models.IntegerField()
     end_year = models.IntegerField(null=True, blank=True)
     is_current = models.BooleanField(default=False)
     description = models.TextField(blank=True)
-    grade = models.CharField(max_length=50, blank=True)  # GPA, Grade
+    grade = models.CharField(max_length=50, blank=True)
     order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     
@@ -177,12 +208,15 @@ class Education(models.Model):
     def __str__(self):
         return f"{self.degree} - {self.institution}"
 
+    def get_absolute_url(self):
+        return reverse('education', args=[self.language.code])
+
+
 # ========== الخبرات العملية ==========
 
-class WorkExperience(models.Model):
-    """الخبرات المهنية - متعددة اللغات"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='work_experiences')
-    
+
+class WorkExperience(TranslatableModel):
+    """الخبرات المهنية - مترجمة"""
     job_title = models.CharField(max_length=200)
     company_name = models.CharField(max_length=200)
     company_website = models.URLField(blank=True)
@@ -190,8 +224,8 @@ class WorkExperience(models.Model):
     end_date = models.DateField(null=True, blank=True)
     is_current = models.BooleanField(default=False)
     description = models.TextField()
-    achievements = models.JSONField(default=list, help_text="قائمة بالإنجازات")
-    technologies = models.CharField(max_length=500, blank=True, help_text="التقنيات المستخدمة")
+    achievements = models.JSONField(default=list)
+    technologies = models.CharField(max_length=500, blank=True)
     order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
     
@@ -203,12 +237,14 @@ class WorkExperience(models.Model):
     def __str__(self):
         return f"{self.job_title} at {self.company_name}"
 
+    def get_absolute_url(self):
+        return reverse('work_experience', args=[self.language.code])
+
 # ========== المهارات ==========
 
-class SkillCategory(models.Model):
-    """فئات المهارات"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='skill_categories')
-    name = models.CharField(max_length=100)  # Front-End, Back-End, Design
+class SkillCategory(TranslatableModel):
+    """فئات المهارات - مترجمة"""
+    name = models.CharField(max_length=100)
     icon = models.CharField(max_length=50, blank=True)
     order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
@@ -220,12 +256,12 @@ class SkillCategory(models.Model):
     def __str__(self):
         return self.name
 
-class Skill(models.Model):
-    """المهارات الفردية"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='skills')
+
+class Skill(TranslatableModel):
+    """المهارات الفردية - مترجمة"""
     category = models.ForeignKey(SkillCategory, on_delete=models.CASCADE, related_name='skills')
     
-    name = models.CharField(max_length=100)  # JavaScript, Python, React
+    name = models.CharField(max_length=100)
     proficiency = models.IntegerField(default=80, help_text="Percentage 0-100")
     years_of_experience = models.DecimalField(max_digits=3, decimal_places=1, default=0)
     icon = models.CharField(max_length=50, blank=True)
@@ -241,23 +277,25 @@ class Skill(models.Model):
     def __str__(self):
         return self.name
 
+
+
+
 # ========== الخدمات ==========
 
-class Service(models.Model):
-    """الخدمات المقدمة - متعددة اللغات"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='services')
-    
+
+class Service(TranslatableModel):
+    """الخدمات المقدمة - مترجمة"""
     title = models.CharField(max_length=200)
     short_description = models.CharField(max_length=300)
     full_description = models.TextField()
-    icon = models.CharField(max_length=50, blank=True)  # Bootstrap icon or FontAwesome
+    icon = models.CharField(max_length=50, blank=True)
     image = models.ImageField(upload_to='services/', blank=True, null=True)
     
     # قائمة مميزات الخدمة
     features = models.JSONField(default=list, help_text="قائمة مميزات الخدمة")
     
     # SEO
-    slug = models.SlugField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=200)
     meta_title = models.CharField(max_length=200, blank=True)
     meta_description = models.CharField(max_length=500, blank=True)
     
@@ -267,11 +305,13 @@ class Service(models.Model):
     
     class Meta:
         ordering = ['order']
+        unique_together = [('slug', 'language')]
         verbose_name = _("Service")
         verbose_name_plural = _("Services")
     
     def __str__(self):
         return self.title
+
 
 class ServiceDetail(models.Model):
     """تفاصيل إضافية للخدمة - محتوى طويل"""
@@ -297,27 +337,28 @@ class ServiceDetail(models.Model):
 
 # ========== المشاريع (Portfolio) ==========
 
-class PortfolioCategory(models.Model):
-    """فئات المشاريع"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='portfolio_categories')
+class PortfolioCategory(TranslatableModel):
+    """فئات المشاريع - مترجمة"""
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100)
     order = models.IntegerField(default=0)
     
     class Meta:
+        unique_together = [('slug', 'language')]
         verbose_name_plural = "Portfolio Categories"
     
     def __str__(self):
         return self.name
 
-class Portfolio(models.Model):
-    """المشاريع - متعددة اللغات"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='portfolios')
+
+
+class Portfolio(TranslatableModel):
+    """المشاريع - مترجمة"""
     category = models.ForeignKey(PortfolioCategory, on_delete=models.SET_NULL, null=True, related_name='portfolios')
     
     # معلومات أساسية
     title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=200)
     client_name = models.CharField(max_length=200)
     project_date = models.DateField()
     project_url = models.URLField(blank=True, help_text="رابط المشروع المباشر")
@@ -331,14 +372,14 @@ class Portfolio(models.Model):
     
     # صور وفيديوهات
     cover_image = models.ImageField(upload_to='portfolio/cover/')
-    gallery_images = models.JSONField(default=list, blank=True, null=True, help_text="قائمة بمسارات الصور")
+    gallery_images = models.JSONField(default=list, blank=True, null=True)
     video_url = models.URLField(blank=True)
     
     # تقنيات مستخدمة
-    technologies = models.JSONField(default=list, help_text="قائمة التقنيات المستخدمة")
+    technologies = models.JSONField(default=list)
     
     # إحصائيات المشروع
-    project_duration = models.CharField(max_length=100, blank=True)  # "3 months"
+    project_duration = models.CharField(max_length=100, blank=True)
     team_size = models.IntegerField(default=1)
     
     # SEO
@@ -351,11 +392,14 @@ class Portfolio(models.Model):
     
     class Meta:
         ordering = ['-project_date', 'order']
+        unique_together = [('slug', 'language')]
         verbose_name = _("Portfolio")
         verbose_name_plural = _("Portfolios")
     
     def __str__(self):
         return self.title
+
+
 
 class PortfolioFeature(models.Model):
     """ميزات المشروع - كل مشروع يمكن أن يكون له عدة ميزات"""
@@ -377,10 +421,8 @@ class PortfolioFeature(models.Model):
 
 # ========== الشهادات (Testimonials) ==========
 
-class Testimonial(models.Model):
-    """آراء العملاء - متعددة اللغات"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='testimonials')
-    
+class Testimonial(TranslatableModel):
+    """آراء العملاء - مترجمة"""
     client_name = models.CharField(max_length=200)
     client_position = models.CharField(max_length=200, blank=True)
     client_company = models.CharField(max_length=200, blank=True)
@@ -400,25 +442,33 @@ class Testimonial(models.Model):
     def __str__(self):
         return f"{self.client_name} - {self.rating}★"
 
+
+
 # ========== المدونة / المقالات ==========
 
-class BlogCategory(models.Model):
-    """فئات المقالات - متعددة اللغات"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='blog_categories')
+class BlogCategory(TranslatableModel):
+    """فئات المقالات - مترجمة"""
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100)
     description = models.TextField(blank=True)
     
+    class Meta:
+        unique_together = [('slug', 'language')]
+        verbose_name_plural = "Blog Categories"
+    
     def __str__(self):
         return self.name
+    
+    def get_absolute_url(self):
+        return reverse('blog_category', args=[self.slug])
 
-class BlogPost(models.Model):
-    """المقالات - متعددة اللغات"""
-    language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='blog_posts')
+
+class BlogPost(TranslatableModel):
+    """المقالات - مترجمة"""
     category = models.ForeignKey(BlogCategory, on_delete=models.SET_NULL, null=True, related_name='posts')
     
     title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=200)
     excerpt = models.CharField(max_length=500)
     content = models.TextField()
     featured_image = models.ImageField(upload_to='blog/')
@@ -427,7 +477,7 @@ class BlogPost(models.Model):
     author_image = models.ImageField(upload_to='authors/', blank=True, null=True)
     
     views_count = models.IntegerField(default=0)
-    tags = models.CharField(max_length=500, blank=True, help_text="Tags separated by commas")
+    tags = models.CharField(max_length=500, blank=True)
     
     # SEO
     meta_title = models.CharField(max_length=200, blank=True)
@@ -439,11 +489,16 @@ class BlogPost(models.Model):
     
     class Meta:
         ordering = ['-published_date']
+        unique_together = [('slug', 'language')]
         verbose_name = _("Blog Post")
         verbose_name_plural = _("Blog Posts")
     
     def __str__(self):
         return self.title
+    
+    def get_absolute_url(self):
+        return reverse('blog_detail', args=[self.slug])
+
 
 # ========== جهات الاتصال (Contact Messages) ==========
 

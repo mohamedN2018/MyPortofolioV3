@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static i18n %}
 
-{% block title %}{% trans "Portfolio" %} | {{ site_settings.site_name }}{% endblock %}
+{% block title %}{% trans "Portfolio" %} | {{ site_settings.get_site_name }}{% endblock %}
 
 {% block content %}
 
@@ -31,6 +31,19 @@
                 <li data-filter=".filter-{{ category.slug }}">{{ category.name }}</li>
               {% endfor %}
             </ul>
+            
+            <!-- Search Box -->
+            <div class="search-box mt-4">
+              <h4>{% trans "Search" %}</h4>
+              <form method="get" action="{% url 'portfolio' %}">
+                <div class="input-group">
+                  <input type="text" name="search" class="form-control" placeholder="{% trans 'Search projects...' %}" value="{{ search_query }}">
+                  <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
 
@@ -39,14 +52,22 @@
             {% for item in portfolios %}
               <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-{{ item.category.slug|default:'all' }}">
                 <div class="portfolio-wrap">
-                  <img src="{{ item.cover_image.url }}" class="img-fluid" alt="{{ item.title }}" loading="lazy">
+                  {% if item.cover_image and item.cover_image.url %}
+                    <img src="{{ item.cover_image.url }}" class="img-fluid" alt="{{ item.title }}" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
+                  {% else %}
+                    <img src="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="img-fluid" alt="{{ item.title }}" loading="lazy">
+                  {% endif %}
                   <div class="portfolio-info">
                     <div class="content">
                       <span class="category">{{ item.category.name|default:'Portfolio' }}</span>
                       <h4>{{ item.title }}</h4>
                       <div class="portfolio-links">
-                        <a href="{{ item.cover_image.url }}" class="glightbox" title="{{ item.title }}"><i class="bi bi-plus-lg"></i></a>
-                        <a href="{% url 'portfolio_detail' item.slug %}" title="More Details"><i class="bi bi-arrow-right"></i></a>
+                        {% if item.cover_image and item.cover_image.url %}
+                          <a href="{{ item.cover_image.url }}" class="glightbox" title="{{ item.title }}"><i class="bi bi-plus-lg"></i></a>
+                        {% else %}
+                          <a href="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="glightbox" title="{{ item.title }}"><i class="bi bi-plus-lg"></i></a>
+                        {% endif %}
+                        <a href="{% url 'portfolio_detail' item.slug %}" title="{% trans 'More Details' %}"><i class="bi bi-arrow-right"></i></a>
                       </div>
                     </div>
                   </div>
@@ -54,7 +75,10 @@
               </div>
             {% empty %}
               <div class="col-12 text-center">
-                <p>{% trans "No portfolio items found." %}</p>
+                <div class="alert alert-info">
+                  <i class="bi bi-info-circle"></i>
+                  {% trans "No portfolio items found." %}
+                </div>
               </div>
             {% endfor %}
           </div>
@@ -65,17 +89,37 @@
               <nav aria-label="Page navigation">
                 <ul class="pagination justify-content-center">
                   {% if portfolios.has_previous %}
-                    <li class="page-item"><a class="page-link" href="?page={{ portfolios.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">&laquo;</a></li>
+                    <li class="page-item">
+                      <a class="page-link" href="?page={{ portfolios.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">
+                        <i class="bi bi-chevron-{% if current_language.direction == 'rtl' %}right{% else %}left{% endif %}"></i>
+                      </a>
+                    </li>
+                  {% else %}
+                    <li class="page-item disabled">
+                      <span class="page-link"><i class="bi bi-chevron-{% if current_language.direction == 'rtl' %}right{% else %}left{% endif %}"></i></span>
+                    </li>
                   {% endif %}
+                  
                   {% for i in portfolios.paginator.page_range %}
                     {% if portfolios.number == i %}
                       <li class="page-item active"><span class="page-link">{{ i }}</span></li>
-                    {% else %}
-                      <li class="page-item"><a class="page-link" href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a></li>
+                    {% elif i > portfolios.number|add:'-3' and i < portfolios.number|add:'3' %}
+                      <li class="page-item">
+                        <a class="page-link" href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">{{ i }}</a>
+                      </li>
                     {% endif %}
                   {% endfor %}
+                  
                   {% if portfolios.has_next %}
-                    <li class="page-item"><a class="page-link" href="?page={{ portfolios.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">&raquo;</a></li>
+                    <li class="page-item">
+                      <a class="page-link" href="?page={{ portfolios.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">
+                        <i class="bi bi-chevron-{% if current_language.direction == 'rtl' %}left{% else %}right{% endif %}"></i>
+                      </a>
+                    </li>
+                  {% else %}
+                    <li class="page-item disabled">
+                      <span class="page-link"><i class="bi bi-chevron-{% if current_language.direction == 'rtl' %}left{% else %}right{% endif %}"></i></span>
+                    </li>
                   {% endif %}
                 </ul>
               </nav>
@@ -87,4 +131,50 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function() {
+    'use strict';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize Isotope for portfolio filtering
+      const portfolioContainer = document.querySelector('.portfolio-container');
+      if (portfolioContainer) {
+        // Wait for images to load
+        imagesLoaded(portfolioContainer, function() {
+          const iso = new Isotope(portfolioContainer, {
+            itemSelector: '.portfolio-item',
+            layoutMode: 'masonry',
+            percentPosition: true,
+            masonry: {
+              columnWidth: '.portfolio-item'
+            }
+          });
+          
+          // Filter buttons
+          const filters = document.querySelectorAll('.isotope-filters li');
+          filters.forEach(filter => {
+            filter.addEventListener('click', function(e) {
+              e.preventDefault();
+              const filterValue = this.getAttribute('data-filter');
+              filters.forEach(f => f.classList.remove('filter-active'));
+              this.classList.add('filter-active');
+              iso.arrange({ filter: filterValue });
+            });
+          });
+        });
+      }
+      
+      // Initialize GLightbox
+      const lightbox = GLightbox({
+        selector: '.glightbox',
+        touchNavigation: true,
+        loop: true,
+        autoplayVideos: true
+      });
+    });
+  })();
+</script>
 {% endblock %}

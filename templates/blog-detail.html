@@ -1,19 +1,104 @@
 {% extends 'base.html' %}
-{% load static i18n %}
+{% load static i18n  %}
 
-{% block title %}{{ post.title }} | {% trans "Blog" %}{% endblock %}
+{% block title %}{{ post.title }} | {% trans "Blog" %} | {{ site_settings.get_site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .post-content {
+    font-size: 1.05rem;
+    line-height: 1.8;
+  }
+  
+  .post-content h1, .post-content h2, .post-content h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: var(--heading-color);
+  }
+  
+  .post-content h1 { font-size: 2rem; }
+  .post-content h2 { font-size: 1.75rem; }
+  .post-content h3 { font-size: 1.5rem; }
+  
+  .post-content p {
+    margin-bottom: 1.25rem;
+    color: var(--default-color);
+  }
+  
+  .post-content ul, .post-content ol {
+    margin-bottom: 1.25rem;
+    padding-left: 1.5rem;
+  }
+  
+  .post-content li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .post-content code {
+    background: color-mix(in srgb, var(--accent-color), transparent 85%);
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--accent-color);
+  }
+  
+  .post-content pre {
+    background: var(--surface-color);
+    padding: 1rem;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin-bottom: 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
+  }
+  
+  .post-content blockquote {
+    border-left: 4px solid var(--accent-color);
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    background: color-mix(in srgb, var(--accent-color), transparent 92%);
+    border-radius: 12px;
+    font-style: italic;
+  }
+  
+  body[dir="rtl"] .post-content blockquote {
+    border-left: none;
+    border-right: 4px solid var(--accent-color);
+  }
+  
+  .post-content img {
+    max-width: 100%;
+    border-radius: 12px;
+    margin: 1.5rem 0;
+  }
+  
+  /* Reading Progress Bar */
+  .reading-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 4px;
+    background: var(--accent-color);
+    z-index: 10000;
+    transition: width 0.1s ease;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
+
+<!-- Reading Progress Bar -->
+<div class="reading-progress-bar" id="readingProgressBar"></div>
 
 <!-- Page Title -->
 <div class="page-title dark-background">
   <div class="container d-lg-flex justify-content-between align-items-center">
-    <h1 class="mb-2 mb-lg-0">{% trans "Blog Details" %}</h1>
-    <nav class="breadcrumbs">
+    <h1 class="mb-2 mb-lg-0 animate__animated animate__fadeInUp">{% trans "Blog Details" %}</h1>
+    <nav class="breadcrumbs animate__animated animate__fadeInRight">
       <ol>
         <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
         <li><a href="{% url 'blog' %}">{% trans "Blog" %}</a></li>
-        <li class="current">{{ post.title }}</li>
+        <li class="current">{{ post.title|truncatechars:50 }}</li>
       </ol>
     </nav>
   </div>
@@ -21,99 +106,228 @@
 
 <!-- Blog Details Section -->
 <section id="blog-details" class="blog-details section">
-  <div class="container" data-aos="fade-up" data-aos-delay="100">
+  <div class="container" data-aos="fade-up">
     <div class="row gy-4">
+      <!-- Main Content -->
       <div class="col-lg-8">
-        <article class="blog-post">
-          <div class="post-img mb-4">
-            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid w-100">
+        <article class="blog-post-detail">
+          <!-- Featured Image -->
+          <div class="post-img-wrapper mb-4">
+            {% if post.featured_image and post.featured_image.url %}
+              <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid w-100 featured-image">
+            {% else %}
+              <img src="{% static 'assets/img/blog/placeholder-large.jpg' %}" alt="{{ post.title }}" class="img-fluid w-100 featured-image">
+            {% endif %}
           </div>
           
-          <div class="meta d-flex gap-3 mb-4">
-            <span><i class="bi bi-calendar"></i> {{ post.published_date|date:"F d, Y" }}</span>
-            <span><i class="bi bi-person"></i> {{ post.author_name }}</span>
-            <span><i class="bi bi-folder"></i> {{ post.category.name }}</span>
-            <span><i class="bi bi-eye"></i> {{ post.views_count }} {% trans "views" %}</span>
+          <!-- Post Meta -->
+          <div class="post-meta d-flex flex-wrap gap-3 mb-4">
+            <div class="meta-item">
+              <i class="bi bi-calendar3"></i>
+              <span>{{ post.published_date|date:"F d, Y" }}</span>
+            </div>
+            <div class="meta-item">
+              <i class="bi bi-person-circle"></i>
+              <span>{{ post.author_name }}</span>
+            </div>
+            {% if post.category %}
+              <div class="meta-item">
+                <i class="bi bi-folder2"></i>
+                <a href="{% url 'blog_category' post.category.slug %}">{{ post.category.name }}</a>
+              </div>
+            {% endif %}
+            <div class="meta-item">
+              <i class="bi bi-eye"></i>
+              <span>{{ post.views_count }} {% trans "views" %}</span>
+            </div>
+            <div class="meta-item">
+                <i class="bi bi-clock"></i>
+                <span>
+                    {% trans "Reading time" %}:
+                    {% with words=post.content|wordcount %}
+                        {% if words > 0 %}
+                            {% widthratio words 200 1 as minutes %}
+                            {% if minutes < 1 %}1{% else %}{{ minutes }}{% endif %}
+                        {% else %}
+                            1
+                        {% endif %}
+                    {% endwith %}
+                    {% trans "min" %}
+                </span>
+            </div>
           </div>
           
+          <!-- Post Title -->
           <h1 class="post-title mb-4">{{ post.title }}</h1>
           
+          <!-- Post Content -->
           <div class="post-content">
             {{ post.content|safe|linebreaks }}
           </div>
           
+          <!-- Tags -->
           {% if post.tags %}
-            <div class="post-tags mt-4">
-              <strong>{% trans "Tags" %}:</strong>
-              {% for tag in post.tags.split %}
-                <span class="badge bg-secondary">{{ tag }}</span>
+            <div class="post-tags mt-4 pt-3">
+              <strong class="me-2"><i class="bi bi-tag"></i> {% trans "Tags" %}:</strong>
+              {% for tag in post.tags.split|slice:":10" %}
+                <a href="{% url 'blog' %}?search={{ tag }}" class="tag-badge">{{ tag }}</a>
               {% endfor %}
             </div>
           {% endif %}
+          
+          <!-- Share Buttons -->
+          <div class="share-buttons mt-4 pt-3">
+            <strong class="me-3"><i class="bi bi-share"></i> {% trans "Share" %}:</strong>
+            <div class="share-icons d-inline-flex gap-2">
+              <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="share-btn facebook">
+                <i class="bi bi-facebook"></i>
+              </a>
+              <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ post.title }}" target="_blank" class="share-btn twitter">
+                <i class="bi bi-twitter-x"></i>
+              </a>
+              <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ post.title }}" target="_blank" class="share-btn linkedin">
+                <i class="bi bi-linkedin"></i>
+              </a>
+              <a href="https://wa.me/?text={{ post.title }}%20{{ request.build_absolute_uri }}" target="_blank" class="share-btn whatsapp">
+                <i class="bi bi-whatsapp"></i>
+              </a>
+            </div>
+          </div>
         </article>
         
         <!-- Post Navigation -->
-        <div class="post-navigation d-flex justify-content-between mt-5 pt-4 border-top">
+        <div class="post-navigation d-flex justify-content-between mt-5 pt-4">
           {% if previous_post %}
-            <a href="{% url 'blog_detail' previous_post.slug %}" class="prev-post">
-              <i class="bi bi-arrow-left"></i> {{ previous_post.title|truncatechars:50 }}
+            <a href="{% url 'blog_detail' previous_post.slug %}" class="nav-post prev-post">
+              <span class="nav-label"><i class="bi bi-arrow-left"></i> {% trans "Previous Post" %}</span>
+              <span class="nav-title">{{ previous_post.title|truncatechars:50 }}</span>
             </a>
+          {% else %}
+            <div></div>
           {% endif %}
+          
           {% if next_post %}
-            <a href="{% url 'blog_detail' next_post.slug %}" class="next-post ms-auto">
-              {{ next_post.title|truncatechars:50 }} <i class="bi bi-arrow-right"></i>
+            <a href="{% url 'blog_detail' next_post.slug %}" class="nav-post next-post text-end">
+              <span class="nav-label">{% trans "Next Post" %} <i class="bi bi-arrow-right"></i></span>
+              <span class="nav-title">{{ next_post.title|truncatechars:50 }}</span>
             </a>
           {% endif %}
         </div>
       </div>
       
+      <!-- Sidebar -->
       <div class="col-lg-4">
         <div class="sidebar">
-          <div class="sidebar-widget mb-4">
-            <h4>{% trans "Search" %}</h4>
-            <form action="{% url 'blog' %}" method="get">
-              <input type="text" name="search" class="form-control" placeholder="{% trans 'Search posts...' %}">
+          <!-- Search Widget -->
+          <div class="sidebar-widget" data-aos="fade-up" data-aos-delay="100">
+            <h4 class="widget-title">
+              <i class="bi bi-search"></i>
+              {% trans "Search" %}
+            </h4>
+            <form action="{% url 'blog' %}" method="get" class="search-form">
+              <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="{% trans 'Search posts...' %}">
+                <button class="btn btn-primary" type="submit">
+                  <i class="bi bi-search"></i>
+                </button>
+              </div>
             </form>
           </div>
           
-          <div class="sidebar-widget mb-4">
-            <h4>{% trans "Categories" %}</h4>
-            <ul class="list-unstyled">
+          <!-- Categories Widget -->
+          {% if categories %}
+          <div class="sidebar-widget" data-aos="fade-up" data-aos-delay="150">
+            <h4 class="widget-title">
+              <i class="bi bi-folder2"></i>
+              {% trans "Categories" %}
+            </h4>
+            <ul class="category-list">
               {% for category in categories %}
-                <li><a href="{% url 'blog_category' category.slug %}">{{ category.name }}</a> <span class="badge">{{ category.post_count }}</span></li>
+                <li>
+                  <a href="{% url 'blog_category' category.slug %}">
+                    <i class="bi bi-chevron-{% if current_language.direction == 'rtl' %}left{% else %}right{% endif %}"></i>
+                    {{ category.name }}
+                  </a>
+                  <span class="count">{{ category.post_count }}</span>
+                </li>
               {% endfor %}
             </ul>
           </div>
+          {% endif %}
           
-          <div class="sidebar-widget">
-            <h4>{% trans "Recent Posts" %}</h4>
-            {% for recent in recent_posts %}
-              <div class="recent-post mb-3">
-                <a href="{% url 'blog_detail' recent.slug %}">{{ recent.title }}</a>
-                <small>{{ recent.published_date|date:"M d, Y" }}</small>
-              </div>
-            {% endfor %}
+          <!-- Recent Posts Widget -->
+          {% if recent_posts %}
+          <div class="sidebar-widget" data-aos="fade-up" data-aos-delay="200">
+            <h4 class="widget-title">
+              <i class="bi bi-clock-history"></i>
+              {% trans "Recent Posts" %}
+            </h4>
+            <ul class="recent-posts-list">
+              {% for recent in recent_posts %}
+                <li>
+                  <a href="{% url 'blog_detail' recent.slug %}" class="recent-post-item">
+                    <div class="recent-post-img">
+                      {% if recent.featured_image and recent.featured_image.url %}
+                        <img src="{{ recent.featured_image.url }}" alt="{{ recent.title }}">
+                      {% else %}
+                        <img src="{% static 'assets/img/blog/placeholder-thumb.jpg' %}" alt="{{ recent.title }}">
+                      {% endif %}
+                    </div>
+                    <div class="recent-post-content">
+                      <h5>{{ recent.title|truncatechars:50 }}</h5>
+                      <span class="recent-post-date">
+                        <i class="bi bi-calendar3"></i>
+                        {{ recent.published_date|date:"M d, Y" }}
+                      </span>
+                    </div>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
           </div>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
 </section>
 
+<!-- Related Posts Section -->
 {% if related_posts %}
-<section class="related-posts section">
-  <div class="container">
-    <div class="section-title" data-aos="fade-up">
+<section class="related-posts section light-background">
+  <div class="container" data-aos="fade-up">
+    <div class="section-title">
       <h2>{% trans "Related Posts" %}</h2>
+      <p>{% trans "You might also like these articles" %}</p>
     </div>
     <div class="row gy-4">
       {% for related in related_posts %}
-        <div class="col-lg-4 col-md-6">
-          <div class="blog-card">
-            <img src="{{ related.featured_image.url }}" alt="{{ related.title }}" class="img-fluid">
-            <div class="content p-3">
-              <h5><a href="{% url 'blog_detail' related.slug %}">{{ related.title|truncatechars:60 }}</a></h5>
-              <small>{{ related.published_date|date:"M d, Y" }}</small>
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
+          <div class="related-post-card">
+            <div class="card-img-wrapper">
+              {% if related.featured_image and related.featured_image.url %}
+                <img src="{{ related.featured_image.url }}" alt="{{ related.title }}" class="img-fluid">
+              {% else %}
+                <img src="{% static 'assets/img/blog/placeholder.jpg' %}" alt="{{ related.title }}" class="img-fluid">
+              {% endif %}
+              <div class="card-overlay">
+                <a href="{% url 'blog_detail' related.slug %}" class="btn-overlay">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-content">
+              <span class="post-date">
+                <i class="bi bi-calendar3"></i>
+                {{ related.published_date|date:"M d, Y" }}
+              </span>
+              <h4>
+                <a href="{% url 'blog_detail' related.slug %}">{{ related.title|truncatechars:60 }}</a>
+              </h4>
+              <a href="{% url 'blog_detail' related.slug %}" class="read-more">
+                {% trans "Read More" %}
+                <i class="bi bi-arrow-right"></i>
+              </a>
             </div>
           </div>
         </div>
@@ -123,4 +337,263 @@
 </section>
 {% endif %}
 
+<style>
+  /* Blog Detail Page Styles */
+  
+  .blog-post-detail {
+    background: var(--surface-color);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  }
+  
+  .featured-image {
+    border-radius: 16px;
+    transition: transform 0.3s ease;
+  }
+  
+  .featured-image:hover {
+    transform: scale(1.02);
+  }
+  
+  .post-meta .meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    background: color-mix(in srgb, var(--accent-color), transparent 90%);
+    border-radius: 30px;
+    font-size: 13px;
+  }
+  
+  .post-meta .meta-item i {
+    color: var(--accent-color);
+  }
+  
+  .post-meta .meta-item a {
+    color: var(--default-color);
+    text-decoration: none;
+  }
+  
+  .post-meta .meta-item a:hover {
+    color: var(--accent-color);
+  }
+  
+  .post-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--heading-color);
+    line-height: 1.3;
+  }
+  
+  /* Tags */
+  .tag-badge {
+    display: inline-block;
+    padding: 5px 12px;
+    background: color-mix(in srgb, var(--accent-color), transparent 85%);
+    color: var(--accent-color);
+    border-radius: 20px;
+    font-size: 12px;
+    text-decoration: none;
+    margin: 0 3px;
+    transition: all 0.3s ease;
+  }
+  
+  .tag-badge:hover {
+    background: var(--accent-color);
+    color: var(--contrast-color);
+    transform: translateY(-2px);
+  }
+  
+  /* Share Buttons */
+  .share-btn {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .share-btn:hover {
+    transform: translateY(-3px);
+  }
+  
+  .share-btn.facebook { background: #1877f2; }
+  .share-btn.twitter { background: #000000; }
+  .share-btn.linkedin { background: #0077b5; }
+  .share-btn.whatsapp { background: #25d366; }
+  
+  /* Post Navigation */
+  .post-navigation {
+    background: var(--surface-color);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  
+  .nav-post {
+    text-decoration: none;
+    max-width: 45%;
+  }
+  
+  .nav-label {
+    font-size: 12px;
+    color: color-mix(in srgb, var(--default-color), transparent 40%);
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .nav-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--heading-color);
+    transition: color 0.3s ease;
+  }
+  
+  .nav-post:hover .nav-title {
+    color: var(--accent-color);
+  }
+  
+  /* Related Posts Card */
+  .related-post-card {
+    background: var(--surface-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+  }
+  
+  .related-post-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-img-wrapper {
+    position: relative;
+    overflow: hidden;
+    height: 200px;
+  }
+  
+  .card-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .related-post-card:hover .card-img-wrapper img {
+    transform: scale(1.1);
+  }
+  
+  .card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .card-img-wrapper:hover .card-overlay {
+    opacity: 1;
+  }
+  
+  .card-content {
+    padding: 20px;
+  }
+  
+  .post-date {
+    font-size: 12px;
+    color: color-mix(in srgb, var(--default-color), transparent 30%);
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .post-date i {
+    margin-right: 5px;
+    color: var(--accent-color);
+  }
+  
+  .card-content h4 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    line-height: 1.4;
+  }
+  
+  .card-content h4 a {
+    color: var(--heading-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .card-content h4 a:hover {
+    color: var(--accent-color);
+  }
+  
+  /* RTL Support */
+  body[dir="rtl"] .share-buttons .me-3 {
+    margin-right: 0;
+    margin-left: 1rem;
+  }
+  
+  body[dir="rtl"] .post-meta .meta-item i {
+    margin-right: 0;
+    margin-left: 5px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .blog-post-detail {
+      padding: 20px;
+    }
+    
+    .post-title {
+      font-size: 1.6rem;
+    }
+    
+    .post-navigation {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .nav-post {
+      max-width: 100%;
+    }
+    
+    .nav-post.next-post {
+      text-align: left;
+    }
+    
+    body[dir="rtl"] .nav-post.next-post {
+      text-align: right;
+    }
+  }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Reading Progress Bar
+  (function() {
+    const progressBar = document.getElementById('readingProgressBar');
+    if (progressBar) {
+      window.addEventListener('scroll', function() {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        progressBar.style.width = scrolled + '%';
+      });
+    }
+  })();
+</script>
 {% endblock %}

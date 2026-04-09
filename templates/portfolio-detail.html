@@ -35,14 +35,22 @@
             }
           </script>
           <div class="swiper-wrapper align-items-center">
+            <!-- Main cover image with fallback -->
             <div class="swiper-slide">
-              <img src="{{ portfolio.cover_image.url }}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy">
+              {% if portfolio.cover_image and portfolio.cover_image.url %}
+                <img src="{{ portfolio.cover_image.url }}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
+              {% else %}
+                <img src="{% static 'assets/img/portfolio/placeholder.jpg' %}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy">
+              {% endif %}
             </div>
-            {% for image in portfolio.gallery_images %}
-              <div class="swiper-slide">
-                <img src="{{ image }}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy">
-              </div>
-            {% endfor %}
+            <!-- Gallery images -->
+            {% if portfolio.gallery_images %}
+              {% for image in portfolio.gallery_images %}
+                <div class="swiper-slide">
+                  <img src="{{ image }}" alt="{{ portfolio.title }}" class="img-fluid" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
+                </div>
+              {% endfor %}
+            {% endif %}
           </div>
           <div class="swiper-pagination"></div>
         </div>
@@ -52,14 +60,17 @@
         <div class="portfolio-info" data-aos="fade-left" data-aos-delay="200">
           <h3>{% trans "Project Information" %}</h3>
           <ul>
-            <li><strong>{% trans "Category" %}:</strong> {{ portfolio.category.name|default:'Web Development' }}</li>
+            <li><strong>{% trans "Category" %}:</strong> {{ portfolio.category.name|default:_('Web Development') }}</li>
             <li><strong>{% trans "Client" %}:</strong> {{ portfolio.client_name }}</li>
             <li><strong>{% trans "Project date" %}:</strong> {{ portfolio.project_date|date:"d F, Y" }}</li>
             {% if portfolio.project_url %}
-              <li><strong>{% trans "Project URL" %}:</strong> <a href="{{ portfolio.project_url }}" target="_blank">{{ portfolio.project_url }}</a></li>
+              <li><strong>{% trans "Project URL" %}:</strong> <a href="{{ portfolio.project_url }}" target="_blank" rel="noopener noreferrer">{{ portfolio.project_url|truncatechars:40 }}</a></li>
             {% endif %}
             {% if portfolio.project_duration %}
               <li><strong>{% trans "Duration" %}:</strong> {{ portfolio.project_duration }}</li>
+            {% endif %}
+            {% if portfolio.team_size %}
+              <li><strong>{% trans "Team Size" %}:</strong> {{ portfolio.team_size }}</li>
             {% endif %}
           </ul>
         </div>
@@ -72,17 +83,17 @@
           
           {% if portfolio.challenge %}
             <h3>{% trans "Challenge" %}</h3>
-            <p>{{ portfolio.challenge }}</p>
+            <p>{{ portfolio.challenge|linebreaks }}</p>
           {% endif %}
           
           {% if portfolio.solution %}
             <h3>{% trans "Solution" %}</h3>
-            <p>{{ portfolio.solution }}</p>
+            <p>{{ portfolio.solution|linebreaks }}</p>
           {% endif %}
           
           {% if portfolio.result %}
             <h3>{% trans "Results" %}</h3>
-            <p>{{ portfolio.result }}</p>
+            <p>{{ portfolio.result|linebreaks }}</p>
           {% endif %}
 
           {% if features %}
@@ -92,9 +103,13 @@
                 {% for feature in features %}
                   <div class="col-md-6">
                     <div class="feature-item" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
-                      <i class="bi bi-check-circle-fill"></i>
+                      {% if feature.feature_icon %}
+                        <i class="bi bi-{{ feature.feature_icon }}"></i>
+                      {% else %}
+                        <i class="bi bi-check-circle-fill"></i>
+                      {% endif %}
                       <h4>{{ feature.feature_title }}</h4>
-                      <p>{{ feature.feature_description }}</p>
+                      <p>{{ feature.feature_description|truncatechars:150 }}</p>
                     </div>
                   </div>
                 {% endfor %}
@@ -118,21 +133,33 @@
   </div>
 </section>
 
+<!-- Related Projects Section -->
 {% if related_portfolios %}
-<section class="related-portfolios section">
+<section class="related-portfolios section light-background">
   <div class="container">
     <div class="section-title" data-aos="fade-up">
       <h2>{% trans "Related Projects" %}</h2>
+      <p>{% trans "Explore more projects in the same category" %}</p>
     </div>
     <div class="row gy-4">
       {% for related in related_portfolios %}
-        <div class="col-lg-4 col-md-6">
+        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
           <div class="portfolio-wrap">
-            <img src="{{ related.cover_image.url }}" class="img-fluid" alt="{{ related.title }}">
+            <!-- Related project image with fallback -->
+            {% if related.cover_image and related.cover_image.url %}
+              <img src="{{ related.cover_image.url }}" class="img-fluid" alt="{{ related.title }}" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
+            {% else %}
+              <img src="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="img-fluid" alt="{{ related.title }}" loading="lazy">
+            {% endif %}
             <div class="portfolio-info">
-              <h4>{{ related.title }}</h4>
-              <div class="portfolio-links">
-                <a href="{% url 'portfolio_detail' related.slug %}">{% trans "View Details" %}</a>
+              <div class="content">
+                <span class="category">{{ related.category.name|default:_('Portfolio') }}</span>
+                <h4>{{ related.title }}</h4>
+                <div class="portfolio-links">
+                  <a href="{% url 'portfolio_detail' related.slug %}" title="{% trans 'View Details' %}">
+                    <i class="bi bi-arrow-right"></i> {% trans "View Details" %}
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -143,4 +170,38 @@
 </section>
 {% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function() {
+    'use strict';
+    
+    // Initialize Swiper for portfolio details
+    if (typeof Swiper !== 'undefined') {
+      const swiperElements = document.querySelectorAll('.portfolio-details-slider');
+      swiperElements.forEach(element => {
+        const configElement = element.querySelector('.swiper-config');
+        if (configElement) {
+          try {
+            const config = JSON.parse(configElement.textContent);
+            new Swiper(element, config);
+          } catch(e) {
+            console.error('Error initializing swiper:', e);
+          }
+        }
+      });
+    }
+    
+    // Handle image loading errors globally
+    document.querySelectorAll('img').forEach(img => {
+      img.addEventListener('error', function() {
+        if (!this.hasAttribute('data-fallback')) {
+          this.setAttribute('data-fallback', 'true');
+          this.src = '{% static "assets/img/portfolio/placeholder.jpg" %}';
+        }
+      });
+    });
+  })();
+</script>
 {% endblock %}

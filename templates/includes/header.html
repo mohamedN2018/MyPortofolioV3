@@ -2,42 +2,64 @@
 {% load static %}
 
 <header id="header" class="header d-flex flex-column">
-  <i class="header-toggle d-xl-none bi bi-list"></i>
+  <div class="header-toggle-wrapper">
+    <i class="header-toggle bi bi-list"></i>
+  </div>
 
   <div class="header-container d-flex flex-column align-items-start">
     <!-- Logo / Site Name -->
     <div class="logo-area text-center w-100 mb-3">
-      {% if site_settings.site_logo %}
-        <img src="{{ site_settings.site_logo.url }}" alt="{{ site_settings.site_name }}" class="logo-img">
-      {% else %}
-        <div class="logo-icon">
-          <i class="bi bi-camera-fill"></i>
-        </div>
-      {% endif %}
-      <h5 class="site-name mt-2 mb-0">{{ site_settings.site_name|default:'SnapFolio' }}</h5>
+      <a href="{% url 'home' %}" class="logo-link">
+        {% if site_settings.site_logo %}
+          <img src="{{ site_settings.site_logo.url }}" alt="{{ site_settings.get_site_name }}" class="logo-img">
+        {% else %}
+          <div class="logo-icon">
+            <i class="bi bi-camera-fill"></i>
+          </div>
+        {% endif %}
+        <h5 class="site-name mt-2 mb-0">{{ site_settings.get_site_name|default:'SnapFolio' }}</h5>
+      </a>
     </div>
 
     <!-- Navigation Menu -->
     <nav id="navmenu" class="navmenu w-100">
       <ul>
-        {% if menus.header %}
-          {% for menu_item in menus.header %}
-            <li class="{% if menu_item.children.all %}dropdown{% endif %}">
-              <a href="{{ menu_item.url }}">
-                {% if menu_item.icon %}<i class="bi bi-{{ menu_item.icon }} navicon"></i>{% endif %}
-                <span>{{ menu_item.title }}</span>
-                {% if menu_item.children.all %}<i class="bi bi-chevron-down toggle-dropdown"></i>{% endif %}
-              </a>
-              {% if menu_item.children.all %}
-                <ul>
-                  {% for child in menu_item.children.all %}
-                    <li><a href="{{ child.url }}">{{ child.title }}</a></li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-            </li>
-          {% endfor %}
-        {% endif %}
+        <li>
+          <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <i class="bi bi-house navicon"></i>
+            <span>{% trans "Home" %}</span>
+          </a>
+        </li>
+        <li>
+          <a href="#about" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+            <i class="bi bi-person navicon"></i>
+            <span>{% trans "About" %}</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'services' %}" class="{% if request.resolver_match.url_name == 'services' or request.resolver_match.url_name == 'service_detail' %}active{% endif %}">
+            <i class="bi bi-grid navicon"></i>
+            <span>{% trans "Services" %}</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'portfolio' %}" class="{% if request.resolver_match.url_name == 'portfolio' or request.resolver_match.url_name == 'portfolio_detail' %}active{% endif %}">
+            <i class="bi bi-images navicon"></i>
+            <span>{% trans "Portfolio" %}</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'blog' %}" class="{% if request.resolver_match.url_name == 'blog' or request.resolver_match.url_name == 'blog_detail' %}active{% endif %}">
+            <i class="bi bi-pen navicon"></i>
+            <span>{% trans "Blog" %}</span>
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'contact' %}" class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}">
+            <i class="bi bi-envelope navicon"></i>
+            <span>{% trans "Contact" %}</span>
+          </a>
+        </li>
       </ul>
     </nav>
 
@@ -70,6 +92,9 @@
   </div>
 </header>
 
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay"></div>
+
 <style>
   /* ============================================
     Header Styling - Modern & Clean
@@ -80,6 +105,11 @@
     padding: 15px 0 10px;
     border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
     margin-bottom: 10px;
+  }
+
+  .header .logo-link {
+    text-decoration: none;
+    display: block;
   }
 
   .header .logo-img {
@@ -145,6 +175,7 @@
     border-radius: 10px;
     transition: all 0.3s ease;
     gap: 10px;
+    text-decoration: none;
   }
 
   .header .navmenu a .navicon {
@@ -177,18 +208,15 @@
     color: var(--accent-color);
   }
 
-  /* Dropdown Styling */
-  .header .navmenu .dropdown ul {
-    background-color: var(--nav-dropdown-background-color);
-    border-radius: 12px;
-    margin: 5px 0 5px 20px;
-    padding: 5px;
-    border: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
+  /* RTL support for active border */
+  body[dir="rtl"] .header .navmenu a.active {
+    border-left: none;
+    border-right: 3px solid var(--accent-color);
+    background: linear-gradient(270deg, color-mix(in srgb, var(--accent-color), transparent 85%), transparent);
   }
 
-  .header .navmenu .dropdown ul li a {
-    padding: 8px 12px;
-    font-size: 13px;
+  body[dir="rtl"] .header .navmenu a:hover .navicon {
+    transform: translateX(-3px);
   }
 
   /* Divider */
@@ -263,26 +291,104 @@
     border: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
   }
 
-  /* RTL Support */
-  body[dir="rtl"] .header .navmenu a .navicon {
-    margin-left: 10px;
-    margin-right: 0;
+  /* Desktop Menu - Header Position */
+  .header {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 30px;
+    width: 280px;
+    z-index: 997;
+    transition: all 0.3s ease-in-out;
   }
 
-  body[dir="rtl"] .header .navmenu a.active {
-    border-left: none;
-    border-right: 3px solid var(--accent-color);
-  }
-
-  body[dir="rtl"] .header .navmenu a:hover .navicon {
-    transform: translateX(-3px);
+  @media (min-width: 1200px) {
+    .header~main,
+    .header~#footer {
+      margin-left: 330px;
+    }
+    
+    body[dir="rtl"] .header~main,
+    body[dir="rtl"] .header~#footer {
+      margin-left: 0;
+      margin-right: 330px;
+    }
+    
+    body[dir="rtl"] .header {
+      left: auto;
+      right: 30px;
+    }
   }
 
   /* ============================================
-    MOBILE FIXES - حل مشكلة الموبايل
+    MOBILE MENU
     ============================================ */
-  
+
+  /* Hide toggle button on desktop */
+  .header-toggle-wrapper {
+    display: none;
+  }
+
+  .mobile-menu-overlay {
+    display: none;
+  }
+
   @media (max-width: 1199px) {
+    /* Show toggle button on mobile */
+    .header-toggle-wrapper {
+      display: block;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10001;
+    }
+    
+    body[dir="rtl"] .header-toggle-wrapper {
+      right: auto;
+      left: 20px;
+    }
+    
+    .header-toggle {
+      width: 50px;
+      height: 50px;
+      background-color: var(--accent-color);
+      color: var(--contrast-color);
+      border-radius: 50%;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 24px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .header-toggle:hover {
+      transform: scale(1.1);
+    }
+    
+    /* Mobile menu overlay */
+    .mobile-menu-overlay {
+      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      z-index: 9998;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    body.menu-open .mobile-menu-overlay {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    /* Mobile header */
     .header {
       position: fixed !important;
       top: 0 !important;
@@ -290,7 +396,7 @@
       right: auto !important;
       bottom: 0 !important;
       transform: none !important;
-      width: 280px !important;
+      width: 300px !important;
       height: 100vh !important;
       padding: 20px 15px !important;
       margin: 0 !important;
@@ -298,11 +404,21 @@
       transition: left 0.3s ease-in-out !important;
       z-index: 9999 !important;
       overflow-y: auto !important;
-      box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1) !important;
+      box-shadow: 2px 0 30px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    body[dir="rtl"] .header {
+      left: auto !important;
+      right: -100% !important;
     }
     
     .header.header-show {
       left: 0 !important;
+    }
+    
+    body[dir="rtl"] .header.header-show {
+      left: auto !important;
+      right: 0 !important;
     }
     
     .header .header-container {
@@ -312,74 +428,47 @@
       box-shadow: none !important;
     }
     
-    .header .header-toggle {
-      position: fixed !important;
-      top: 15px !important;
-      right: 15px !important;
-      left: auto !important;
-      width: 45px !important;
-      height: 45px !important;
-      background-color: var(--accent-color) !important;
-      color: var(--contrast-color) !important;
-      border-radius: 12px !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      cursor: pointer !important;
-      z-index: 10000 !important;
-      font-size: 24px !important;
-      transition: all 0.3s ease !important;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
-    }
-    
-    .header .header-toggle i {
-      font-size: 24px !important;
-    }
-    
-    .header .header-toggle:hover {
-      transform: scale(1.05) !important;
-    }
-    
-    body.menu-open::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 9998;
-      animation: fadeIn 0.3s ease;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
     .header .logo-area {
       padding: 10px 0 !important;
     }
     
     .header .logo-img,
     .header .logo-icon {
-      width: 45px !important;
-      height: 45px !important;
+      width: 50px !important;
+      height: 50px !important;
     }
     
     .header .site-name {
-      font-size: 0.9rem !important;
+      font-size: 1rem !important;
     }
     
     .header .navmenu a {
-      padding: 8px 10px !important;
-      font-size: 13px !important;
+      padding: 12px 15px !important;
+      font-size: 15px !important;
+    }
+    
+    .header .navmenu a .navicon {
+      font-size: 20px !important;
+    }
+    
+    /* Hide scrollbar on mobile but keep functionality */
+    .header::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    .header::-webkit-scrollbar-track {
+      background: color-mix(in srgb, var(--default-color), transparent 90%);
+    }
+    
+    .header::-webkit-scrollbar-thumb {
+      background: var(--accent-color);
+      border-radius: 10px;
     }
   }
-  
+
   @media (max-width: 480px) {
     .header {
-      width: 260px !important;
+      width: 280px !important;
     }
   }
 
@@ -391,103 +480,126 @@
   [data-theme="dark"] .header .navmenu a:hover {
     background-color: color-mix(in srgb, var(--accent-color), transparent 92%);
   }
-  
+
   [data-theme="dark"] .header {
     background-color: var(--surface-color);
+  }
+
+  [data-theme="dark"] .mobile-menu-overlay {
+    background-color: rgba(0, 0, 0, 0.7);
   }
 </style>
 
 <script>
-(function() {
-  'use strict';
-  
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initMobileMenu);
-  } else {
-    initMobileMenu();
-  }
-  
-  function initMobileMenu() {
-    const header = document.querySelector('.header');
-    const toggleBtn = document.querySelector('.header-toggle');
+  (function() {
+    'use strict';
     
-    if (!header || !toggleBtn) return;
-    
-    header.classList.remove('header-show');
-    
-    const toggleIcon = toggleBtn.querySelector('i');
-    if (toggleIcon) {
-      toggleIcon.classList.remove('bi-x');
-      toggleIcon.classList.add('bi-list');
-    }
-    
-    toggleBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+    function initMobileMenu() {
+      const header = document.querySelector('.header');
+      const toggleBtn = document.querySelector('.header-toggle');
+      const overlay = document.querySelector('.mobile-menu-overlay');
       
-      header.classList.toggle('header-show');
+      if (!header) return;
+      if (!toggleBtn) {
+        console.log('Toggle button not found');
+        return;
+      }
       
-      if (header.classList.contains('header-show')) {
+      // Make sure menu starts closed
+      header.classList.remove('header-show');
+      document.body.classList.remove('menu-open');
+      
+      const toggleIcon = toggleBtn.querySelector('i');
+      
+      function openMenu() {
+        header.classList.add('header-show');
+        document.body.classList.add('menu-open');
         if (toggleIcon) {
           toggleIcon.classList.remove('bi-list');
           toggleIcon.classList.add('bi-x');
         }
-        document.body.classList.add('menu-open');
-      } else {
+        document.body.style.overflow = 'hidden';
+      }
+      
+      function closeMenu() {
+        header.classList.remove('header-show');
+        document.body.classList.remove('menu-open');
         if (toggleIcon) {
           toggleIcon.classList.remove('bi-x');
           toggleIcon.classList.add('bi-list');
         }
-        document.body.classList.remove('menu-open');
+        document.body.style.overflow = '';
       }
-    });
-    
-    const navLinks = header.querySelectorAll('.navmenu a');
-    navLinks.forEach(function(link) {
-      link.addEventListener('click', function() {
-        if (window.innerWidth <= 1199) {
-          header.classList.remove('header-show');
-          if (toggleIcon) {
-            toggleIcon.classList.remove('bi-x');
-            toggleIcon.classList.add('bi-list');
-          }
-          document.body.classList.remove('menu-open');
+      
+      // Toggle button click
+      toggleBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (header.classList.contains('header-show')) {
+          closeMenu();
+        } else {
+          openMenu();
         }
       });
-    });
-    
-    document.addEventListener('click', function(e) {
-      if (window.innerWidth <= 1199) {
-        const isClickInsideHeader = header.contains(e.target);
-        const isClickOnToggle = toggleBtn.contains(e.target);
-        
-        if (!isClickInsideHeader && !isClickOnToggle && header.classList.contains('header-show')) {
-          header.classList.remove('header-show');
-          if (toggleIcon) {
-            toggleIcon.classList.remove('bi-x');
-            toggleIcon.classList.add('bi-list');
-          }
-          document.body.classList.remove('menu-open');
-        }
+      
+      // Close on overlay click
+      if (overlay) {
+        overlay.addEventListener('click', closeMenu);
       }
-    });
-    
-    header.addEventListener('click', function(e) {
-      e.stopPropagation();
-    });
-    
-    window.addEventListener('resize', function() {
-      if (window.innerWidth > 1199) {
-        if (header.classList.contains('header-show')) {
-          header.classList.remove('header-show');
-          if (toggleIcon) {
-            toggleIcon.classList.remove('bi-x');
-            toggleIcon.classList.add('bi-list');
+      
+      // Close on nav link click
+      const navLinks = header.querySelectorAll('.navmenu a');
+      navLinks.forEach(function(link) {
+        link.addEventListener('click', function() {
+          if (window.innerWidth <= 1199) {
+            setTimeout(closeMenu, 150);
           }
-          document.body.classList.remove('menu-open');
+        });
+      });
+      
+      // Close on escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && header.classList.contains('header-show')) {
+          closeMenu();
         }
-      }
-    });
-  }
-})();
+      });
+      
+      // Handle resize
+      window.addEventListener('resize', function() {
+        if (window.innerWidth > 1199) {
+          if (header.classList.contains('header-show')) {
+            closeMenu();
+          }
+          document.body.style.overflow = '';
+        }
+      });
+      
+      // Close when clicking outside
+      document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 1199) {
+          const isClickInsideHeader = header.contains(e.target);
+          const isClickOnToggle = toggleBtn.contains(e.target);
+          
+          if (!isClickInsideHeader && !isClickOnToggle && header.classList.contains('header-show')) {
+            closeMenu();
+          }
+        }
+      });
+      
+      // Prevent header clicks from bubbling
+      header.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+      
+      console.log('Mobile menu initialized');
+    }
+    
+    // Run when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initMobileMenu);
+    } else {
+      initMobileMenu();
+    }
+  })();
 </script>

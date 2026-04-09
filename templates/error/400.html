@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Bad Request" %} | {{ site_settings.get_site_name }}{% endblock %}
+
+{% block content %}
+
+<!-- Page Title -->
+<div class="page-title dark-background">
+  <div class="container d-lg-flex justify-content-between align-items-center">
+    <h1 class="mb-2 mb-lg-0">{% trans "400 - Bad Request" %}</h1>
+    <nav class="breadcrumbs">
+      <ol>
+        <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+        <li class="current">{% trans "400" %}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Error Section -->
+<section class="error-section section">
+  <div class="container" data-aos="fade-up">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <!-- Animated 400 -->
+        <div class="error-animation mb-4">
+          <div class="error-number">
+            <span class="digit">4</span>
+            <span class="digit">0</span>
+            <span class="digit animated">0</span>
+          </div>
+          <div class="error-icon error-icon-warning">
+            <i class="bi bi-exclamation-circle"></i>
+          </div>
+        </div>
+        
+        <h2 class="error-title mb-3">{% trans "Bad Request" %}</h2>
+        
+        <p class="error-message mb-4">
+          {% trans "The request could not be understood by the server due to malformed syntax. Please check your input and try again." %}
+        </p>
+        
+        <!-- Common Causes -->
+        <div class="common-causes mb-4 p-4 bg-light rounded text-start">
+          <h6 class="mb-3"><i class="bi bi-info-circle"></i> {% trans "Common causes:" %}</h6>
+          <ul class="mb-0">
+            <li><i class="bi bi-dash-circle"></i> {% trans "Invalid or malformed URL" %}</li>
+            <li><i class="bi bi-dash-circle"></i> {% trans "Missing required parameters" %}</li>
+            <li><i class="bi bi-dash-circle"></i> {% trans "Invalid data format in request" %}</li>
+            <li><i class="bi bi-dash-circle"></i> {% trans "Request size too large" %}</li>
+          </ul>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="error-actions d-flex flex-wrap justify-content-center gap-3 mb-5">
+          <a href="{% url 'home' %}" class="btn btn-primary">
+            <i class="bi bi-house"></i> {% trans "Back to Home" %}
+          </a>
+          <a href="javascript:history.back()" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> {% trans "Go Back" %}
+          </a>
+          <a href="javascript:location.reload()" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-repeat"></i> {% trans "Try Again" %}
+          </a>
+        </div>
+        
+        <!-- Clear Cache Suggestion -->
+        <div class="clear-cache mt-4 pt-3 border-top">
+          <p class="small text-muted">
+            <i class="bi bi-trash"></i> 
+            {% trans "If the problem persists, try clearing your browser cache and cookies." %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .error-section {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+  }
+  
+  .error-number {
+    font-size: 8rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--heading-color);
+  }
+  
+  .error-number .digit {
+    display: inline-block;
+    animation: bounce 0.5s ease;
+  }
+  
+  .error-number .digit.animated {
+    animation: bounce 0.5s ease 0.2s, pulse 1s ease infinite 0.7s;
+    color: #ffc107;
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+  }
+  
+  .error-icon {
+    position: absolute;
+    bottom: -20px;
+    right: -30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: rotate 2s ease infinite;
+  }
+  
+  .error-icon-warning {
+    background: #ffc107;
+  }
+  
+  @keyframes rotate {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(15deg); }
+  }
+  
+  .error-icon i {
+    font-size: 28px;
+    color: white;
+  }
+  
+  .error-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--heading-color);
+  }
+  
+  .error-message {
+    font-size: 1.1rem;
+    color: var(--default-color);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .common-causes {
+    background: color-mix(in srgb, var(--surface-color), var(--default-color) 5%);
+    border-left: 4px solid #ffc107;
+    border-radius: 12px;
+  }
+  
+  .common-causes ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .common-causes li {
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .common-causes li i {
+    color: #ffc107;
+    font-size: 12px;
+  }
+  
+  .error-actions .btn {
+    padding: 10px 24px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+  }
+  
+  .error-actions .btn:hover {
+    transform: translateY(-3px);
+  }
+  
+  @media (max-width: 768px) {
+    .error-number { font-size: 5rem; }
+    .error-icon { width: 45px; height: 45px; bottom: -15px; right: -20px; }
+    .error-icon i { font-size: 20px; }
+    .error-title { font-size: 1.5rem; }
+    .error-message { font-size: 1rem; }
+  }
+</style>
+
+{% endblock %}

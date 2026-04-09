@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>{% block title %}{{ site_settings.site_name|default:'SnapFolio' }}{% endblock %}</title>
+  <title>{% block title %}{{ site_settings.get_site_name|default:'SnapFolio' }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{% endblock %}">
   <meta name="keywords" content="{% block keywords %}{% endblock %}">
 
@@ -34,14 +34,7 @@
     body[dir="rtl"] {
       text-align: right;
     }
-    body[dir="rtl"] .header {
-      right: 0;
-      left: auto;
-    }
-    body[dir="rtl"] .skills .skills-category h3:after {
-      left: auto;
-      right: 0;
-    }
+    
     @media (min-width: 1200px) {
       body[dir="rtl"] .header~main,
       body[dir="rtl"] .header~#footer {
@@ -62,15 +55,16 @@
 
   {% include 'includes/footer.html' %}
 
-      <!-- Scroll Top -->
-    <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
-    
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark/Light Mode">
-      <i class="bi bi-moon-stars"></i>
-    </button>
-
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+    <i class="bi bi-arrow-up-short"></i>
+  </a>
   
+  <!-- Theme Toggle Button -->
+  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark/Light Mode">
+    <i class="bi bi-moon-stars"></i>
+  </button>
+
   <!-- Preloader -->
   <div id="preloader"></div>
 
@@ -110,7 +104,6 @@
   <!-- Theme Management Script -->
   <script>
     (function() {
-      // Get theme from localStorage or system preference
       const getPreferredTheme = () => {
         const storedTheme = localStorage.getItem('theme');
         if (storedTheme === 'dark' || storedTheme === 'light') {
@@ -119,7 +112,6 @@
         return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       };
 
-      // Apply theme to document
       const setTheme = (theme) => {
         if (theme === 'dark') {
           document.documentElement.setAttribute('data-theme', 'dark');
@@ -140,13 +132,11 @@
         }
       };
 
-      // Initialize theme
       const initTheme = () => {
         const preferredTheme = getPreferredTheme();
         setTheme(preferredTheme);
       };
 
-      // Toggle theme
       const toggleTheme = () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         if (currentTheme === 'dark') {
@@ -156,16 +146,13 @@
         }
       };
 
-      // Run on load
       initTheme();
 
-      // Add event listener to toggle button
       const toggleBtn = document.getElementById('theme-toggle');
       if (toggleBtn) {
         toggleBtn.addEventListener('click', toggleTheme);
       }
 
-      // Listen for system preference changes
       window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
         if (!localStorage.getItem('theme')) {
           setTheme(e.matches ? 'dark' : 'light');

@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Server Error" %} | {{ site_settings.get_site_name }}{% endblock %}
+
+{% block content %}
+
+<!-- Page Title -->
+<div class="page-title dark-background">
+  <div class="container d-lg-flex justify-content-between align-items-center">
+    <h1 class="mb-2 mb-lg-0">{% trans "500 - Server Error" %}</h1>
+    <nav class="breadcrumbs">
+      <ol>
+        <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+        <li class="current">{% trans "500" %}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Error Section -->
+<section class="error-section section">
+  <div class="container" data-aos="fade-up">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <!-- Animated 500 -->
+        <div class="error-animation mb-4">
+          <div class="error-number">
+            <span class="digit">5</span>
+            <span class="digit animated">0</span>
+            <span class="digit">0</span>
+          </div>
+          <div class="error-icon error-icon-danger">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
+        </div>
+        
+        <h2 class="error-title mb-3">{% trans "Internal Server Error" %}</h2>
+        
+        <p class="error-message mb-4">
+          {% trans "Something went wrong on our end. Our technical team has been notified and is working to fix the issue." %}
+        </p>
+        
+        <!-- Technical Details (only visible to admins in debug mode) -->
+        {% if request.user.is_staff and debug %}
+        <div class="technical-details mb-4 p-4 bg-dark text-light rounded text-start">
+          <h6 class="mb-3"><i class="bi bi-bug"></i> {% trans "Technical Details" %}</h6>
+          <div class="small">
+            <p><strong>{% trans "Error ID:" %}</strong> <code>{{ error_id|default:"N/A" }}</code></p>
+            <p><strong>{% trans "Timestamp:" %}</strong> <code>{% now "Y-m-d H:i:s" %}</code></p>
+            {% if exception_message %}
+              <p><strong>{% trans "Exception:" %}</strong> <code>{{ exception_message|truncatechars:200 }}</code></p>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+        
+        <!-- Action Buttons -->
+        <div class="error-actions d-flex flex-wrap justify-content-center gap-3 mb-5">
+          <a href="{% url 'home' %}" class="btn btn-primary">
+            <i class="bi bi-house"></i> {% trans "Back to Home" %}
+          </a>
+          <a href="javascript:location.reload()" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-repeat"></i> {% trans "Try Again" %}
+          </a>
+          <a href="{% url 'contact' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-envelope"></i> {% trans "Report Issue" %}
+          </a>
+        </div>
+        
+        <!-- What to do -->
+        <div class="what-to-do mt-5 pt-4 border-top">
+          <h5 class="mb-4">{% trans "What you can do:" %}</h5>
+          <div class="row g-3 text-start">
+            <div class="col-md-6">
+              <div class="suggestion-card">
+                <i class="bi bi-arrow-repeat"></i>
+                <div>
+                  <h6>{% trans "Refresh the page" %}</h6>
+                  <p class="small mb-0">{% trans "Sometimes it's just a temporary glitch." %}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="suggestion-card">
+                <i class="bi bi-clock-history"></i>
+                <div>
+                  <h6>{% trans "Wait a few minutes" %}</h6>
+                  <p class="small mb-0">{% trans "The issue might resolve quickly." %}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="suggestion-card">
+                <i class="bi bi-envelope"></i>
+                <div>
+                  <h6>{% trans "Contact support" %}</h6>
+                  <p class="small mb-0">{% trans "Report the issue to our team." %}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="suggestion-card">
+                <i class="bi bi-house"></i>
+                <div>
+                  <h6>{% trans "Return to homepage" %}</h6>
+                  <p class="small mb-0">{% trans "Navigate back to our main page." %}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Error Page Styles - Same as 404 plus additional */
+  .error-section {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+  }
+  
+  .error-number {
+    font-size: 8rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--heading-color);
+  }
+  
+  .error-number .digit {
+    display: inline-block;
+    animation: bounce 0.5s ease;
+  }
+  
+  .error-number .digit.animated {
+    animation: bounce 0.5s ease 0.2s, shake 1s ease infinite 0.7s;
+    color: #dc3545;
+  }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+  
+  @keyframes shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-5px);
+    }
+    75% {
+      transform: translateX(5px);
+    }
+  }
+  
+  .error-icon {
+    position: absolute;
+    bottom: -20px;
+    right: -30px;
+    width: 60px;
+    height: 60px;
+    background: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 1s ease infinite;
+  }
+  
+  .error-icon-danger {
+    background: #dc3545;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }
+  
+  .error-icon i {
+    font-size: 28px;
+    color: white;
+  }
+  
+  .error-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--heading-color);
+  }
+  
+  .error-message {
+    font-size: 1.1rem;
+    color: var(--default-color);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .error-actions .btn {
+    padding: 10px 24px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+  }
+  
+  .error-actions .btn:hover {
+    transform: translateY(-3px);
+  }
+  
+  /* Suggestion Card */
+  .suggestion-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px;
+    background: var(--surface-color);
+    border: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+  }
+  
+  .suggestion-card:hover {
+    border-color: var(--accent-color);
+    transform: translateX(5px);
+  }
+  
+  body[dir="rtl"] .suggestion-card:hover {
+    transform: translateX(-5px);
+  }
+  
+  .suggestion-card i {
+    font-size: 24px;
+    color: var(--accent-color);
+  }
+  
+  .suggestion-card h6 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    color: var(--heading-color);
+  }
+  
+  .suggestion-card p {
+    color: color-mix(in srgb, var(--default-color), transparent 30%);
+  }
+  
+  .technical-details {
+    background: #1a1a2e !important;
+    border-left: 4px solid #dc3545;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .error-number {
+      font-size: 5rem;
+    }
+    
+    .error-icon {
+      width: 45px;
+      height: 45px;
+      bottom: -15px;
+      right: -20px;
+    }
+    
+    .error-icon i {
+      font-size: 20px;
+    }
+    
+    .error-title {
+      font-size: 1.5rem;
+    }
+    
+    .error-message {
+      font-size: 1rem;
+    }
+    
+    .suggestion-card {
+      padding: 12px;
+    }
+  }
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function() {
+    // Log 500 error to console
+    console.error('500 Error: Internal Server Error at {{ request.path }}');
+    
+    // Optional: Send to error tracking service
+    if (typeof Sentry !== 'undefined') {
+      Sentry.captureMessage('500 Error on {{ request.path }}');
+    }
+  })();
+</script>
+{% endblock %}

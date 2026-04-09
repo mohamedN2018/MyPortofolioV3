@@ -4,6 +4,7 @@ from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from django.contrib import admin
 from django.views.i18n import set_language as django_set_language
+from django.utils.translation import gettext_lazy as _
 
 from . import views
 from .sitemaps import StaticViewSitemap, BlogSitemap, PortfolioSitemap, ServiceSitemap
@@ -16,40 +17,39 @@ sitemaps = {
     'services': ServiceSitemap,
 }
 
-# أسماء التطبيقات (للـ namespace)
 
 urlpatterns = [
     # ======================
     # الصفحات الرئيسية
     # ======================
     path('', views.home_page, name='home'),
-    path('about/', views.about_page, name='about'),
-    path('contact/', views.contact_page, name='contact'),
-    path('search/', views.search_page, name='search'),
+    # path(_('about/'), views.about_page, name='about'),
+    path(_('contact/'), views.contact_page, name='contact'),
+    path(_('search/'), views.search_page, name='search'),
     
     # ======================
     # صفحات الخدمات
     # ======================
-    path('services/', views.services_page, name='services'),
-    path('services/<slug:slug>/', views.service_detail_page, name='service_detail'),
+    path(_('services/'), views.services_page, name='services'),
+    path(_('services/<slug:slug>/'), views.service_detail_page, name='service_detail'),
     
     # ======================
     # صفحات المشاريع (Portfolio)
     # ======================
-    path('portfolio/', views.portfolio_page, name='portfolio'),
-    path('portfolio/<slug:slug>/', views.portfolio_detail_page, name='portfolio_detail'),
+    path(_('portfolio/'), views.portfolio_page, name='portfolio'),
+    path(_('portfolio/<slug:slug>/'), views.portfolio_detail_page, name='portfolio_detail'),
     
     # ======================
     # صفحات المدونة
     # ======================
-    path('blog/', views.blog_page, name='blog'),
-    path('blog/<slug:slug>/', views.blog_detail_page, name='blog_detail'),
-    path('blog/category/<slug:slug>/', views.blog_category_page, name='blog_category'),
+    path(_('blog/'), views.blog_page, name='blog'),
+    path(_('blog/<slug:slug>/'), views.blog_detail_page, name='blog_detail'),
+    path(_('blog/category/<slug:slug>/'), views.blog_category_page, name='blog_category'),
     
     # ======================
     # الصفحات الثابتة الديناميكية
     # ======================
-    path('page/<slug:slug>/', views.static_page_view, name='static_page'),
+    path(_('page/<slug:slug>/'), views.static_page_view, name='static_page'),
     
     # ======================
     # تغيير اللغة

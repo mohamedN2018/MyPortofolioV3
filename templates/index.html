@@ -183,7 +183,9 @@
   </div>
 </section>
 
-<!-- Skills Section -->
+
+
+{% comment %} <!-- Skills Section -->
 <section id="skills" class="skills section">
   <div class="container section-title" data-aos="fade-up">
     <h2>{% trans "Skills" %}</h2>
@@ -219,7 +221,53 @@
       {% endfor %}
     </div>
   </div>
+</section> {% endcomment %}
+
+
+<!-- Skills Section -->
+<section id="skills" class="skills section">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>{% trans "Skills" %}</h2>
+    <p>{{ section_data.skills.description|default:'Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit' }}</p>
+  </div>
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row">
+      {% if skill_categories %}
+        {% for category in skill_categories %}
+          <div class="col-lg-6 mb-4 skills-category-wrapper" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
+            <div class="skills-category">
+              <h3>{{ category.name }}</h3>
+              <div class="skills-animation">
+                {% for skill in skills %}
+                  {% if skill.category.id == category.id %}
+                    <div class="skill-item">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <h4>{{ skill.name }}</h4>
+                        <span class="skill-percentage">{{ skill.proficiency }}%</span>
+                      </div>
+                      <div class="progress">
+                        <div class="progress-bar" role="progressbar" style="width: {{ skill.proficiency }}%" aria-valuenow="{{ skill.proficiency }}" aria-valuemin="0" aria-valuemax="100"></div>
+                      </div>
+                      {% if skill.description %}
+                        <div class="skill-tooltip">{{ skill.description }}</div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="col-12 text-center">
+          <p>{% trans "No skills data available" %}</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
 </section>
+
 
 <!-- Resume Section -->
 <section id="resume" class="resume section">
@@ -340,6 +388,8 @@
   </div>
 </section>
 
+
+
 <!-- Services Section -->
 <section id="services" class="services section">
   <div class="container section-title" data-aos="fade-up">
@@ -391,7 +441,9 @@
       {% endfor %}
     </div>
   </div>
-</section>
+</section> 
+
+
 
 <!-- Testimonials Section -->
 <section id="testimonials" class="testimonials section light-background">

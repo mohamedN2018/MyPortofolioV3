@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Access Forbidden" %} | {{ site_settings.get_site_name }}{% endblock %}
+
+{% block content %}
+
+<!-- Page Title -->
+<div class="page-title dark-background">
+  <div class="container d-lg-flex justify-content-between align-items-center">
+    <h1 class="mb-2 mb-lg-0">{% trans "403 - Forbidden" %}</h1>
+    <nav class="breadcrumbs">
+      <ol>
+        <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+        <li class="current">{% trans "403" %}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Error Section -->
+<section class="error-section section">
+  <div class="container" data-aos="fade-up">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 text-center">
+        <!-- Animated 403 -->
+        <div class="error-animation mb-4">
+          <div class="error-number">
+            <span class="digit">4</span>
+            <span class="digit">0</span>
+            <span class="digit animated">3</span>
+          </div>
+          <div class="error-icon error-icon-danger">
+            <i class="bi bi-shield-lock"></i>
+          </div>
+        </div>
+        
+        <h2 class="error-title mb-3">{% trans "Access Forbidden" %}</h2>
+        
+        <p class="error-message mb-4">
+          {% trans "You don't have permission to access this page. This could be due to login requirements or insufficient privileges." %}
+        </p>
+        
+        <!-- Requested URL -->
+        <div class="error-url mb-4 p-3 rounded">
+          <i class="bi bi-link"></i>
+          <code>{{ request_path|default:request.path }}</code>
+        </div>
+        
+        <!-- Suggestions -->
+        <div class="suggestions mb-4 p-4 rounded text-start">
+          <h6 class="mb-3"><i class="bi bi-lightbulb"></i> {% trans "Possible solutions:" %}</h6>
+          <ul class="mb-0">
+            <li><i class="bi bi-check-circle"></i> {% trans "Log in with an account that has appropriate permissions" %}</li>
+            <li><i class="bi bi-check-circle"></i> {% trans "Contact the site administrator to request access" %}</li>
+            <li><i class="bi bi-check-circle"></i> {% trans "Check if you need to verify your email address" %}</li>
+            <li><i class="bi bi-check-circle"></i> {% trans "Clear your browser cache and cookies" %}</li>
+          </ul>
+        </div>
+        
+        <!-- Login Form (if not authenticated) -->
+        {% if not request.user.is_authenticated %}
+        <div class="login-prompt mb-4 p-4 rounded">
+          <h6 class="mb-3"><i class="bi bi-box-arrow-in-right"></i> {% trans "Already have an account?" %}</h6>
+          <a href="{% url 'admin:login' %}" class="btn btn-outline-primary">
+            <i class="bi bi-key"></i> {% trans "Log In" %}
+          </a>
+        </div>
+        {% endif %}
+        
+        <!-- Action Buttons -->
+        <div class="error-actions d-flex flex-wrap justify-content-center gap-3 mb-5">
+          <a href="{% url 'home' %}" class="btn btn-primary">
+            <i class="bi bi-house"></i> {% trans "Back to Home" %}
+          </a>
+          <a href="javascript:history.back()" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> {% trans "Go Back" %}
+          </a>
+          <a href="{% url 'contact' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-envelope"></i> {% trans "Contact Support" %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .error-section {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+  }
+  
+  .error-number {
+    font-size: 8rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--heading-color);
+  }
+  
+  .error-number .digit {
+    display: inline-block;
+    animation: bounce 0.5s ease;
+  }
+  
+  .error-number .digit.animated {
+    animation: bounce 0.5s ease 0.2s, shake 1s ease infinite 0.7s;
+    color: #dc3545;
+  }
+  
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+  
+  .error-icon {
+    position: absolute;
+    bottom: -20px;
+    right: -30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 1s ease infinite;
+  }
+  
+  .error-icon-danger {
+    background: #dc3545;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  
+  .error-icon i {
+    font-size: 28px;
+    color: white;
+  }
+  
+  .error-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--heading-color);
+  }
+  
+  .error-message {
+    font-size: 1.1rem;
+    color: var(--default-color);
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .error-url {
+    background: color-mix(in srgb, var(--surface-color), var(--default-color) 5%);
+    border: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
+    border-radius: 12px;
+    display: inline-block;
+  }
+  
+  .error-url code {
+    background: transparent;
+    color: var(--accent-color);
+  }
+  
+  .suggestions {
+    background: color-mix(in srgb, var(--surface-color), var(--default-color) 5%);
+    border-left: 4px solid var(--accent-color);
+    border-radius: 12px;
+  }
+  
+  .suggestions ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  
+  .suggestions li {
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .suggestions li i {
+    color: var(--accent-color);
+  }
+  
+  .login-prompt {
+    background: color-mix(in srgb, var(--surface-color), var(--default-color) 5%);
+    border: 1px dashed var(--accent-color);
+    border-radius: 12px;
+  }
+  
+  .error-actions .btn {
+    padding: 10px 24px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+  }
+  
+  .error-actions .btn:hover {
+    transform: translateY(-3px);
+  }
+  
+  @media (max-width: 768px) {
+    .error-number { font-size: 5rem; }
+    .error-icon { width: 45px; height: 45px; bottom: -15px; right: -20px; }
+    .error-icon i { font-size: 20px; }
+    .error-title { font-size: 1.5rem; }
+    .error-message { font-size: 1rem; }
+  }
+</style>
+
+{% endblock %}
