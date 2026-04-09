@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{{ service.title }} | {% trans "Service Details" %}{% endblock %}
+
+{% block content %}
+
+<!-- Page Title -->
+<div class="page-title dark-background">
+  <div class="container d-lg-flex justify-content-between align-items-center">
+    <h1 class="mb-2 mb-lg-0">{% trans "Service Details" %}</h1>
+    <nav class="breadcrumbs">
+      <ol>
+        <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+        <li><a href="{% url 'services' %}">{% trans "Services" %}</a></li>
+        <li class="current">{{ service.title }}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Service Details Section -->
+<section id="service-details" class="service-details section">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4">
+      <div class="col-lg-8">
+        {% if service.image %}
+          <div class="service-details-slider swiper init-swiper">
+            <script type="application/json" class="swiper-config">
+              {
+                "loop": true,
+                "speed": 600,
+                "autoplay": { "delay": 5000 },
+                "slidesPerView": 1,
+                "pagination": { "el": ".swiper-pagination", "clickable": true }
+              }
+            </script>
+            <div class="swiper-wrapper">
+              <div class="swiper-slide">
+                <img src="{{ service.image.url }}" alt="{{ service.title }}" class="img-fluid" loading="lazy">
+              </div>
+            </div>
+            <div class="swiper-pagination"></div>
+          </div>
+        {% endif %}
+
+        <div class="content mt-5">
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.full_description|linebreaks }}</p>
+
+          {% if service.features %}
+            <div class="features mt-4">
+              <div class="row gy-4">
+                {% for feature in service.features %}
+                  <div class="col-md-6" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
+                    <div class="feature-box d-flex align-items-center">
+                      <i class="bi bi-check"></i>
+                      <h4>{{ feature }}</h4>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          {% for detail in service_details %}
+            <div class="service-detail-content mt-4">
+              <h4>{{ detail.content_title }}</h4>
+              <p>{{ detail.content_body|linebreaks }}</p>
+              {% if detail.points_list %}
+                <ul>
+                  {% for point in detail.points_list %}
+                    <li>{{ point }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="service-info">
+          <h4>{% trans "Service Information" %}</h4>
+          <div class="info-item">
+            <i class="bi bi-clock"></i>
+            <h5>{% trans "Service Duration" %}</h5>
+            <p>{% trans "Varies by project scope" %}</p>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-person-check"></i>
+            <h5>{% trans "Expert Team" %}</h5>
+            <p>{% trans "Dedicated professionals" %}</p>
+          </div>
+          <div class="info-item">
+            <i class="bi bi-telephone"></i>
+            <h5>{% trans "Support" %}</h5>
+            <p>24/7 {% trans "Customer Support" %}</p>
+          </div>
+        </div>
+
+        {% if related_services %}
+          <div class="related-services mt-5">
+            <h4>{% trans "Related Services" %}</h4>
+            {% for related in related_services %}
+              <div class="service-item">
+                <i class="bi bi-{{ related.icon|default:'briefcase' }}"></i>
+                <h5><a href="{% url 'service_detail' related.slug %}">{{ related.title }}</a></h5>
+                <p>{{ related.short_description|truncatechars:80 }}</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

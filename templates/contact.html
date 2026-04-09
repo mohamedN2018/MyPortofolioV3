@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Contact" %} | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+
+<!-- Page Title -->
+<div class="page-title dark-background">
+  <div class="container d-lg-flex justify-content-between align-items-center">
+    <h1 class="mb-2 mb-lg-0">{% trans "Contact" %}</h1>
+    <nav class="breadcrumbs">
+      <ol>
+        <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+        <li class="current">{% trans "Contact" %}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Contact Section -->
+<section id="contact" class="contact section">
+  <div class="container">
+    <div class="row g-4 g-lg-5">
+      <div class="col-lg-5">
+        <div class="info-box">
+          <h3>{% trans "Contact Info" %}</h3>
+          <p>{% trans "Have a question or want to work together? Feel free to reach out!" %}</p>
+
+          <div class="info-item">
+            <div class="icon-box"><i class="bi bi-geo-alt"></i></div>
+            <div class="content">
+              <h4>{% trans "Our Location" %}</h4>
+              <p>{{ site_settings.contact_address|default:'A108 Adam Street, New York, NY 535022' }}</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="icon-box"><i class="bi bi-telephone"></i></div>
+            <div class="content">
+              <h4>{% trans "Phone Number" %}</h4>
+              <p>{{ site_settings.contact_phone|default:'+1 5589 55488 55' }}</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <div class="icon-box"><i class="bi bi-envelope"></i></div>
+            <div class="content">
+              <h4>{% trans "Email Address" %}</h4>
+              <p>{{ site_settings.contact_email|default:'info@example.com' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="contact-form">
+          <h3>{% trans "Get In Touch" %}</h3>
+          <p>{% trans "Fill out the form below and I'll get back to you as soon as possible." %}</p>
+
+          <form method="post" class="contact-form-ajax">
+            {% csrf_token %}
+            <div class="row gy-4">
+              <div class="col-md-6">
+                <input type="text" name="name" class="form-control" placeholder="{% trans 'Your Name' %}" required>
+              </div>
+              <div class="col-md-6">
+                <input type="email" name="email" class="form-control" placeholder="{% trans 'Your Email' %}" required>
+              </div>
+              <div class="col-12">
+                <input type="text" name="phone" class="form-control" placeholder="{% trans 'Your Phone (Optional)' %}">
+              </div>
+              <div class="col-12">
+                <input type="text" name="subject" class="form-control" placeholder="{% trans 'Subject' %}" required>
+              </div>
+              <div class="col-12">
+                <textarea name="message" class="form-control" rows="6" placeholder="{% trans 'Your Message' %}" required></textarea>
+              </div>
+              <div class="col-12 text-center">
+                <div class="loading" style="display: none;">{% trans "Sending..." %}</div>
+                <div class="error-message" style="display: none;"></div>
+                <div class="sent-message" style="display: none;">{% trans "Your message has been sent. Thank you!" %}</div>
+                <button type="submit" class="btn">{% trans "Send Message" %}</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+document.querySelector('.contact-form-ajax')?.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const form = this;
+  const loading = form.querySelector('.loading');
+  const errorMsg = form.querySelector('.error-message');
+  const sentMsg = form.querySelector('.sent-message');
+  
+  loading.style.display = 'block';
+  errorMsg.style.display = 'none';
+  sentMsg.style.display = 'none';
+  
+  try {
+    const response = await fetch('{% url "contact" %}', {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      sentMsg.style.display = 'block';
+      form.reset();
+      setTimeout(() => sentMsg.style.display = 'none', 5000);
+    } else {
+      errorMsg.textContent = data.error || '{% trans "Error sending message" %}';
+      errorMsg.style.display = 'block';
+    }
+  } catch (error) {
+    errorMsg.textContent = '{% trans "Network error. Please try again." %}';
+    errorMsg.style.display = 'block';
+  } finally {
+    loading.style.display = 'none';
+  }
+});
+</script>
+
+{% endblock %}

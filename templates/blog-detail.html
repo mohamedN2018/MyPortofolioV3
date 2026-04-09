@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{{ post.title }} | {% trans "Blog" %}{% endblock %}
+
+{% block content %}
+
+<!-- Page Title -->
+<div class="page-title dark-background">
+  <div class="container d-lg-flex justify-content-between align-items-center">
+    <h1 class="mb-2 mb-lg-0">{% trans "Blog Details" %}</h1>
+    <nav class="breadcrumbs">
+      <ol>
+        <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+        <li><a href="{% url 'blog' %}">{% trans "Blog" %}</a></li>
+        <li class="current">{{ post.title }}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<!-- Blog Details Section -->
+<section id="blog-details" class="blog-details section">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="row gy-4">
+      <div class="col-lg-8">
+        <article class="blog-post">
+          <div class="post-img mb-4">
+            <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid w-100">
+          </div>
+          
+          <div class="meta d-flex gap-3 mb-4">
+            <span><i class="bi bi-calendar"></i> {{ post.published_date|date:"F d, Y" }}</span>
+            <span><i class="bi bi-person"></i> {{ post.author_name }}</span>
+            <span><i class="bi bi-folder"></i> {{ post.category.name }}</span>
+            <span><i class="bi bi-eye"></i> {{ post.views_count }} {% trans "views" %}</span>
+          </div>
+          
+          <h1 class="post-title mb-4">{{ post.title }}</h1>
+          
+          <div class="post-content">
+            {{ post.content|safe|linebreaks }}
+          </div>
+          
+          {% if post.tags %}
+            <div class="post-tags mt-4">
+              <strong>{% trans "Tags" %}:</strong>
+              {% for tag in post.tags.split %}
+                <span class="badge bg-secondary">{{ tag }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </article>
+        
+        <!-- Post Navigation -->
+        <div class="post-navigation d-flex justify-content-between mt-5 pt-4 border-top">
+          {% if previous_post %}
+            <a href="{% url 'blog_detail' previous_post.slug %}" class="prev-post">
+              <i class="bi bi-arrow-left"></i> {{ previous_post.title|truncatechars:50 }}
+            </a>
+          {% endif %}
+          {% if next_post %}
+            <a href="{% url 'blog_detail' next_post.slug %}" class="next-post ms-auto">
+              {{ next_post.title|truncatechars:50 }} <i class="bi bi-arrow-right"></i>
+            </a>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="sidebar">
+          <div class="sidebar-widget mb-4">
+            <h4>{% trans "Search" %}</h4>
+            <form action="{% url 'blog' %}" method="get">
+              <input type="text" name="search" class="form-control" placeholder="{% trans 'Search posts...' %}">
+            </form>
+          </div>
+          
+          <div class="sidebar-widget mb-4">
+            <h4>{% trans "Categories" %}</h4>
+            <ul class="list-unstyled">
+              {% for category in categories %}
+                <li><a href="{% url 'blog_category' category.slug %}">{{ category.name }}</a> <span class="badge">{{ category.post_count }}</span></li>
+              {% endfor %}
+            </ul>
+          </div>
+          
+          <div class="sidebar-widget">
+            <h4>{% trans "Recent Posts" %}</h4>
+            {% for recent in recent_posts %}
+              <div class="recent-post mb-3">
+                <a href="{% url 'blog_detail' recent.slug %}">{{ recent.title }}</a>
+                <small>{{ recent.published_date|date:"M d, Y" }}</small>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if related_posts %}
+<section class="related-posts section">
+  <div class="container">
+    <div class="section-title" data-aos="fade-up">
+      <h2>{% trans "Related Posts" %}</h2>
+    </div>
+    <div class="row gy-4">
+      {% for related in related_posts %}
+        <div class="col-lg-4 col-md-6">
+          <div class="blog-card">
+            <img src="{{ related.featured_image.url }}" alt="{{ related.title }}" class="img-fluid">
+            <div class="content p-3">
+              <h5><a href="{% url 'blog_detail' related.slug %}">{{ related.title|truncatechars:60 }}</a></h5>
+              <small>{{ related.published_date|date:"M d, Y" }}</small>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% endblock %}

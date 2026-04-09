@@ -1,0 +1,61 @@
+services:
+  config:
+    build: .
+    restart: always
+    volumes:
+      # - ./:/usr/src/app
+      - django-folder:/s3files
+    environment:
+      DB_ENGINE: django.db.backends.postgresql
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: config-db
+      DB_PORT: 5432
+    command: gunicorn --chdir /usr/src/app --timeout 320 --workers 25 --access-logfile /dev/stdout --error-logfile /dev/stderr --bind :80 config.wsgi:application
+    depends_on:
+      - config-db
+
+
+  config-db:
+    image: postgres:17
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_MAX_CONNECTIONS: 2000
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    restart: always
+
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+      PGADMIN_LISTEN_PORT: 80
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_ENABLE_HTTPS: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - config-db
+    ports:
+      - "5020:80" 
+    command: >
+      sh -c "
+        echo 'SERVER_MODE = False' > /pgadmin4/config_local.py &&
+        echo 'ENABLE_HTTPS = False' >> /pgadmin4/config_local.py &&
+        /entrypoint.sh
+      "
+
+
+volumes:
+  postgresql_data:
+    # name: mohamednabil_postgresql_data
+  django-folder:
+  pgadmin_data:

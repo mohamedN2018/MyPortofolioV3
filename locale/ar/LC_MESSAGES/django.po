@@ -1,0 +1,236 @@
+# SnapFolio Arabic Translation
+msgid ""
+msgstr ""
+"Project-Id-Version: SnapFolio\n"
+"Language: ar\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+# Navigation
+msgid "Home"
+msgstr "الرئيسية"
+
+msgid "About"
+msgstr "من نحن"
+
+msgid "Services"
+msgstr "الخدمات"
+
+msgid "Portfolio"
+msgstr "أعمالنا"
+
+msgid "Blog"
+msgstr "المدونة"
+
+msgid "Contact"
+msgstr "اتصل بنا"
+
+# Hero Section
+msgid "I'm a"
+msgstr "أنا"
+
+msgid "Web Designer"
+msgstr "مصمم ويب"
+
+msgid "UI/UX Designer"
+msgstr "مصمم واجهات وتجارب"
+
+msgid "Web Developer"
+msgstr "مطور ويب"
+
+msgid "Creative Director"
+msgstr "مدير إبداعي"
+
+msgid "View My Work"
+msgstr "شاهد أعمالي"
+
+msgid "Get In Touch"
+msgstr "تواصل معي"
+
+# About Section
+msgid "Get to Know Me"
+msgstr "تعرف علي"
+
+msgid "Passionate About Creating Digital Experiences"
+msgstr "شغوف بإنشاء تجارب رقمية مميزة"
+
+msgid "Projects Completed"
+msgstr "مشاريع منجزة"
+
+msgid "Years Experience"
+msgstr "سنوات خبرة"
+
+msgid "Client Satisfaction"
+msgstr "رضا العملاء"
+
+msgid "Download Resume"
+msgstr "تحميل السيرة الذاتية"
+
+msgid "Let's Talk"
+msgstr "لنتحدث"
+
+# Stats Section
+msgid "Happy Clients"
+msgstr "عملاء سعداء"
+
+msgid "Projects"
+msgstr "مشاريع"
+
+msgid "Hours Of Support"
+msgstr "ساعات الدعم"
+
+msgid "Hard Workers"
+msgstr "فريق العمل"
+
+# Skills Section
+msgid "Skills"
+msgstr "المهارات"
+
+# Resume Section
+msgid "Resume"
+msgstr "السيرة الذاتية"
+
+msgid "Professional Summary"
+msgstr "ملخص مهني"
+
+msgid "Contact Information"
+msgstr "معلومات الاتصال"
+
+msgid "Technical Skills"
+msgstr "المهارات التقنية"
+
+msgid "Professional Experience"
+msgstr "الخبرات المهنية"
+
+msgid "Education"
+msgstr "التعليم"
+
+msgid "Present"
+msgstr "حالياً"
+
+# Portfolio Section
+msgid "Portfolio"
+msgstr "أعمالنا"
+
+# Services Section
+msgid "Innovative business"
+msgstr "أعمال مبتكرة"
+
+msgid "performance solutions"
+msgstr "حلول أداء"
+
+msgid "View All Services"
+msgstr "عرض جميع الخدمات"
+
+# Testimonials Section
+msgid "Testimonials"
+msgstr "آراء العملاء"
+
+# Contact Section
+msgid "Contact"
+msgstr "اتصل بنا"
+
+msgid "Contact Info"
+msgstr "معلومات الاتصال"
+
+msgid "Our Location"
+msgstr "موقعنا"
+
+msgid "Phone Number"
+msgstr "رقم الهاتف"
+
+msgid "Email Address"
+msgstr "البريد الإلكتروني"
+
+msgid "Send Message"
+msgstr "إرسال الرسالة"
+
+msgid "Your Name"
+msgstr "الاسم"
+
+msgid "Your Email"
+msgstr "البريد الإلكتروني"
+
+msgid "Subject"
+msgstr "الموضوع"
+
+msgid "Message"
+msgstr "الرسالة"
+
+msgid "Loading"
+msgstr "جاري التحميل"
+
+msgid "Your message has been sent. Thank you!"
+msgstr "تم إرسال رسالتك. شكراً لك!"
+
+# Footer
+msgid "All Rights Reserved"
+msgstr "جميع الحقوق محفوظة"
+
+msgid "Designed by"
+msgstr "تصميم"
+
+# Buttons
+msgid "Read More"
+msgstr "اقرأ المزيد"
+
+msgid "Learn More"
+msgstr "اعرف المزيد"
+
+msgid "Subscribe"
+msgstr "اشترك"
+
+msgid "Search"
+msgstr "بحث"
+
+# Categories
+msgid "Front-End"
+msgstr "واجهات أمامية"
+
+msgid "Back-End"
+msgstr "خلفيات"
+
+msgid "Design"
+msgstr "تصميم"
+
+msgid "Database"
+msgstr "قواعد بيانات"
+
+msgid "Tools"
+msgstr "أدوات"
+
+# Months
+msgid "January"
+msgstr "يناير"
+
+msgid "February"
+msgstr "فبراير"
+
+msgid "March"
+msgstr "مارس"
+
+msgid "April"
+msgstr "أبريل"
+
+msgid "May"
+msgstr "مايو"
+
+msgid "June"
+msgstr "يونيو"
+
+msgid "July"
+msgstr "يوليو"
+
+msgid "August"
+msgstr "أغسطس"
+
+msgid "September"
+msgstr "سبتمبر"
+
+msgid "October"
+msgstr "أكتوبر"
+
+msgid "November"
+msgstr "نوفمبر"
+
+msgid "December"
+msgstr "ديسمبر"

@@ -1,0 +1,59 @@
+<div class="social-links">
+  {% if site_settings.facebook_url %}
+    <a href="{{ site_settings.facebook_url }}" target="_blank" rel="noopener noreferrer">
+      <i class="bi bi-facebook"></i>
+    </a>
+  {% endif %}
+  
+  {% if site_settings.twitter_url %}
+    <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer">
+      <i class="bi bi-twitter-x"></i>
+    </a>
+  {% endif %}
+  
+  {% if site_settings.instagram_url %}
+    <a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener noreferrer">
+      <i class="bi bi-instagram"></i>
+    </a>
+  {% endif %}
+  
+  {% if site_settings.linkedin_url %}
+    <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer">
+      <i class="bi bi-linkedin"></i>
+    </a>
+  {% endif %}
+  
+  {% if site_settings.github_url %}
+    <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer">
+      <i class="bi bi-github"></i>
+    </a>
+  {% endif %}
+</div>
+
+<style>
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.social-links a {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: color-mix(in srgb, var(--accent-color), transparent 85%);
+  color: var(--default-color);
+  border-radius: 50%;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.social-links a:hover {
+  background-color: var(--accent-color);
+  color: var(--contrast-color);
+  transform: translateY(-3px);
+}
+</style>

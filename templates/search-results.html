@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+
+{% block title %}{% trans "Search Results" %} | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+
+<!-- Page Title -->
+<div class="page-title dark-background">
+  <div class="container d-lg-flex justify-content-between align-items-center">
+    <h1 class="mb-2 mb-lg-0">{% trans "Search Results" %}</h1>
+    <nav class="breadcrumbs">
+      <ol>
+        <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+        <li class="current">{% trans "Search" %}</li>
+      </ol>
+    </nav>
+  </div>
+</div>
+
+<section class="search-results section">
+  <div class="container" data-aos="fade-up">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <form action="{% url 'search' %}" method="get" class="mb-5">
+          <div class="input-group">
+            <input type="text" name="q" class="form-control form-control-lg" placeholder="{% trans 'Search...' %}" value="{{ query }}">
+            <button type="submit" class="btn btn-primary">{% trans "Search" %}</button>
+          </div>
+        </form>
+        
+        {% if query %}
+          <h4>{% blocktrans %}Found {{ results.total_count }} results for "{{ query }}"{% endblocktrans %}</h4>
+          
+          {% if results.portfolios %}
+            <div class="search-section mt-4">
+              <h5>{% trans "Portfolio Projects" %}</h5>
+              {% for item in results.portfolios %}
+                <div class="search-item p-3 mb-3 border rounded">
+                  <h6><a href="{% url 'portfolio_detail' item.slug %}">{{ item.title }}</a></h6>
+                  <p>{{ item.short_description|truncatechars:150 }}</p>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          
+          {% if results.blog_posts %}
+            <div class="search-section mt-4">
+              <h5>{% trans "Blog Posts" %}</h5>
+              {% for post in results.blog_posts %}
+                <div class="search-item p-3 mb-3 border rounded">
+                  <h6><a href="{% url 'blog_detail' post.slug %}">{{ post.title }}</a></h6>
+                  <p>{{ post.excerpt|truncatechars:150 }}</p>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          
+          {% if results.services %}
+            <div class="search-section mt-4">
+              <h5>{% trans "Services" %}</h5>
+              {% for service in results.services %}
+                <div class="search-item p-3 mb-3 border rounded">
+                  <h6><a href="{% url 'service_detail' service.slug %}">{{ service.title }}</a></h6>
+                  <p>{{ service.short_description|truncatechars:150 }}</p>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          
+          {% if results.total_count == 0 %}
+            <div class="alert alert-info mt-4">
+              {% trans "No results found. Please try different keywords." %}
+            </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,86 @@
+{% load i18n %}
+
+<div class="language-switcher">
+  <div class="dropdown">
+    <button class="dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-globe2"></i>
+      <span>{{ current_language.name|default:'English' }}</span>
+      <i class="bi bi-chevron-down"></i>
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+      {% for lang in available_languages %}
+        <li>
+          <form action="{% url 'set_language' %}" method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="language" value="{{ lang.code }}">
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="dropdown-item {% if lang.code == current_language.code %}active{% endif %}">
+              {{ lang.name }}
+            </button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<style>
+.language-switcher .dropdown-toggle {
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
+  border-radius: 30px;
+  padding: 8px 15px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--default-color);
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.language-switcher .dropdown-toggle:hover {
+  border-color: var(--accent-color);
+  background-color: color-mix(in srgb, var(--accent-color), transparent 90%);
+}
+
+.language-switcher .dropdown-toggle i:first-child {
+  font-size: 16px;
+}
+
+.language-switcher .dropdown-toggle i:last-child {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.language-switcher .dropdown-toggle[aria-expanded="true"] i:last-child {
+  transform: rotate(180deg);
+}
+
+.language-switcher .dropdown-menu {
+  background-color: var(--surface-color);
+  border: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
+  border-radius: 12px;
+  padding: 8px;
+  min-width: 120px;
+}
+
+.language-switcher .dropdown-item {
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--default-color);
+  transition: all 0.3s ease;
+}
+
+.language-switcher .dropdown-item:hover {
+  background-color: color-mix(in srgb, var(--accent-color), transparent 88%);
+  color: var(--accent-color);
+}
+
+.language-switcher .dropdown-item.active {
+  background-color: var(--accent-color);
+  color: var(--contrast-color);
+}
+</style>
