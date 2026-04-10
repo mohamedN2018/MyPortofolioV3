@@ -4,7 +4,7 @@ services:
     restart: always
     volumes:
       # - ./:/usr/src/app
-      - django-folder:/s3files
+      - django-media:/usr/src/app/media
     environment:
       DB_ENGINE: django.db.backends.postgresql
       DB_NAME: ${DB_NAME}
@@ -55,7 +55,6 @@ services:
 
 
 volumes:
+  django-media:
   postgresql_data:
-    # name: mohamednabil_postgresql_data
-  django-folder:
   pgadmin_data:

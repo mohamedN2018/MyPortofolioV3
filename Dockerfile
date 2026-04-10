@@ -40,7 +40,6 @@ RUN mkdir -p /usr/src/app/media \
                  /tmp/django_uploads \
                  /usr/src/app/static
 
-RUN mkdir -p /s3files
 
 
 RUN python manage.py collectstatic --noinput || true
