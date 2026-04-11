@@ -112,6 +112,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',  # Important for translation
                 'core.context_processors.site_settings',
                 'core.context_processors.site_languages',
                 'core.context_processors.site_menus',

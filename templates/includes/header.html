@@ -31,7 +31,7 @@
           </a>
         </li>
         <li>
-          <a href="#about" class="{% if request.resolver_match.url_name == 'about' %}active{% endif %}">
+          <a href="#about">
             <i class="bi bi-person navicon"></i>
             <span>{% trans "About" %}</span>
           </a>
@@ -80,12 +80,16 @@
     <div class="contact-mini w-100">
       <div class="contact-mini-item">
         <i class="bi bi-envelope"></i>
-        <a href="mailto:{{ site_settings.contact_email|default:'contact@example.com' }}">{{ site_settings.contact_email|default:'contact@example.com'|truncatechars:22 }}</a>
+        <a href="mailto:{{ site_settings.contact_email|default:'contact@example.com' }}" class="text-break">
+          {{ site_settings.contact_email|default:'contact@example.com' }}
+        </a>
       </div>
       {% if site_settings.contact_phone %}
         <div class="contact-mini-item">
           <i class="bi bi-telephone"></i>
-          <a href="tel:{{ site_settings.contact_phone }}">{{ site_settings.contact_phone }}</a>
+          <a href="tel:{{ site_settings.contact_phone }}">
+            {{ site_settings.contact_phone }}
+          </a>
         </div>
       {% endif %}
     </div>
@@ -99,8 +103,38 @@
   /* ============================================
     Header Styling - Modern & Clean
     ============================================ */
+    /* Extra mobile fixes for header */
+    @media (max-width: 768px) {
+        .header .contact-mini-item {
+            flex-wrap: wrap;
+        }
+        
+        .header .contact-mini-item i {
+            width: 24px;
+            height: 24px;
+            font-size: 10px;
+        }
+        
+        .header .contact-mini-item a {
+            font-size: 10px;
+            word-break: break-all;
+            max-width: calc(100% - 40px);
+        }
+        
+        .header .navmenu a {
+            padding: 10px 12px !important;
+            font-size: 14px !important;
+        }
+        
+        .header .navmenu a .navicon {
+            font-size: 18px !important;
+        }
+        
+        .header .site-name {
+            font-size: 14px !important;
+        }
+    }
 
-  /* Logo Area */
   .header .logo-area {
     padding: 15px 0 10px;
     border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
@@ -251,6 +285,7 @@
     gap: 10px;
     padding: 6px 0;
     font-size: 12px;
+    flex-wrap: wrap;
   }
 
   .header .contact-mini-item i {
@@ -264,6 +299,7 @@
     font-size: 12px;
     color: var(--accent-color);
     transition: all 0.3s ease;
+    flex-shrink: 0;
   }
 
   .header .contact-mini-item:hover i {
@@ -276,13 +312,14 @@
     text-decoration: none;
     transition: color 0.3s ease;
     font-size: 11px;
+    word-break: break-word;
+    flex: 1;
   }
 
   .header .contact-mini-item a:hover {
     color: var(--accent-color);
   }
 
-  /* Header Container Background */
   .header .header-container {
     background-color: var(--surface-color);
     border-radius: 20px;
@@ -324,7 +361,6 @@
     MOBILE MENU
     ============================================ */
 
-  /* Hide toggle button on desktop */
   .header-toggle-wrapper {
     display: none;
   }
@@ -334,7 +370,6 @@
   }
 
   @media (max-width: 1199px) {
-    /* Show toggle button on mobile */
     .header-toggle-wrapper {
       display: block;
       position: fixed;
@@ -367,7 +402,6 @@
       transform: scale(1.1);
     }
     
-    /* Mobile menu overlay */
     .mobile-menu-overlay {
       display: block;
       position: fixed;
@@ -388,7 +422,6 @@
       visibility: visible;
     }
     
-    /* Mobile header */
     .header {
       position: fixed !important;
       top: 0 !important;
@@ -451,7 +484,6 @@
       font-size: 20px !important;
     }
     
-    /* Hide scrollbar on mobile but keep functionality */
     .header::-webkit-scrollbar {
       width: 4px;
     }
@@ -472,7 +504,6 @@
     }
   }
 
-  /* Dark Mode Specific */
   [data-theme="dark"] .header .header-container {
     border-color: color-mix(in srgb, var(--accent-color), transparent 85%);
   }
@@ -488,118 +519,10 @@
   [data-theme="dark"] .mobile-menu-overlay {
     background-color: rgba(0, 0, 0, 0.7);
   }
+  
+  .text-break {
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+  }
 </style>
 
-<script>
-  (function() {
-    'use strict';
-    
-    function initMobileMenu() {
-      const header = document.querySelector('.header');
-      const toggleBtn = document.querySelector('.header-toggle');
-      const overlay = document.querySelector('.mobile-menu-overlay');
-      
-      if (!header) return;
-      if (!toggleBtn) {
-        console.log('Toggle button not found');
-        return;
-      }
-      
-      // Make sure menu starts closed
-      header.classList.remove('header-show');
-      document.body.classList.remove('menu-open');
-      
-      const toggleIcon = toggleBtn.querySelector('i');
-      
-      function openMenu() {
-        header.classList.add('header-show');
-        document.body.classList.add('menu-open');
-        if (toggleIcon) {
-          toggleIcon.classList.remove('bi-list');
-          toggleIcon.classList.add('bi-x');
-        }
-        document.body.style.overflow = 'hidden';
-      }
-      
-      function closeMenu() {
-        header.classList.remove('header-show');
-        document.body.classList.remove('menu-open');
-        if (toggleIcon) {
-          toggleIcon.classList.remove('bi-x');
-          toggleIcon.classList.add('bi-list');
-        }
-        document.body.style.overflow = '';
-      }
-      
-      // Toggle button click
-      toggleBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        if (header.classList.contains('header-show')) {
-          closeMenu();
-        } else {
-          openMenu();
-        }
-      });
-      
-      // Close on overlay click
-      if (overlay) {
-        overlay.addEventListener('click', closeMenu);
-      }
-      
-      // Close on nav link click
-      const navLinks = header.querySelectorAll('.navmenu a');
-      navLinks.forEach(function(link) {
-        link.addEventListener('click', function() {
-          if (window.innerWidth <= 1199) {
-            setTimeout(closeMenu, 150);
-          }
-        });
-      });
-      
-      // Close on escape key
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && header.classList.contains('header-show')) {
-          closeMenu();
-        }
-      });
-      
-      // Handle resize
-      window.addEventListener('resize', function() {
-        if (window.innerWidth > 1199) {
-          if (header.classList.contains('header-show')) {
-            closeMenu();
-          }
-          document.body.style.overflow = '';
-        }
-      });
-      
-      // Close when clicking outside
-      document.addEventListener('click', function(e) {
-        if (window.innerWidth <= 1199) {
-          const isClickInsideHeader = header.contains(e.target);
-          const isClickOnToggle = toggleBtn.contains(e.target);
-          
-          if (!isClickInsideHeader && !isClickOnToggle && header.classList.contains('header-show')) {
-            closeMenu();
-          }
-        }
-      });
-      
-      // Prevent header clicks from bubbling
-      header.addEventListener('click', function(e) {
-        e.stopPropagation();
-      });
-      
-      console.log('Mobile menu initialized');
-    }
-    
-    // Run when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initMobileMenu);
-    } else {
-      initMobileMenu();
-    }
-  })();
-</script>

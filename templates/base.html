@@ -3,7 +3,7 @@
 <html lang="{{ current_language.code|default:'en' }}" dir="{{ current_language.direction|default:'ltr' }}">
 <head>
   <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, shrink-to-fit=no" name="viewport">
   <title>{% block title %}{{ site_settings.get_site_name|default:'SnapFolio' }}{% endblock %}</title>
   <meta name="description" content="{% block description %}{% endblock %}">
   <meta name="keywords" content="{% block keywords %}{% endblock %}">
@@ -35,20 +35,52 @@
 
   {% block extra_css %}{% endblock %}
 
-  <style>
-    /* RTL Support */
-    body[dir="rtl"] {
-      text-align: right;
+<style>
+  /* RTL Support */
+  body[dir="rtl"] {
+    text-align: right;
+  }
+  
+  /* General margin for main content */
+  @media (min-width: 1200px) {
+    .header~main,
+    .header~#footer {
+      margin-left: 330px;
     }
     
-    @media (min-width: 1200px) {
-      body[dir="rtl"] .header~main,
-      body[dir="rtl"] .header~#footer {
-        margin-left: 0;
-        margin-right: 330px;
-      }
+    /* RTL override for main margin */
+    body[dir="rtl"] .header~main,
+    body[dir="rtl"] .header~#footer {
+      margin-left: 0;
+      margin-right: 330px;
     }
-  </style>
+    
+    /* RTL override for header position */
+    body[dir="rtl"] .header {
+      left: auto;
+      right: 30px;
+    }
+  }
+  
+  /* Mobile RTL adjustments */
+  @media (max-width: 1199px) {
+    body[dir="rtl"] .header {
+      left: auto !important;
+      right: -100% !important;
+    }
+    
+    body[dir="rtl"] .header.header-show {
+      left: auto !important;
+      right: 0 !important;
+    }
+    
+    body[dir="rtl"] .header-toggle-wrapper {
+      right: auto;
+      left: 20px;
+    }
+  }
+</style>
+
 </head>
 
 <body class="{% block body_class %}index-page{% endblock %}" dir="{{ current_language.direction|default:'ltr' }}">
@@ -166,7 +198,37 @@
       });
     })();
   </script>
-  
+  <script>
+    // Direct Preloader Fix - Force hide after page loads
+    (function() {
+        // Immediately hide preloader if it exists
+        function removePreloader() {
+            var preloader = document.getElementById('preloader');
+            if (preloader) {
+                preloader.style.opacity = '0';
+                preloader.style.visibility = 'hidden';
+                setTimeout(function() {
+                    if (preloader && preloader.parentNode) {
+                        preloader.parentNode.removeChild(preloader);
+                    }
+                }, 500);
+            }
+        }
+        
+        // Try to remove immediately
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', removePreloader);
+        } else {
+            removePreloader();
+        }
+        
+        // Also try on full load
+        window.addEventListener('load', removePreloader);
+        
+        // Force remove after 2 seconds max
+        setTimeout(removePreloader, 2000);
+    })();
+</script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

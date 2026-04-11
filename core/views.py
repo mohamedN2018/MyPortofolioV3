@@ -598,7 +598,7 @@ def get_client_ip(request):
 def set_language(request):
     """تغيير لغة الموقع"""
     if request.method == 'POST':
-        language_code = request.POST.get('language', 'ar')
+        language_code = request.POST.get('language', 'en')
         
         try:
             language = Language.objects.get(code=language_code, is_active=True)
@@ -606,8 +606,16 @@ def set_language(request):
             request.session['django_language'] = language_code
             request.LANGUAGE_CODE = language_code
             
+            # تحديث اتجاه الصفحة
+            direction = language.direction if language else 'ltr'
+            
             next_url = request.POST.get('next', '/')
-            return redirect(next_url)
+            response = redirect(next_url)
+            
+            # تعيين لغة في الـ session
+            response.set_cookie('django_language', language_code, max_age=365*24*60*60)
+            
+            return response
             
         except Language.DoesNotExist:
             pass

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static i18n %}
 
-{% block title %}{{ personal_info.name|default:'SnapFolio' }} | {% trans "Portfolio" %}{% endblock %}
+{% block title %}{% if personal_info.name %}{{ personal_info.name }}{% else %}SnapFolio{% endif %} | {% trans "Portfolio" %}{% endblock %}
 
 {% block content %}
 
@@ -17,8 +17,7 @@
       <div class="row align-items-center">
         <div class="col-lg-6" data-aos="fade-right" data-aos-delay="100">
           <div class="hero-text">
-            <h1>{{ site_settings.site_name|default:'SnapFolio' }}</h1>
-            {% comment %} <h2>{{ personal_info.name|default:'Alexander Chen' }}</h2> {% endcomment %}
+            <h1>{% trans "SnapFolio" %}</h1>
             <p class="lead">
               {% trans "I'm a" %} 
               <span class="typed" data-typed-items="
@@ -52,7 +51,7 @@
               {% if personal_info.profile_image %}
                 <img src="{{ personal_info.profile_image.url }}" alt="{{ personal_info.name }}" class="profile-image">
               {% else %}
-                <img src="{% static 'assets/img/profile/profile-2.png' %}" alt="{{ personal_info.name }}" class="profile-image">
+                <img src="{% static 'assets/img/profile/profile-2.png' %}" alt="Profile" class="profile-image">
               {% endif %}
             </div>
           </div>
@@ -82,8 +81,8 @@
           </div>
 
           <div class="profile-content">
-            <h3>{{ personal_info.name|default:'Marcus Thompson' }}</h3>
-            <p class="profession">{{ personal_info.title|default:'Creative Director & Developer' }}</p>
+            <h3>{% if personal_info.name %}{{ personal_info.name }}{% else %}Marcus Thompson{% endif %}</h3>
+            <p class="profession">{% if personal_info.title %}{{ personal_info.title }}{% else %}{% trans "Creative Director & Developer" %}{% endif %}</p>
 
             <div class="contact-links">
               <a href="mailto:{{ site_settings.contact_email }}" class="contact-item">
@@ -96,10 +95,10 @@
                   {{ site_settings.contact_phone }}
                 </a>
               {% endif %}
-              {% if site_settings.contact_address %}
+              {% if site_settings.get_contact_address %}
                 <a href="#" class="contact-item">
                   <i class="bi bi-geo-alt"></i>
-                  {{ site_settings.contact_address|truncatechars:50 }}
+                  {{ site_settings.get_contact_address|truncatechars:50 }}
                 </a>
               {% endif %}
             </div>
@@ -115,20 +114,20 @@
           </div>
 
           <div class="description">
-            <p>{{ personal_info.bio|default:''|linebreaks|truncatechars:500 }}</p>
+            <p>{{ personal_info.bio|default:''|linebreaks }}</p>
           </div>
 
           <div class="stats-grid">
             <div class="stat-item">
-              <div class="stat-number">{{ personal_info.projects_completed|default:150 }}+</div>
+              <div class="stat-number">{% if personal_info.projects_completed %}{{ personal_info.projects_completed }}{% else %}150{% endif %}+</div>
               <div class="stat-label">{% trans "Projects Completed" %}</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ personal_info.years_experience|default:5 }}+</div>
+              <div class="stat-number">{% if personal_info.years_experience %}{{ personal_info.years_experience }}{% else %}5{% endif %}+</div>
               <div class="stat-label">{% trans "Years Experience" %}</div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ personal_info.client_satisfaction|default:98 }}%</div>
+              <div class="stat-number">{% if personal_info.client_satisfaction %}{{ personal_info.client_satisfaction }}{% else %}98{% endif %}%</div>
               <div class="stat-label">{% trans "Client Satisfaction" %}</div>
             </div>
           </div>
@@ -159,7 +158,7 @@
         <div class="stats-wrapper">
           <div class="stats-item" data-aos="zoom-in" data-aos-delay="150">
             <div class="icon-wrapper"><i class="bi bi-emoji-smile"></i></div>
-            <span data-purecounter-start="0" data-purecounter-end="{{ personal_info.happy_clients|default:232 }}" data-purecounter-duration="1" class="purecounter"></span>
+            <span data-purecounter-start="0" data-purecounter-end="{% if personal_info.happy_clients %}{{ personal_info.happy_clients }}{% else %}232{% endif %}" data-purecounter-duration="1" class="purecounter"></span>
             <p>{% trans "Happy Clients" %}</p>
           </div>
           <div class="stats-item" data-aos="zoom-in" data-aos-delay="200">
@@ -183,52 +182,11 @@
   </div>
 </section>
 
-
-
-{% comment %} <!-- Skills Section -->
-<section id="skills" class="skills section">
-  <div class="container section-title" data-aos="fade-up">
-    <h2>{% trans "Skills" %}</h2>
-    <p>{{ section_data.skills.description|default:'Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit' }}</p>
-  </div>
-
-  <div class="container" data-aos="fade-up" data-aos-delay="100">
-    <div class="row">
-      {% for category in skill_categories %}
-        <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12 mb-4 mb-lg-0 mb-md-0 mb-sm-0 mb-xs-0 p-3 skills-category-wrapper" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
-          <div class="skills-category" data-aos="fade-up" data-aos-delay="200">
-            <h3>{{ category.name }}</h3>
-            <div class="skills-animation">
-              {% for skill in skills %}
-                {% if skill.category.id == category.id %}
-                  <div class="skill-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <h4>{{ skill.name }}</h4>
-                      <span class="skill-percentage">{{ skill.proficiency }}%</span>
-                    </div>
-                    <div class="progress">
-                      <div class="progress-bar" role="progressbar" aria-valuenow="{{ skill.proficiency }}" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    {% if skill.description %}
-                      <div class="skill-tooltip">{{ skill.description }}</div>
-                    {% endif %}
-                  </div>
-                {% endif %}
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-</section> {% endcomment %}
-
-
 <!-- Skills Section -->
 <section id="skills" class="skills section">
   <div class="container section-title" data-aos="fade-up">
     <h2>{% trans "Skills" %}</h2>
-    <p>{{ section_data.skills.description|default:'Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit' }}</p>
+    <p>{% trans "My technical skills and expertise" %}</p>
   </div>
 
   <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -268,12 +226,11 @@
   </div>
 </section>
 
-
 <!-- Resume Section -->
 <section id="resume" class="resume section">
   <div class="container section-title" data-aos="fade-up">
     <h2>{% trans "Resume" %}</h2>
-    <p>{{ section_data.resume.description|default:'Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem.' }}</p>
+    <p>{% trans "My professional journey and education" %}</p>
   </div>
 
   <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -293,8 +250,8 @@
 
           <h3 class="mt-4">{% trans "Contact Information" %}</h3>
           <ul class="contact-info list-unstyled">
-            {% if site_settings.contact_address %}<li><i class="bi bi-geo-alt"></i> {{ site_settings.contact_address }}</li>{% endif %}
-            {% if site_settings.contact_email %}<li><i class="bi bi-envelope"></i> {{ site_settings.contact_email }}</li>{% endif %}
+            <li><i class="bi bi-geo-alt"></i> {{ site_settings.get_contact_address|default:'New York, USA' }}</li>
+            <li><i class="bi bi-envelope"></i> {{ site_settings.contact_email|default:'contact@example.com' }}</li>
             {% if site_settings.contact_phone %}<li><i class="bi bi-phone"></i> {{ site_settings.contact_phone }}</li>{% endif %}
           </ul>
 
@@ -352,7 +309,7 @@
 <section id="portfolio" class="portfolio section">
   <div class="container section-title" data-aos="fade-up">
     <h2>{% trans "Portfolio" %}</h2>
-    <p>{{ section_data.portfolio.description|default:'Magnam dolores commodi suscipit. Necessitatibus eius consequatur ex aliquid fuga eum quidem.' }}</p>
+    <p>{% trans "Some of my recent work and projects" %}</p>
   </div>
 
   <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -376,7 +333,7 @@
                     {% else %}
                     <a href="{% static 'assets/img/portfolio/portfolio-1.png' %}" class="glightbox" title="{{ portfolio.title }}"><i class="bi bi-plus-lg"></i></a>
                     {% endif %}
-                    <a href="{% url 'portfolio_detail' portfolio.slug %}" title="More Details"><i class="bi bi-arrow-right"></i></a>
+                    <a href="{% url 'portfolio_detail' portfolio.slug %}" title="{% trans 'More Details' %}"><i class="bi bi-arrow-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -388,13 +345,11 @@
   </div>
 </section>
 
-
-
 <!-- Services Section -->
 <section id="services" class="services section">
   <div class="container section-title" data-aos="fade-up">
     <h2>{% trans "Services" %}</h2>
-    <p>{{ section_data.services.description|default:'Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit' }}</p>
+    <p>{% trans "What I offer to help your business grow" %}</p>
   </div>
 
   <div class="container" data-aos="fade-up" data-aos-delay="100">
@@ -403,14 +358,14 @@
         <div class="col-lg-8 col-md-12">
           <div class="service-intro">
             <h2 class="service-heading">
-              <div>{% trans "Innovative business" %}</div>
-              <div><span>{% trans "performance solutions" %}</span></div>
+              <div>{% trans "Innovative Business" %}</div>
+              <div><span>{% trans "Performance Solutions" %}</span></div>
             </h2>
           </div>
         </div>
         <div class="col-lg-4 col-md-12">
           <div class="service-summary">
-            <p>{{ section_data.services.description|truncatechars:150 }}</p>
+            <p>{% trans "I provide innovative solutions that help your business grow and succeed" %}</p>
             <a href="{% url 'services' %}" class="service-btn">
               {% trans "View All Services" %}
               <i class="bi bi-arrow-right"></i>
@@ -441,15 +396,13 @@
       {% endfor %}
     </div>
   </div>
-</section> 
-
-
+</section>
 
 <!-- Testimonials Section -->
 <section id="testimonials" class="testimonials section light-background">
   <div class="container section-title" data-aos="fade-up">
     <h2>{% trans "Testimonials" %}</h2>
-    <p>{{ section_data.testimonials.description|default:'Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit' }}</p>
+    <p>{% trans "What my clients say about working with me" %}</p>
   </div>
 
   <div class="container">
@@ -485,7 +438,7 @@
 <section id="contact" class="contact section">
   <div class="container section-title" data-aos="fade-up">
     <h2>{% trans "Contact" %}</h2>
-    <p>{{ section_data.contact.description|default:'Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit' }}</p>
+    <p>{% trans "Get in touch with me for inquiries or collaborations" %}</p>
   </div>
 
   <div class="container">
@@ -493,13 +446,13 @@
       <div class="col-lg-5">
         <div class="info-box">
           <h3>{% trans "Contact Info" %}</h3>
-          <p>{% trans "Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ante ipsum primis." %}</p>
+          <p>{% trans "Feel free to reach out to me through any of these channels" %}</p>
 
           <div class="info-item">
             <div class="icon-box"><i class="bi bi-geo-alt"></i></div>
             <div class="content">
-              <h4>{% trans "Our Location" %}</h4>
-              <p>{{ site_settings.contact_address|default:'A108 Adam Street, New York, NY 535022' }}</p>
+              <h4>{% trans "My Location" %}</h4>
+              <p>{{ site_settings.get_contact_address|default:'New York, NY 10001' }}</p>
             </div>
           </div>
 
@@ -522,8 +475,8 @@
       </div>
       <div class="col-lg-7">
         <div class="contact-form">
-          <h3>{% trans "Get In Touch" %}</h3>
-          <p>{% trans "Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ante ipsum primis." %}</p>
+          <h3>{% trans "Send Me a Message" %}</h3>
+          <p>{% trans "I'll get back to you as soon as possible" %}</p>
 
           <form method="post" class="contact-form-ajax">
             {% csrf_token %}
