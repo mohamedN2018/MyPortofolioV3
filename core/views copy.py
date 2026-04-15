@@ -9,7 +9,7 @@ from django.conf import settings
 from django.utils import translation
 from django.utils.translation import gettext as _
 from django.urls import reverse
-from django.db.models import Q, Count, Avg
+from django.db.models import Q, Count
 from datetime import datetime
 import json
 import logging
@@ -23,17 +23,20 @@ logger = logging.getLogger(__name__)
 
 def get_current_language(request):
     """الحصول على اللغة الحالية مع التحقق من وجودها"""
+    # محاولة الحصول على اللغة من الجلسة أو من الطلب
     lang_code = request.GET.get('lang')
     if not lang_code:
         lang_code = request.session.get('django_language')
     if not lang_code:
         lang_code = translation.get_language()
     if not lang_code:
-        lang_code = 'ar'
+        lang_code = 'ar'  # اللغة الافتراضية
     
+    # التحقق من وجود اللغة في قاعدة البيانات
     try:
         language = Language.objects.get(code=lang_code, is_active=True)
     except Language.DoesNotExist:
+        # جلب اللغة الافتراضية
         language = Language.objects.filter(is_default=True).first()
         if not language:
             language = Language.objects.filter(is_active=True).first()
@@ -43,6 +46,7 @@ def get_current_language(request):
             lang_code = 'ar'
             language = None
     
+    # تفعيل اللغة
     translation.activate(lang_code)
     request.session['django_language'] = lang_code
     request.LANGUAGE_CODE = lang_code
@@ -60,8 +64,10 @@ def get_default_language():
 
 def get_model_data(model_class, language, fallback=True, **filters):
     """دالة مساعدة لجلب البيانات من النماذج مع fallback للغة الافتراضية"""
+    # محاولة جلب البيانات باللغة الحالية
     data = model_class.objects.filter(language=language, **filters)
     
+    # إذا لم توجد بيانات والـ fallback مفعل، جلب من اللغة الافتراضية
     if fallback and not data.exists():
         default_language = get_default_language()
         if default_language and default_language != language:
@@ -77,6 +83,7 @@ def get_section_content(section_key, language):
         content = SectionContent.objects.get(section=section, language=language)
         return content
     except:
+        # جلب من اللغة الافتراضية
         default_language = get_default_language()
         if default_language and default_language != language:
             try:
@@ -97,24 +104,16 @@ def get_common_context(request, language, extra_context=None):
     total_experiences = WorkExperience.objects.filter(is_active=True).count()
     total_blogs = BlogPost.objects.filter(is_published=True).count()
     
-    # حساب "العاملين المجتهدين"
+    # حساب "العاملين المجتهدين" - يمكن تعديل المنطق حسب احتياجك
+    # مثلاً: عدد الأشخاص في PersonalInfo (كل لغة تعتبر شخص) أو عدد فريد من الأسماء
     hard_workers_count = PersonalInfo.objects.values('name').distinct().count()
     if hard_workers_count == 0:
-        hard_workers_count = 1
+        hard_workers_count = 1  # افتراضي
     
-    # ساعات الدعم التلقائية
+    # ساعات الدعم التلقائية (مثلاً: كل مشروع بـ 10 ساعات دعم)
     support_hours = total_projects * 10
     if support_hours < 100:
-        support_hours = 1463
-    
-    auto_stats = {
-        'total_projects': total_projects,
-        'total_testimonials': total_testimonials,
-        'total_experiences': total_experiences,
-        'total_blogs': total_blogs,
-        'hard_workers': hard_workers_count,
-        'support_hours': support_hours,
-    }
+        support_hours = 1463  # القيمة الافتراضية الجميلة
     
     context = {
         'current_language': language,
@@ -125,7 +124,15 @@ def get_common_context(request, language, extra_context=None):
             setting.setting_key: setting.setting_value 
             for setting in GlobalSetting.objects.all()
         },
-        'auto_stats': auto_stats,
+        # إحصائيات تلقائية
+        'auto_stats': {
+            'total_projects': total_projects,
+            'total_testimonials': total_testimonials,
+            'total_experiences': total_experiences,
+            'total_blogs': total_blogs,
+            'hard_workers': hard_workers_count,
+            'support_hours': support_hours,
+        }
     }
     
     if extra_context:
@@ -133,14 +140,12 @@ def get_common_context(request, language, extra_context=None):
     
     return context
 
-
-
 @ensure_csrf_cookie
 def home_page(request):
     """الصفحة الرئيسية - عرض جميع الأقسام"""
     language, lang_code = get_current_language(request)
     
-    # جلب جميع البيانات
+    # جلب جميع البيانات مع fallback للغة الافتراضية
     personal_info_obj = get_model_data(PersonalInfo, language, fallback=True).first()
     educations = get_model_data(Education, language, fallback=True, is_active=True)
     work_experiences = get_model_data(WorkExperience, language, fallback=True, is_active=True)
@@ -150,14 +155,9 @@ def home_page(request):
     featured_portfolios = get_model_data(Portfolio, language, fallback=True, is_active=True, is_featured=True)
     portfolios = get_model_data(Portfolio, language, fallback=True, is_active=True)
     testimonials = get_model_data(Testimonial, language, fallback=True, is_active=True)
+    
+    # جلب آخر المقالات
     recent_posts = get_model_data(BlogPost, language, fallback=True, is_published=True)
-    
-    # ========== جلب التقييمات المقبولة من جميع المشاريع ==========
-    approved_ratings = ProjectRating.objects.filter(is_approved=True).select_related('portfolio').order_by('-created_at')[:9]
-    
-    # لا تقم بتعيين average_rating لأنه property يتم حسابه تلقائياً
-    # فقط قم بتقييم الـ queryset إذا لزم الأمر
-    list(featured_portfolios)  # هذا يقيم الـ queryset
     
     sections = DynamicSection.objects.filter(is_active=True).order_by('order')
     
@@ -182,13 +182,19 @@ def home_page(request):
         'portfolios': portfolios,
         'testimonials': testimonials,
         'recent_posts': recent_posts[:9],
+        # الإحصائيات التلقائية ستأتي من get_common_context
+        # لكن يمكنك تجاوزها هنا إذا أردت:
         'portfolios_count': portfolios.count(),
-        'approved_ratings': approved_ratings,  # التقييمات المقبولة للعرض
-    }
+        'support_hours': auto_stats['support_hours'],  # سيتم جلبه من common context
+        'team_members': auto_stats['hard_workers'],
+        'total_projects': auto_stats['total_projects'],
+        'total_testimonials': auto_stats['total_testimonials'],
+        'total_experiences': auto_stats['total_experiences'],
+        'total_blogs': auto_stats['total_blogs'],
+        }
     
     context = get_common_context(request, language, context_data)
     return render(request, 'index.html', context)
-
 
 
 def services_page(request):
@@ -234,9 +240,11 @@ def service_detail_page(request, slug):
     language, lang_code = get_current_language(request)
     default_language = get_default_language()
     
+    # محاولة جلب الخدمة باللغة الحالية
     try:
         service = Service.objects.get(slug=slug, language=language, is_active=True)
     except Service.DoesNotExist:
+        # جلب من اللغة الافتراضية
         if default_language:
             service = get_object_or_404(Service, slug=slug, language=default_language, is_active=True)
         else:
@@ -260,8 +268,20 @@ def service_detail_page(request, slug):
     return render(request, 'service-detail.html', context)
 
 
+def get_image_url(image_field, default_path='assets/img/portfolio/placeholder.jpg'):
+    """الحصول على رابط الصورة بأمان مع fallback لصورة افتراضية"""
+    if image_field and hasattr(image_field, 'url'):
+        try:
+            # محاولة الوصول إلى URL
+            return image_field.url
+        except (ValueError, AttributeError):
+            pass
+    return default_path
+
+
+
 def portfolio_page(request):
-    """صفحة جميع المشاريع مع عرض التقييمات"""
+    """صفحة جميع المشاريع"""
     language, lang_code = get_current_language(request)
     default_language = get_default_language()
     
@@ -270,10 +290,6 @@ def portfolio_page(request):
     
     portfolios = get_model_data(Portfolio, language, fallback=True, is_active=True)
     categories = get_model_data(PortfolioCategory, language, fallback=True)
-    
-    # لا تقم بتعيين average_rating - يتم حسابه تلقائياً عند استخدامه في القالب
-    # فقط قم بتقييم الـ queryset إذا لزم الأمر
-    list(portfolios)
     
     if category_slug:
         try:
@@ -325,82 +341,6 @@ def portfolio_page(request):
     return render(request, 'portfolio.html', context)
 
 
-# def portfolio_detail_page(request, slug):
-#     """صفحة تفاصيل مشروع محدد مع إمكانية التقييم"""
-#     language, lang_code = get_current_language(request)
-#     default_language = get_default_language()
-    
-#     try:
-#         portfolio = Portfolio.objects.get(slug=slug, language=language, is_active=True)
-#     except Portfolio.DoesNotExist:
-#         if default_language:
-#             portfolio = get_object_or_404(Portfolio, slug=slug, language=default_language, is_active=True)
-#         else:
-#             raise
-    
-#     # التحقق من وجود الصورة
-#     if not portfolio.cover_image or not hasattr(portfolio.cover_image, 'url'):
-#         portfolio.has_image = False
-#     else:
-#         try:
-#             portfolio.cover_image.url
-#             portfolio.has_image = True
-#         except (ValueError, AttributeError):
-#             portfolio.has_image = False
-    
-#     features = PortfolioFeature.objects.filter(portfolio=portfolio, language=language).order_by('order')
-#     if not features.exists() and default_language:
-#         features = PortfolioFeature.objects.filter(portfolio=portfolio, language=default_language).order_by('order')
-    
-#     related_portfolios = Portfolio.objects.filter(
-#         language=language, is_active=True, category=portfolio.category
-#     ).exclude(id=portfolio.id)[:3]
-#     if not related_portfolios.exists() and default_language:
-#         related_portfolios = Portfolio.objects.filter(
-#             language=default_language, is_active=True, category=portfolio.category
-#         ).exclude(id=portfolio.id)[:3]
-    
-#     # نظام التقييمات
-#     rating_form = ProjectRatingForm()
-#     user_has_rated = False
-    
-#     if request.method == 'POST' and 'submit_rating' in request.POST:
-#         rating_form = ProjectRatingForm(request.POST)
-#         if rating_form.is_valid():
-#             email = rating_form.cleaned_data['email']
-#             existing_rating = ProjectRating.objects.filter(portfolio=portfolio, email=email).first()
-            
-#             if existing_rating:
-#                 messages.warning(request, _('You have already rated this project. Thank you!'))
-#             else:
-#                 rating = rating_form.save(commit=False)
-#                 rating.portfolio = portfolio
-#                 rating.save()
-#                 messages.success(request, _('Thank you for your rating! It will appear after approval.'))
-            
-#             return redirect('portfolio_detail', slug=portfolio.slug)
-    
-#     # جلب التقييمات المقبولة
-#     approved_ratings = portfolio.ratings.filter(is_approved=True)
-    
-#     # إضافة متوسط التقييم للمشاريع المرتبطة
-#     for related in related_portfolios:
-#         related.avg_rating = related.average_rating
-    
-#     context_data = {
-#         'portfolio': portfolio,
-#         'features': features,
-#         'related_portfolios': related_portfolios,
-#         'rating_form': rating_form,
-#         'approved_ratings': approved_ratings,
-#         'user_has_rated': user_has_rated,
-#         'average_rating': portfolio.average_rating,
-#         'ratings_count': portfolio.ratings_count,
-#     }
-    
-#     context = get_common_context(request, language, context_data)
-#     return render(request, 'portfolio-detail.html', context)
-
 
 def portfolio_detail_page(request, slug):
     """صفحة تفاصيل مشروع محدد مع إمكانية التقييم"""
@@ -437,17 +377,15 @@ def portfolio_detail_page(request, slug):
             language=default_language, is_active=True, category=portfolio.category
         ).exclude(id=portfolio.id)[:3]
     
-    # ========== لا تقم بتعيين avg_rating لأنه property ==========
-    # فقط قم بتقييم الـ queryset إذا لزم الأمر
-    list(related_portfolios)  # هذا يقيم الـ queryset
-    
-    # نظام التقييمات
+    # ========== نظام التقييمات ==========
     rating_form = ProjectRatingForm()
     user_has_rated = False
     
+    # التحقق مما إذا كان المستخدم الحالي (بالبريد) قد قيم هذا المشروع
     if request.method == 'POST' and 'submit_rating' in request.POST:
         rating_form = ProjectRatingForm(request.POST)
         if rating_form.is_valid():
+            # التحقق من عدم وجود تقييم سابق لنفس البريد
             email = rating_form.cleaned_data['email']
             existing_rating = ProjectRating.objects.filter(portfolio=portfolio, email=email).first()
             
@@ -459,7 +397,13 @@ def portfolio_detail_page(request, slug):
                 rating.save()
                 messages.success(request, _('Thank you for your rating! It will appear after approval.'))
             
+            # إعادة توجيه لتجنب إعادة الإرسال
             return redirect('portfolio_detail', slug=portfolio.slug)
+    else:
+        # التحقق من وجود تقييم من نفس البريد في الجلسة (اختياري)
+        user_email = request.session.get('user_email_for_rating')
+        if user_email:
+            user_has_rated = ProjectRating.objects.filter(portfolio=portfolio, email=user_email).exists()
     
     # جلب التقييمات المقبولة
     approved_ratings = portfolio.ratings.filter(is_approved=True)
@@ -728,8 +672,13 @@ def set_language(request):
             request.session['django_language'] = language_code
             request.LANGUAGE_CODE = language_code
             
+            # تحديث اتجاه الصفحة
+            direction = language.direction if language else 'ltr'
+            
             next_url = request.POST.get('next', '/')
             response = redirect(next_url)
+            
+            # تعيين لغة في الـ session
             response.set_cookie('django_language', language_code, max_age=365*24*60*60)
             
             return response
@@ -819,7 +768,6 @@ def api_portfolio_filter(request):
             'cover_image': portfolio.cover_image.url if portfolio.cover_image else '',
             'category': portfolio.category.name if portfolio.category else '',
             'short_description': portfolio.short_description,
-            'avg_rating': portfolio.average_rating,
         })
     
     return JsonResponse({'success': True, 'portfolios': data})
@@ -895,7 +843,6 @@ def robots_view(request):
     context = {'site_url': settings.SITE_URL if hasattr(settings, 'SITE_URL') else ''}
     return render(request, 'robots.txt', context, content_type='text/plain')
 
-
 def handler400(request, exception):
     """صفحة 400 - Bad Request"""
     language, lang_code = get_current_language(request)
@@ -933,3 +880,4 @@ def handler500(request):
         context['exception_message'] = str(exception_value)
     
     return render(request, 'error/500.html', context, status=500)
+

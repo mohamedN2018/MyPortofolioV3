@@ -79,7 +79,6 @@
             </div>
           </div>
         </div>
-
         <!-- Portfolio Grid -->
         <div class="col-lg-9">
           <div class="row gy-4 portfolio-container isotope-container">
@@ -120,6 +119,33 @@
                       <a href="{% url 'portfolio_detail' item.slug %}">{{ item.title }}</a>
                     </h3>
                     <p class="project-description">{{ item.short_description|truncatechars:100 }}</p>
+                    
+                    <!-- Rating Display - CORRECTED VERSION -->
+                    <div class="project-rating mb-2">
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="rating-stars">
+                          {% with rating=item.average_rating|default:0 %}
+                            {% for i in "12345"|make_list %}
+                              {% if forloop.counter <= rating|floatformat:"0"|add:0 %}
+                                <i class="bi bi-star-fill text-warning small"></i>
+                              {% elif forloop.counter <= rating|add:0.5 %}
+                                <i class="bi bi-star-half text-warning small"></i>
+                              {% else %}
+                                <i class="bi bi-star text-warning small"></i>
+                              {% endif %}
+                            {% endfor %}
+                          {% endwith %}
+                        </div>
+                        <span class="small text-muted">
+                          {% if item.ratings_count > 0 %}
+                            ({{ item.ratings_count }})
+                          {% else %}
+                            {% trans "No reviews yet" %}
+                          {% endif %}
+                        </span>
+                      </div>
+                    </div>
+                    
                     <div class="card-footer">
                       <a href="{% url 'portfolio_detail' item.slug %}" class="btn-details">
                         {% trans "View Details" %}

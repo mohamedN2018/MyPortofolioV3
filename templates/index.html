@@ -158,22 +158,22 @@
         <div class="stats-wrapper">
           <div class="stats-item" data-aos="zoom-in" data-aos-delay="150">
             <div class="icon-wrapper"><i class="bi bi-emoji-smile"></i></div>
-            <span data-purecounter-start="0" data-purecounter-end="{% if personal_info.happy_clients %}{{ personal_info.happy_clients }}{% else %}232{% endif %}" data-purecounter-duration="1" class="purecounter"></span>
+            <span data-purecounter-start="0" data-purecounter-end="{% if personal_info.happy_clients %}{{ personal_info.happy_clients }}{% else %}{{ auto_stats.total_testimonials|default:120 }}{% endif %}" data-purecounter-duration="1" class="purecounter"></span>
             <p>{% trans "Happy Clients" %}</p>
           </div>
           <div class="stats-item" data-aos="zoom-in" data-aos-delay="200">
             <div class="icon-wrapper"><i class="bi bi-journal-richtext"></i></div>
-            <span data-purecounter-start="0" data-purecounter-end="{{ portfolios.count|default:521 }}" data-purecounter-duration="1" class="purecounter"></span>
+            <span data-purecounter-start="0" data-purecounter-end="{{ auto_stats.total_projects|default:521 }}" data-purecounter-duration="1" class="purecounter"></span>
             <p>{% trans "Projects" %}</p>
           </div>
           <div class="stats-item" data-aos="zoom-in" data-aos-delay="250">
             <div class="icon-wrapper"><i class="bi bi-headset"></i></div>
-            <span data-purecounter-start="0" data-purecounter-end="1463" data-purecounter-duration="1" class="purecounter"></span>
+            <span data-purecounter-start="0" data-purecounter-end="{{ auto_stats.support_hours|default:1463 }}" data-purecounter-duration="1" class="purecounter"></span>
             <p>{% trans "Hours Of Support" %}</p>
           </div>
           <div class="stats-item" data-aos="zoom-in" data-aos-delay="300">
             <div class="icon-wrapper"><i class="bi bi-people"></i></div>
-            <span data-purecounter-start="0" data-purecounter-end="15" data-purecounter-duration="1" class="purecounter"></span>
+            <span data-purecounter-start="0" data-purecounter-end="{{ auto_stats.hard_workers|default:15 }}" data-purecounter-duration="1" class="purecounter"></span>
             <p>{% trans "Hard Workers" %}</p>
           </div>
         </div>
@@ -181,6 +181,7 @@
     </div>
   </div>
 </section>
+
 
 <!-- Skills Section -->
 <section id="skills" class="skills section">
@@ -305,6 +306,7 @@
   </div>
 </section>
 
+
 <!-- Portfolio Section -->
 <section id="portfolio" class="portfolio section">
   <div class="container section-title" data-aos="fade-up">
@@ -327,6 +329,23 @@
                 <div class="content">
                   <span class="category">{{ portfolio.category.name|default:'Portfolio' }}</span>
                   <h4>{{ portfolio.title }}</h4>
+                      <!-- Rating Display -->
+                      <div class="rating-display mb-2">
+                          <div class="rating-stars d-inline-block">
+                              {% with rating=portfolio.average_rating %}
+                                  {% for i in "12345"|make_list %}
+                                      {% if forloop.counter <= rating|floatformat:"0"|add:0 %}
+                                          <i class="bi bi-star-fill text-warning"></i>
+                                      {% elif forloop.counter <= rating|add:0.5 %}
+                                          <i class="bi bi-star-half text-warning"></i>
+                                      {% else %}
+                                          <i class="bi bi-star text-warning"></i>
+                                      {% endif %}
+                                  {% endfor %}
+                              {% endwith %}
+                          </div>
+                          <span class="ms-1 rating-count">({{ portfolio.ratings_count }})</span>
+                      </div>
                   <div class="portfolio-links">
                     {% if portfolio.cover_image %}
                     <a href="{{ portfolio.cover_image.url }}" class="glightbox" title="{{ portfolio.title }}"><i class="bi bi-plus-lg"></i></a>
@@ -397,7 +416,7 @@
     </div>
   </div>
 </section>
-
+{% comment %} 
 <!-- Testimonials Section -->
 <section id="testimonials" class="testimonials section light-background">
   <div class="container section-title" data-aos="fade-up">
@@ -427,6 +446,68 @@
                 <span class="position">{{ testimonial.client_position }}</span>
               </div>
             </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section> {% endcomment %}
+
+<!-- Testimonials / Client Reviews Section -->
+<section id="testimonials" class="testimonials section light-background">
+  <div class="container section-title" data-aos="fade-up">
+    <h2>{% trans "Client Reviews" %}</h2>
+    <p>{% trans "What our clients say about our projects" %}</p>
+  </div>
+
+  <div class="container">
+    <div class="testimonial-masonry">
+      {% for rating in approved_ratings %}
+        <div class="testimonial-item {% if forloop.counter|divisibleby:2 %}highlight{% endif %}" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 80 %}">
+          <div class="testimonial-content">
+            <div class="quote-pattern">
+              <i class="bi bi-quote"></i>
+            </div>
+            <!-- Professional Rating Stars in Testimonials -->
+            <div class="rating-stars mb-2">
+              {% for i in "12345"|make_list %}
+                {% if forloop.counter <= rating.rating %}
+                  <i class="bi bi-star-fill"></i>
+                {% else %}
+                  <i class="bi bi-star"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+            <p>{{ rating.comment|default:_("Excellent project! Very professional work.")|truncatechars:150 }}</p>
+            <div class="client-info">
+              <div class="client-image">
+                {% if rating.client_image %}
+                  <img src="{{ rating.client_image.url }}" alt="{{ rating.name }}">
+                {% else %}
+                  <div class="client-initial">{{ rating.name|slice:":1"|upper }}</div>
+                {% endif %}
+              </div>
+              <div class="client-details">
+                <h3>{{ rating.name }}</h3>
+                <span class="position">
+                  <i class="bi bi-star-fill"></i> {{ rating.rating }}/5
+                  <span class="separator">•</span>
+                  <i class="bi bi-calendar"></i> {{ rating.created_at|date:"M d, Y" }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="testimonial-item" data-aos="fade-up">
+          <div class="testimonial-content text-center">
+            <div class="quote-pattern">
+              <i class="bi bi-chat-dots"></i>
+            </div>
+            <p>{% trans "No reviews yet. Be the first to review a project!" %}</p>
+            <a href="{% url 'portfolio' %}" class="btn-view-projects">
+              <i class="bi bi-grid-3x3-gap-fill"></i> {% trans "View Our Projects" %}
+            </a>
           </div>
         </div>
       {% endfor %}

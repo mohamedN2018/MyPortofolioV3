@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from .models import ContactMessage
+from .models import ContactMessage, ProjectRating
 import re
 
 class ContactForm(forms.ModelForm):
@@ -269,6 +269,48 @@ class FilterForm(forms.Form):
         initial=12,
         widget=forms.Select(attrs={'class': 'form-select'})
     )
+
+
+
+# ========== نموذج تقييم المشاريع ==========
+
+class ProjectRatingForm(forms.ModelForm):
+    """نموذج إضافة تقييم لمشروع"""
+    
+    class Meta:
+        model = ProjectRating
+        fields = ['name', 'email', 'rating', 'comment']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Your Name'),
+                'required': True
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': _('Your Email'),
+                'required': True
+            }),
+            'rating': forms.Select(attrs={
+                'class': 'form-select',
+                'required': True
+            }, choices=[(i, f"{i} ★") for i in range(1, 6)]),
+            'comment': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': _('Share your experience with this project...')
+            }),
+        }
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        return email.lower()
+    
+    def clean_comment(self):
+        comment = self.cleaned_data.get('comment')
+        if comment and len(comment.strip()) < 5:
+            raise forms.ValidationError(_('Comment must be at least 5 characters if provided.'))
+        return comment.strip() if comment else ''
 
 
 # نموذج إرسال السيرة الذاتية

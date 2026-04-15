@@ -616,3 +616,44 @@ class ReusableBlockAdmin(admin.ModelAdmin):
             'fields': ('is_active',)
         }),
     )
+    
+    
+# ============================================================
+# نظام التقييمات
+# ============================================================
+
+@admin.register(ProjectRating)
+class ProjectRatingAdmin(admin.ModelAdmin):
+    list_display = ['name', 'portfolio', 'rating', 'is_approved', 'created_at']
+    list_filter = ['rating', 'is_approved', 'created_at']
+    search_fields = ['name', 'email', 'comment', 'portfolio__title']
+    list_editable = ['is_approved']
+    list_per_page = 30
+    readonly_fields = ['name', 'email', 'rating', 'comment', 'created_at']
+    
+    fieldsets = (
+        (_('Rater Info'), {
+            'fields': ('name', 'email')
+        }),
+        (_('Rating'), {
+            'fields': ('portfolio', 'rating', 'comment')
+        }),
+        (_('Status'), {
+            'fields': ('is_approved', 'created_at')
+        }),
+    )
+    
+    actions = ['approve_ratings', 'disapprove_ratings']
+    
+    @admin.action(description=_("Approve selected ratings"))
+    def approve_ratings(self, request, queryset):
+        updated = queryset.update(is_approved=True)
+        self.message_user(request, _(f"{updated} ratings approved and will appear on site."))
+    
+    @admin.action(description=_("Disapprove selected ratings"))
+    def disapprove_ratings(self, request, queryset):
+        updated = queryset.update(is_approved=False)
+        self.message_user(request, _(f"{updated} ratings disapproved."))
+    
+    def has_add_permission(self, request):
+        return False  # المستخدمون يضيفون تقييمات من الواجهة الأمامية فقط

@@ -390,6 +390,35 @@ class Portfolio(TranslatableModel):
     is_featured = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     
+    
+    @property
+    def average_rating(self):
+        """متوسط التقييمات المقبولة"""
+        approved_ratings = self.ratings.filter(is_approved=True)
+        if approved_ratings.exists():
+            return round(approved_ratings.aggregate(models.Avg('rating'))['rating__avg'], 1)
+        return 0
+    
+    @property
+    def ratings_count(self):
+        """عدد التقييمات المقبولة"""
+        return self.ratings.filter(is_approved=True).count()
+    
+    @property
+    def total_ratings_submitted(self):
+        """إجمالي التقييمات المرسلة (بما فيها غير المقبولة)"""
+        return self.ratings.count()
+
+    @property
+    def avg_rating(self):
+        """اسم مختصر لـ average_rating"""
+        return self.average_rating
+    
+    @property
+    def rating_count(self):
+        """اسم مختصر لـ ratings_count"""
+        return self.ratings_count
+
     class Meta:
         ordering = ['-project_date', 'order']
         unique_together = [('slug', 'language')]
@@ -418,6 +447,35 @@ class PortfolioFeature(models.Model):
     
     def __str__(self):
         return self.feature_title
+
+
+# ========== نظام التقييمات (Ratings) ==========
+
+class ProjectRating(models.Model):
+    """تقييمات العملاء على المشاريع"""
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name='ratings')
+    
+    name = models.CharField(max_length=100, verbose_name=_("Your Name"))
+    email = models.EmailField(verbose_name=_("Your Email"))
+    rating = models.IntegerField(
+        choices=[(i, f"{i} ★") for i in range(1, 6)],
+        verbose_name=_("Rating")
+    )
+    comment = models.TextField(blank=True, verbose_name=_("Comment (Optional)"))
+    
+    is_approved = models.BooleanField(default=False, verbose_name=_("Approved"))
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = [('portfolio', 'email')]  # منع تكرار التقييم من نفس البريد
+        ordering = ['-created_at']
+        verbose_name = _("Project Rating")
+        verbose_name_plural = _("Project Ratings")
+    
+    def __str__(self):
+        return f"{self.name} - {self.portfolio.title} - {self.rating}★"
+
+
 
 # ========== الشهادات (Testimonials) ==========
 
