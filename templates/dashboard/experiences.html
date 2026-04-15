@@ -1,0 +1,33 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Work Experiences{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-briefcase"></i> Work Experiences</h2>
+    <a href="{% url 'dashboard:experience_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Experience</a>
+</div>
+
+<div class="data-table"><div class="table-responsive">
+    <table class="table table-hover mb-0">
+        <thead><tr><th>ID</th><th>Job Title</th><th>Company</th><th>Period</th><th>Current</th><th>Language</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for exp in experiences %}
+            <tr>
+                <td>{{ exp.id }}</td>
+                <td><strong>{{ exp.job_title }}</strong></td>
+                <td>{{ exp.company_name }}<br>{% if exp.company_website %}<small><a href="{{ exp.company_website }}" target="_blank">Website</a></small>{% endif %}</td>
+                <td>{{ exp.start_date|date:"Y" }} - {% if exp.is_current %}Present{% else %}{{ exp.end_date|date:"Y"|default:'N/A' }}{% endif %}</td>
+                <td>{% if exp.is_current %}<span class="badge bg-warning">Current</span>{% else %}<span class="badge bg-secondary">Past</span>{% endif %}</td>
+                <td>{{ exp.language.name|default:'-' }}</td>
+                <td>{% if exp.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+                <td><div class="btn-group"><a href="{% url 'dashboard:experience_edit' exp.id %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a><button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ exp.id }}"><i class="bi bi-trash"></i></button></div>
+                <div class="modal fade" id="deleteModal{{ exp.id }}"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Confirm Delete</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Delete experience "{{ exp.job_title }}"?</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><a href="{% url 'dashboard:experience_delete' exp.id %}" class="btn btn-danger">Delete</a></div></div></div></div></td>
+            </tr>
+            {% empty %}直到<td colspan="8" class="text-center py-5">No work experiences found.{% endfor %}
+        </tbody>
+    </table>
+</div></div>
+
+{% if experiences.has_other_pages %}<nav class="mt-4"><ul class="pagination justify-content-center">{% if experiences.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ experiences.previous_page_number }}">Previous</a></li>{% endif %}{% for num in experiences.paginator.page_range %}{% if experiences.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > experiences.number|add:'-3' and num < experiences.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>{% endif %}{% endfor %}{% if experiences.has_next %}<li class="page-item"><a class="page-link" href="?page={{ experiences.next_page_number }}">Next</a></li>{% endif %}</ul></nav>{% endif %}
+{% endblock %}

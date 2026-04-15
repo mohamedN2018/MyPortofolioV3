@@ -190,7 +190,6 @@ def home_page(request):
     return render(request, 'index.html', context)
 
 
-
 def services_page(request):
     """صفحة جميع الخدمات"""
     language, lang_code = get_current_language(request)
@@ -259,7 +258,6 @@ def service_detail_page(request, slug):
     context = get_common_context(request, language, context_data)
     return render(request, 'service-detail.html', context)
 
-
 def portfolio_page(request):
     """صفحة جميع المشاريع مع عرض التقييمات"""
     language, lang_code = get_current_language(request)
@@ -323,83 +321,6 @@ def portfolio_page(request):
     
     context = get_common_context(request, language, context_data)
     return render(request, 'portfolio.html', context)
-
-
-# def portfolio_detail_page(request, slug):
-#     """صفحة تفاصيل مشروع محدد مع إمكانية التقييم"""
-#     language, lang_code = get_current_language(request)
-#     default_language = get_default_language()
-    
-#     try:
-#         portfolio = Portfolio.objects.get(slug=slug, language=language, is_active=True)
-#     except Portfolio.DoesNotExist:
-#         if default_language:
-#             portfolio = get_object_or_404(Portfolio, slug=slug, language=default_language, is_active=True)
-#         else:
-#             raise
-    
-#     # التحقق من وجود الصورة
-#     if not portfolio.cover_image or not hasattr(portfolio.cover_image, 'url'):
-#         portfolio.has_image = False
-#     else:
-#         try:
-#             portfolio.cover_image.url
-#             portfolio.has_image = True
-#         except (ValueError, AttributeError):
-#             portfolio.has_image = False
-    
-#     features = PortfolioFeature.objects.filter(portfolio=portfolio, language=language).order_by('order')
-#     if not features.exists() and default_language:
-#         features = PortfolioFeature.objects.filter(portfolio=portfolio, language=default_language).order_by('order')
-    
-#     related_portfolios = Portfolio.objects.filter(
-#         language=language, is_active=True, category=portfolio.category
-#     ).exclude(id=portfolio.id)[:3]
-#     if not related_portfolios.exists() and default_language:
-#         related_portfolios = Portfolio.objects.filter(
-#             language=default_language, is_active=True, category=portfolio.category
-#         ).exclude(id=portfolio.id)[:3]
-    
-#     # نظام التقييمات
-#     rating_form = ProjectRatingForm()
-#     user_has_rated = False
-    
-#     if request.method == 'POST' and 'submit_rating' in request.POST:
-#         rating_form = ProjectRatingForm(request.POST)
-#         if rating_form.is_valid():
-#             email = rating_form.cleaned_data['email']
-#             existing_rating = ProjectRating.objects.filter(portfolio=portfolio, email=email).first()
-            
-#             if existing_rating:
-#                 messages.warning(request, _('You have already rated this project. Thank you!'))
-#             else:
-#                 rating = rating_form.save(commit=False)
-#                 rating.portfolio = portfolio
-#                 rating.save()
-#                 messages.success(request, _('Thank you for your rating! It will appear after approval.'))
-            
-#             return redirect('portfolio_detail', slug=portfolio.slug)
-    
-#     # جلب التقييمات المقبولة
-#     approved_ratings = portfolio.ratings.filter(is_approved=True)
-    
-#     # إضافة متوسط التقييم للمشاريع المرتبطة
-#     for related in related_portfolios:
-#         related.avg_rating = related.average_rating
-    
-#     context_data = {
-#         'portfolio': portfolio,
-#         'features': features,
-#         'related_portfolios': related_portfolios,
-#         'rating_form': rating_form,
-#         'approved_ratings': approved_ratings,
-#         'user_has_rated': user_has_rated,
-#         'average_rating': portfolio.average_rating,
-#         'ratings_count': portfolio.ratings_count,
-#     }
-    
-#     context = get_common_context(request, language, context_data)
-#     return render(request, 'portfolio-detail.html', context)
 
 
 def portfolio_detail_page(request, slug):
@@ -477,7 +398,6 @@ def portfolio_detail_page(request, slug):
     
     context = get_common_context(request, language, context_data)
     return render(request, 'portfolio-detail.html', context)
-
 
 
 def blog_page(request):
@@ -920,8 +840,8 @@ def handler404(request, exception):
     context['exception'] = str(exception) if exception else None
     return render(request, 'error/404.html', context, status=404)
 
-
 def handler500(request):
+    
     """صفحة 500 - Server Error"""
     language, lang_code = get_current_language(request)
     context = get_common_context(request, language)
@@ -933,3 +853,6 @@ def handler500(request):
         context['exception_message'] = str(exception_value)
     
     return render(request, 'error/500.html', context, status=500)
+
+
+

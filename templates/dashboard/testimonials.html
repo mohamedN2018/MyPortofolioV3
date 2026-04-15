@@ -1,0 +1,36 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Testimonials Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-chat-quote-fill"></i> Testimonials Management</h2>
+    <a href="{% url 'dashboard:testimonial_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Testimonial</a>
+</div>
+
+<div class="data-table"><div class="table-responsive">
+    <table class="table table-hover mb-0">
+        <thead><tr><th>ID</th><th>Image</th><th>Client Name</th><th>Position</th><th>Rating</th><th>Content</th><th>Language</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for item in testimonials %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{% if item.client_image %}<img src="{{ item.client_image.url }}" width="40" height="40" class="rounded-circle" style="object-fit: cover;">{% else %}<div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width:40px;height:40px;"><i class="bi bi-person text-muted"></i></div>{% endif %}</td>
+                <td><strong>{{ item.client_name }}</strong></td>
+                <td>{{ item.client_position|default:'-' }}</td>
+                <td><div class="rating-stars">{% for i in "12345"|make_list %}{% if forloop.counter <= item.rating %}<i class="bi bi-star-fill text-warning"></i>{% else %}<i class="bi bi-star text-muted"></i>{% endif %}{% endfor %}</div></td>
+                <td>{{ item.content|truncatechars:50 }}</td>
+                <td>{{ item.language.name|default:'-' }}</td>
+                <td>{% if item.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+                <td><div class="btn-group"><a href="{% url 'dashboard:testimonial_edit' item.id %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a><button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ item.id }}"><i class="bi bi-trash"></i></button></div>
+                <div class="modal fade" id="deleteModal{{ item.id }}"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Confirm Delete</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Delete testimonial from "{{ item.client_name }}"?</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><a href="{% url 'dashboard:testimonial_delete' item.id %}" class="btn btn-danger">Delete</a></div></div></div></div></td>
+            </tr>
+            {% empty %}直到<td colspan="9" class="text-center py-5">No testimonials found.{% endfor %}
+        </tbody>
+    </table>
+</div></div>
+
+{% if testimonials.has_other_pages %}<nav class="mt-4"><ul class="pagination justify-content-center">{% if testimonials.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ testimonials.previous_page_number }}">Previous</a></li>{% endif %}{% for num in testimonials.paginator.page_range %}{% if testimonials.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > testimonials.number|add:'-3' and num < testimonials.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>{% endif %}{% endfor %}{% if testimonials.has_next %}<li class="page-item"><a class="page-link" href="?page={{ testimonials.next_page_number }}">Next</a></li>{% endif %}</ul></nav>{% endif %}
+
+<style>.rating-stars{display:inline-flex;gap:2px;}.rating-stars i{font-size:0.75rem;}</style>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Ratings Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-star-fill"></i> Ratings Management</h2>
+    <div>
+        <span class="badge bg-warning me-2">Pending: {{ pending_count|default:0 }}</span>
+        <span class="badge bg-success">Approved: {{ approved_count|default:0 }}</span>
+    </div>
+</div>
+
+<div class="data-table"><div class="table-responsive">
+    <table class="table table-hover mb-0">
+        <thead><tr><th>ID</th><th>User</th><th>Email</th><th>Project</th><th>Rating</th><th>Comment</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for rating in ratings %}
+            <tr>
+                <td>{{ rating.id }}</td>
+                <td><strong>{{ rating.name }}</strong></td>
+                <td><small>{{ rating.email }}</small></td>
+                <td><a href="{% url 'portfolio_detail' rating.portfolio.slug %}" target="_blank">{{ rating.portfolio.title|truncatechars:25 }}</a></td>
+                <td><div class="rating-stars">{% for i in "12345"|make_list %}{% if forloop.counter <= rating.rating %}<i class="bi bi-star-fill text-warning"></i>{% else %}<i class="bi bi-star text-muted"></i>{% endif %}{% endfor %}</div></td>
+                <td>{{ rating.comment|truncatechars:50|default:'-' }}</td>
+                <td><small>{{ rating.created_at|date:"Y-m-d" }}</small></td>
+                <td>{% if rating.is_approved %}<span class="badge bg-success">Approved</span>{% else %}<span class="badge bg-warning">Pending</span>{% endif %}</td>
+                <td>
+                    <div class="btn-group">
+                        <a href="{% url 'dashboard:rating_approve' rating.id %}" class="btn btn-sm btn-outline-{% if rating.is_approved %}secondary{% else %}success{% endif %}">
+                            <i class="bi bi-{% if rating.is_approved %}x-circle{% else %}check-circle{% endif %}"></i>
+                        </a>
+                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ rating.id }}"><i class="bi bi-trash"></i></button>
+                    </div>
+                    <div class="modal fade" id="deleteModal{{ rating.id }}"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Confirm Delete</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Delete rating from "{{ rating.name }}"?</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><a href="{% url 'dashboard:rating_delete' rating.id %}" class="btn btn-danger">Delete</a></div></div></div></div>
+                </td>
+            </tr>
+            {% empty %}<tr><td colspan="9" class="text-center py-5">No ratings found.</td></tr>{% endfor %}
+        </tbody>
+    </table>
+</div></div>
+
+{% if ratings.has_other_pages %}<nav class="mt-4"><ul class="pagination justify-content-center">{% if ratings.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ ratings.previous_page_number }}">Previous</a></li>{% endif %}{% for num in ratings.paginator.page_range %}{% if ratings.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > ratings.number|add:'-3' and num < ratings.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>{% endif %}{% endfor %}{% if ratings.has_next %}<li class="page-item"><a class="page-link" href="?page={{ ratings.next_page_number }}">Next</a></li>{% endif %}</ul></nav>{% endif %}
+
+<style>.rating-stars{display:inline-flex;gap:2px;}.rating-stars i{font-size:0.8rem;}</style>
+{% endblock %}

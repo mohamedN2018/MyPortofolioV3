@@ -1,0 +1,229 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Dashboard Overview{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-speedometer2"></i> Dashboard Overview</h2>
+    <span class="text-muted">Welcome back, {{ user.username }}!</span>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Total Projects</h6>
+                    <h2 class="mb-0">{{ stats.total_portfolios_all }}</h2>
+                    <small class="text-success"><i class="bi bi-check-circle"></i> {{ stats.total_portfolios }} active</small>
+                </div>
+                <div class="stat-icon" style="background: rgba(255,107,53,0.1); color: #ff6b35;">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Services</h6>
+                    <h2 class="mb-0">{{ stats.total_services }}</h2>
+                    <small class="text-muted">Active services</small>
+                </div>
+                <div class="stat-icon" style="background: rgba(13,110,253,0.1); color: #0d6efd;">
+                    <i class="bi bi-briefcase-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Blog Posts</h6>
+                    <h2 class="mb-0">{{ stats.total_blog_posts }}</h2>
+                    <small class="text-muted">Published articles</small>
+                </div>
+                <div class="stat-icon" style="background: rgba(25,135,84,0.1); color: #198754;">
+                    <i class="bi bi-newspaper"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Avg Rating</h6>
+                    <h2 class="mb-0">{{ stats.avg_rating|floatformat:1 }}</h2>
+                    <small class="text-muted">/ 5.0 stars</small>
+                </div>
+                <div class="stat-icon" style="background: rgba(255,193,7,0.1); color: #ffc107;">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Ratings</h6>
+                    <h2 class="mb-0">{{ stats.total_ratings }}</h2>
+                    <small class="text-warning"><i class="bi bi-clock-history"></i> {{ stats.pending_ratings }} pending</small>
+                </div>
+                <div class="stat-icon" style="background: rgba(255,193,7,0.1); color: #ffc107;">
+                    <i class="bi bi-star-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Messages</h6>
+                    <h2 class="mb-0">{{ stats.total_messages }}</h2>
+                    <small class="text-danger"><i class="bi bi-envelope"></i> {{ stats.unread_messages }} unread</small>
+                </div>
+                <div class="stat-icon" style="background: rgba(220,53,69,0.1); color: #dc3545;">
+                    <i class="bi bi-envelope-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted mb-1">Skills & Experience</h6>
+                    <h2 class="mb-0">{{ stats.total_skills }}</h2>
+                    <small class="text-muted">{{ stats.total_experiences }} work experiences</small>
+                </div>
+                <div class="stat-icon" style="background: rgba(111,66,193,0.1); color: #6f42c1;">
+                    <i class="bi bi-code-slash"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Ratings -->
+    <div class="col-md-6">
+        <div class="data-table p-3">
+            <h5 class="mb-3"><i class="bi bi-star-fill text-warning"></i> Recent Ratings</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr><th>User</th><th>Project</th><th>Rating</th><th>Status</th><th>Date</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for rating in recent_ratings %}
+                        <tr>
+                            <td>{{ rating.name }}</td>
+                            <td>{{ rating.portfolio.title|truncatechars:20 }}</td>
+                            <td>
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= rating.rating %}
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                    {% else %}
+                                        <i class="bi bi-star text-muted"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% if rating.is_approved %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td><small>{{ rating.created_at|date:"M d" }}</small></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center">No ratings yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <a href="{% url 'dashboard:ratings' %}" class="btn btn-sm btn-outline-primary mt-2">View All Ratings</a>
+        </div>
+    </div>
+    
+    <!-- Recent Messages -->
+    <div class="col-md-6">
+        <div class="data-table p-3">
+            <h5 class="mb-3"><i class="bi bi-envelope-fill text-danger"></i> Recent Messages</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead><tr><th>From</th><th>Subject</th><th>Status</th><th>Date</th></tr></thead>
+                    <tbody>
+                        {% for msg in recent_messages %}
+                        <tr>
+                            <td>{{ msg.name }}</td>
+                            <td>{{ msg.subject|truncatechars:20 }}</td>
+                            <td>
+                                {% if msg.status == 'unread' %}
+                                    <span class="badge bg-danger">Unread</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Read</span>
+                                {% endif %}
+                            </td>
+                            <td><small>{{ msg.created_at|date:"M d" }}</small></td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center">No messages yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <a href="{% url 'dashboard:messages' %}" class="btn btn-sm btn-outline-primary mt-2">View All Messages</a>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="data-table p-3">
+            <h5 class="mb-3"><i class="bi bi-grid-3x3-gap-fill"></i> Recent Projects</h5>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead><tr><th>Title</th><th>Category</th><th>Client</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for project in recent_portfolios %}
+                        <tr>
+                            <td>{{ project.title|truncatechars:30 }}</td>
+                            <td>{{ project.category.name|default:'-' }}</td>
+                            <td>{{ project.client_name }}</td>
+                            <td>{{ project.project_date|date:"Y" }}</td>
+                            <td>
+                                {% if project.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:portfolio_edit' project.slug %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6" class="text-center">No projects yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <a href="{% url 'dashboard:portfolios' %}" class="btn btn-sm btn-outline-primary mt-2">Manage Projects</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

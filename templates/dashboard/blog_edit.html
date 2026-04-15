@@ -1,0 +1,43 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Blog Post{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-newspaper"></i> {% if is_edit %}Edit{% else %}Add New{% endif %} Blog Post</h2>
+    <a href="{% url 'dashboard:blog' %}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+</div>
+
+<div class="card"><div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-3"><label class="form-label">Title *</label><input type="text" name="title" class="form-control" value="{{ post.title|default:'' }}" required></div>
+                <div class="mb-3"><label class="form-label">Slug *</label><input type="text" name="slug" class="form-control" value="{{ post.slug|default:'' }}" required></div>
+                <div class="mb-3"><label class="form-label">Excerpt *</label><textarea name="excerpt" class="form-control" rows="2" required>{{ post.excerpt|default:'' }}</textarea></div>
+                <div class="mb-3"><label class="form-label">Content *</label><textarea name="content" class="form-control" rows="10" required>{{ post.content|default:'' }}</textarea></div>
+                <div class="mb-3"><label class="form-label">Tags</label><input type="text" name="tags" class="form-control" value="{{ post.tags|default:'' }}" placeholder="django, python, web"></div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3"><label class="form-label">Language</label><select name="language" class="form-select"><option value="">Select</option>{% for lang in languages %}<option value="{{ lang.id }}" {% if post.language.id == lang.id %}selected{% endif %}>{{ lang.name }}</option>{% endfor %}</select></div>
+                <div class="mb-3"><label class="form-label">Category</label><select name="category" class="form-select"><option value="">Select</option>{% for cat in categories %}<option value="{{ cat.id }}" {% if post.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>{% endfor %}</select></div>
+                <div class="mb-3"><label class="form-label">Author Name</label><input type="text" name="author_name" class="form-control" value="{{ post.author_name|default:'Admin' }}"></div>
+                <div class="mb-3"><label class="form-label">Featured Image</label>{% if post.featured_image %}<div class="mb-2"><img src="{{ post.featured_image.url }}" class="img-fluid rounded" style="max-height: 120px;"></div>{% endif %}<input type="file" name="featured_image" class="form-control" accept="image/*"></div>
+                <div class="mb-3"><div class="form-check"><input type="checkbox" name="is_published" class="form-check-input" id="published" {% if post.is_published or not post %}checked{% endif %}><label class="form-check-label" for="published">Publish</label></div></div>
+            </div>
+        </div>
+        <div class="text-end"><button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Post</button></div>
+    </form>
+</div></div>
+
+<script>
+    const titleInput = document.querySelector('input[name="title"]');
+    const slugInput = document.querySelector('input[name="slug"]');
+    if (titleInput && slugInput && !slugInput.value) {
+        titleInput.addEventListener('keyup', function() {
+            slugInput.value = this.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Experience{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-briefcase"></i> {% if is_edit %}Edit{% else %}Add New{% endif %} Work Experience</h2>
+    <a href="{% url 'dashboard:experiences' %}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+</div>
+
+<div class="card"><div class="card-body">
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3"><label class="form-label">Job Title *</label><input type="text" name="job_title" class="form-control" value="{{ experience.job_title|default:'' }}" required></div>
+                <div class="mb-3"><label class="form-label">Company Name *</label><input type="text" name="company_name" class="form-control" value="{{ experience.company_name|default:'' }}" required></div>
+                <div class="mb-3"><label class="form-label">Company Website</label><input type="url" name="company_website" class="form-control" value="{{ experience.company_website|default:'' }}"></div>
+                <div class="mb-3"><label class="form-label">Technologies</label><input type="text" name="technologies" class="form-control" value="{{ experience.technologies|default:'' }}" placeholder="Python, Django, React"></div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3"><label class="form-label">Start Date *</label><input type="date" name="start_date" class="form-control" value="{{ experience.start_date|date:'Y-m-d'|default:'' }}" required></div>
+                <div class="mb-3"><label class="form-label">End Date</label><input type="date" name="end_date" class="form-control" value="{{ experience.end_date|date:'Y-m-d'|default:'' }}"></div>
+                <div class="mb-3"><div class="form-check"><input type="checkbox" name="is_current" class="form-check-input" id="current" {% if experience.is_current %}checked{% endif %} onchange="document.querySelector('[name=end_date]').disabled=this.checked"><label class="form-check-label" for="current">Current Position</label></div></div>
+                <div class="mb-3"><label class="form-label">Language</label><select name="language" class="form-select"><option value="">Select</option>{% for lang in languages %}<option value="{{ lang.id }}" {% if experience.language.id == lang.id %}selected{% endif %}>{{ lang.name }}</option>{% endfor %}</select></div>
+                <div class="mb-3"><label class="form-label">Order</label><input type="number" name="order" class="form-control" value="{{ experience.order|default:0 }}"></div>
+                <div class="mb-3"><div class="form-check"><input type="checkbox" name="is_active" class="form-check-input" id="active" {% if experience.is_active or not experience %}checked{% endif %}><label class="form-check-label" for="active">Active</label></div></div>
+            </div>
+            <div class="col-12">
+                <div class="mb-3"><label class="form-label">Description *</label><textarea name="description" class="form-control" rows="5" required>{{ experience.description|default:'' }}</textarea></div>
+                <div class="mb-3"><label class="form-label">Achievements (one per line)</label><textarea name="achievements" class="form-control" rows="4" placeholder="- Increased sales by 30%&#10;- Led team of 5 developers">{{ experience.achievements|join:"\n"|default:'' }}</textarea></div>
+            </div>
+        </div>
+        <div class="text-end"><button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Experience</button></div>
+    </form>
+</div></div>
+
+<script>
+    const currentCheckbox = document.querySelector('[name="is_current"]');
+    const endDateInput = document.querySelector('[name="end_date"]');
+    if (currentCheckbox && endDateInput) {
+        endDateInput.disabled = currentCheckbox.checked;
+        currentCheckbox.addEventListener('change', function() {
+            endDateInput.disabled = this.checked;
+            if (this.checked) endDateInput.value = '';
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Education Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-mortarboard-fill"></i> Education Management</h2>
+    <a href="{% url 'dashboard:education_add' %}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Add Education</a>
+</div>
+
+<div class="data-table"><div class="table-responsive">
+    <table class="table table-hover mb-0">
+        <thead><tr><th>ID</th><th>Degree</th><th>Field</th><th>Institution</th><th>Years</th><th>Current</th><th>Language</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for edu in educations %}
+            <tr>
+                <td>{{ edu.id }}</td>
+                <td><strong>{{ edu.degree }}</strong></td>
+                <td>{{ edu.field_of_study }}</td>
+                <td>{{ edu.institution|truncatechars:20 }}</td>
+                <td>{{ edu.start_year }} - {% if edu.is_current %}Present{% else %}{{ edu.end_year|default:'N/A' }}{% endif %}</td>
+                <td>{% if edu.is_current %}<span class="badge bg-warning">Current</span>{% else %}<span class="badge bg-secondary">Completed</span>{% endif %}</td>
+                <td>{{ edu.language.name|default:'-' }}</td>
+                <td>{% if edu.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+                <td><div class="btn-group"><a href="{% url 'dashboard:education_edit' edu.id %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a><button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ edu.id }}"><i class="bi bi-trash"></i></button></div>
+                <div class="modal fade" id="deleteModal{{ edu.id }}"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Confirm Delete</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Delete education "{{ edu.degree }}"?</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><a href="{% url 'dashboard:education_delete' edu.id %}" class="btn btn-danger">Delete</a></div></div></div></div></td>
+            </tr>
+            {% empty %}直到<td colspan="9" class="text-center py-5">No education records found.{% endfor %}
+        </tbody>
+    </table>
+</div></div>
+
+{% if educations.has_other_pages %}<nav class="mt-4"><ul class="pagination justify-content-center">{% if educations.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ educations.previous_page_number }}">Previous</a></li>{% endif %}{% for num in educations.paginator.page_range %}{% if educations.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > educations.number|add:'-3' and num < educations.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>{% endif %}{% endfor %}{% if educations.has_next %}<li class="page-item"><a class="page-link" href="?page={{ educations.next_page_number }}">Next</a></li>{% endif %}</ul></nav>{% endif %}
+{% endblock %}

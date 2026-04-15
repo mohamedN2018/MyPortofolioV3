@@ -182,7 +182,6 @@
   </div>
 </section>
 
-
 <!-- Skills Section -->
 <section id="skills" class="skills section">
   <div class="container section-title" data-aos="fade-up">
@@ -306,7 +305,6 @@
   </div>
 </section>
 
-
 <!-- Portfolio Section -->
 <section id="portfolio" class="portfolio section">
   <div class="container section-title" data-aos="fade-up">
@@ -416,42 +414,6 @@
     </div>
   </div>
 </section>
-{% comment %} 
-<!-- Testimonials Section -->
-<section id="testimonials" class="testimonials section light-background">
-  <div class="container section-title" data-aos="fade-up">
-    <h2>{% trans "Testimonials" %}</h2>
-    <p>{% trans "What my clients say about working with me" %}</p>
-  </div>
-
-  <div class="container">
-    <div class="testimonial-masonry">
-      {% for testimonial in testimonials %}
-        <div class="testimonial-item {% if forloop.counter|divisibleby:2 %}highlight{% endif %}" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
-          <div class="testimonial-content">
-            <div class="quote-pattern">
-              <i class="bi bi-quote"></i>
-            </div>
-            <p>{{ testimonial.content|truncatechars:150 }}</p>
-            <div class="client-info">
-              <div class="client-image">
-                {% if testimonial.client_image %}
-                  <img src="{{ testimonial.client_image.url }}" alt="{{ testimonial.client_name }}">
-                {% else %}
-                  <img src="{% static 'assets/img/person/person-f-7.png' %}" alt="{{ testimonial.client_name }}">
-                {% endif %}
-              </div>
-              <div class="client-details">
-                <h3>{{ testimonial.client_name }}</h3>
-                <span class="position">{{ testimonial.client_position }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-</section> {% endcomment %}
 
 <!-- Testimonials / Client Reviews Section -->
 <section id="testimonials" class="testimonials section light-background">

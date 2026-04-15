@@ -86,3 +86,7 @@ def global_settings(request):
     return {
         'global_settings': settings_dict,
     }
+    
+    
+    
+

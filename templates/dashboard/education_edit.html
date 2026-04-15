@@ -1,0 +1,48 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Education{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-mortarboard-fill"></i> {% if is_edit %}Edit{% else %}Add New{% endif %} Education</h2>
+    <a href="{% url 'dashboard:education' %}" class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+</div>
+
+<div class="card"><div class="card-body">
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="mb-3"><label class="form-label">Degree *</label><input type="text" name="degree" class="form-control" value="{{ education.degree|default:'' }}" required></div>
+                <div class="mb-3"><label class="form-label">Field of Study *</label><input type="text" name="field_of_study" class="form-control" value="{{ education.field_of_study|default:'' }}" required></div>
+                <div class="mb-3"><label class="form-label">Institution *</label><input type="text" name="institution" class="form-control" value="{{ education.institution|default:'' }}" required></div>
+                <div class="mb-3"><label class="form-label">Grade</label><input type="text" name="grade" class="form-control" value="{{ education.grade|default:'' }}" placeholder="e.g., 3.8 GPA, First Class"></div>
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3"><label class="form-label">Start Year *</label><input type="number" name="start_year" class="form-control" value="{{ education.start_year|default:2000 }}" required></div>
+                <div class="mb-3"><label class="form-label">End Year</label><input type="number" name="end_year" class="form-control" value="{{ education.end_year|default:'' }}"></div>
+                <div class="mb-3"><div class="form-check"><input type="checkbox" name="is_current" class="form-check-input" id="current" {% if education.is_current %}checked{% endif %} onchange="document.querySelector('[name=end_year]').disabled=this.checked"><label class="form-check-label" for="current">Currently Studying</label></div></div>
+                <div class="mb-3"><label class="form-label">Language</label><select name="language" class="form-select"><option value="">Select</option>{% for lang in languages %}<option value="{{ lang.id }}" {% if education.language.id == lang.id %}selected{% endif %}>{{ lang.name }}</option>{% endfor %}</select></div>
+                <div class="mb-3"><label class="form-label">Order</label><input type="number" name="order" class="form-control" value="{{ education.order|default:0 }}"></div>
+                <div class="mb-3"><div class="form-check"><input type="checkbox" name="is_active" class="form-check-input" id="active" {% if education.is_active or not education %}checked{% endif %}><label class="form-check-label" for="active">Active</label></div></div>
+            </div>
+            <div class="col-12">
+                <div class="mb-3"><label class="form-label">Description</label><textarea name="description" class="form-control" rows="4">{{ education.description|default:'' }}</textarea></div>
+            </div>
+        </div>
+        <div class="text-end"><button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Education</button></div>
+    </form>
+</div></div>
+
+<script>
+    const currentCheckbox = document.querySelector('[name="is_current"]');
+    const endYearInput = document.querySelector('[name="end_year"]');
+    if (currentCheckbox && endYearInput) {
+        endYearInput.disabled = currentCheckbox.checked;
+        currentCheckbox.addEventListener('change', function() {
+            endYearInput.disabled = this.checked;
+            if (this.checked) endYearInput.value = '';
+        });
+    }
+</script>
+{% endblock %}

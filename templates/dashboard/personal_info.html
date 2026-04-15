@@ -1,0 +1,42 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Personal Information{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-person-badge"></i> Personal Information</h2>
+</div>
+
+<div class="card"><div class="card-body">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row">
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-6 mb-3"><label class="form-label">Full Name</label><input type="text" name="name" class="form-control" value="{{ personal_info.name|default:'' }}"></div>
+                    <div class="col-md-6 mb-3"><label class="form-label">Title</label><input type="text" name="title" class="form-control" value="{{ personal_info.title|default:'' }}"></div>
+                </div>
+                <div class="mb-3"><label class="form-label">Short Bio</label><input type="text" name="short_bio" class="form-control" value="{{ personal_info.short_bio|default:'' }}"></div>
+                <div class="mb-3"><label class="form-label">Full Bio</label><textarea name="bio" class="form-control" rows="6">{{ personal_info.bio|default:'' }}</textarea></div>
+                <div class="mb-3"><label class="form-label">SEO Keywords</label><input type="text" name="keywords" class="form-control" value="{{ personal_info.keywords|default:'' }}" placeholder="comma, separated, keywords"></div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3"><label class="form-label">Language</label><select name="language" class="form-select"><option value="">Select</option>{% for lang in languages %}<option value="{{ lang.id }}" {% if personal_info.language.id == lang.id %}selected{% endif %}>{{ lang.name }}</option>{% endfor %}</select></div>
+                <div class="mb-3"><label class="form-label">Profile Image</label>{% if personal_info.profile_image %}<div class="mb-2"><img src="{{ personal_info.profile_image.url }}" class="img-fluid rounded" style="max-height: 120px;"></div>{% endif %}<input type="file" name="profile_image" class="form-control" accept="image/*"></div>
+                <div class="mb-3"><label class="form-label">Resume File</label>{% if personal_info.resume_file %}<div class="mb-2"><a href="{{ personal_info.resume_file.url }}" target="_blank">Current Resume</a></div>{% endif %}<input type="file" name="resume_file" class="form-control" accept=".pdf,.doc,.docx"></div>
+            </div>
+        </div>
+        
+        <h5 class="mb-3 mt-4"><i class="bi bi-bar-chart"></i> Statistics</h5>
+        <div class="row">
+            <div class="col-md-3 mb-3"><label class="form-label">Years Experience</label><input type="number" name="years_experience" class="form-control" value="{{ personal_info.years_experience|default:5 }}"></div>
+            <div class="col-md-3 mb-3"><label class="form-label">Projects Completed</label><input type="number" name="projects_completed" class="form-control" value="{{ personal_info.projects_completed|default:150 }}"></div>
+            <div class="col-md-3 mb-3"><label class="form-label">Client Satisfaction (%)</label><input type="number" name="client_satisfaction" class="form-control" value="{{ personal_info.client_satisfaction|default:98 }}"></div>
+            <div class="col-md-3 mb-3"><label class="form-label">Happy Clients</label><input type="number" name="happy_clients" class="form-control" value="{{ personal_info.happy_clients|default:120 }}"></div>
+        </div>
+        
+        <div class="text-end"><button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Information</button></div>
+    </form>
+</div></div>
+{% endblock %}

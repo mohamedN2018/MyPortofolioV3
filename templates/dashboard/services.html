@@ -1,0 +1,48 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Services Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-briefcase-fill"></i> Services Management</h2>
+    <a href="{% url 'dashboard:service_add' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Add New Service
+    </a>
+</div>
+
+<div class="data-table">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr><th>ID</th><th>Icon</th><th>Title</th><th>Language</th><th>Featured</th><th>Order</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for item in services %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td><i class="bi bi-{{ item.icon|default:'box' }} fs-4"></i></td>
+                    <td><strong>{{ item.title|truncatechars:40 }}</strong></td>
+                    <td>{{ item.language.name|default:'-' }}</td>
+                    <td>{% if item.is_featured %}<span class="badge bg-warning">Featured</span>{% else %}<span class="badge bg-secondary">No</span>{% endif %}</td>
+                    <td>{{ item.order }}</td>
+                    <td>{% if item.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-danger">Inactive</span>{% endif %}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{% url 'dashboard:service_edit' item.slug %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ item.id }}"><i class="bi bi-trash"></i></button>
+                        </div>
+                        <div class="modal fade" id="deleteModal{{ item.id }}"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Confirm Delete</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Delete "{{ item.title }}"?</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><a href="{% url 'dashboard:service_delete' item.slug %}" class="btn btn-danger">Delete</a></div></div></div></div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="text-center py-5">No services found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% if services.has_other_pages %}
+<nav class="mt-4"><ul class="pagination justify-content-center">{% if services.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ services.previous_page_number }}">Previous</a></li>{% endif %}{% for num in services.paginator.page_range %}{% if services.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > services.number|add:'-3' and num < services.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>{% endif %}{% endfor %}{% if services.has_next %}<li class="page-item"><a class="page-link" href="?page={{ services.next_page_number }}">Next</a></li>{% endif %}</ul></nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Contact Messages{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-envelope-fill"></i> Contact Messages</h2>
+    <div><span class="badge bg-danger">Unread: {{ unread_count|default:0 }}</span></div>
+</div>
+
+<div class="data-table"><div class="table-responsive">
+    <table class="table table-hover mb-0">
+        <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Subject</th><th>Message</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+            {% for msg in messages %}
+            <tr class="{% if msg.status == 'unread' %}table-warning{% endif %}">
+                <td>{{ msg.id }}</td>
+                <td><strong>{{ msg.name }}</strong>{% if msg.phone %}<br><small class="text-muted">{{ msg.phone }}</small>{% endif %}</td>
+                <td><a href="mailto:{{ msg.email }}">{{ msg.email }}</a></td>
+                <td>{{ msg.subject|truncatechars:30 }}</td>
+                <td>{{ msg.message|truncatechars:60 }}</td>
+                <td><small>{{ msg.created_at|date:"Y-m-d H:i" }}</small></td>
+                <td>{% if msg.status == 'unread' %}<span class="badge bg-danger">Unread</span>{% elif msg.status == 'read' %}<span class="badge bg-info">Read</span>{% else %}<span class="badge bg-secondary">{{ msg.status }}</span>{% endif %}</td>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#viewModal{{ msg.id }}"><i class="bi bi-eye"></i></button>
+                        {% if msg.status == 'unread' %}<a href="{% url 'dashboard:message_mark_read' msg.id %}" class="btn btn-sm btn-outline-success"><i class="bi bi-check2-circle"></i></a>{% endif %}
+                        <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ msg.id }}"><i class="bi bi-trash"></i></button>
+                    </div>
+                    
+                    <!-- View Modal -->
+                    <div class="modal fade" id="viewModal{{ msg.id }}"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5>Message from {{ msg.name }}</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><p><strong>Email:</strong> {{ msg.email }}</p><p><strong>Phone:</strong> {{ msg.phone|default:'Not provided' }}</p><p><strong>Subject:</strong> {{ msg.subject }}</p><p><strong>Message:</strong></p><p class="bg-light p-3 rounded">{{ msg.message|linebreaks }}</p><p><strong>IP Address:</strong> {{ msg.ip_address|default:'Unknown' }}</p><p><strong>User Agent:</strong> <small>{{ msg.user_agent|truncatechars:100 }}</small></p><p><strong>Received:</strong> {{ msg.created_at|date:"F d, Y H:i" }}</p></div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Close</button><a href="mailto:{{ msg.email }}" class="btn btn-primary"><i class="bi bi-reply"></i> Reply</a></div></div></div></div>
+                    
+                    <!-- Delete Modal -->
+                    <div class="modal fade" id="deleteModal{{ msg.id }}"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Confirm Delete</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body">Delete message from "{{ msg.name }}"?</div><div class="modal-footer"><button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><a href="{% url 'dashboard:message_delete' msg.id %}" class="btn btn-danger">Delete</a></div></div></div></div>
+                </td>
+            </tr>
+            {% empty %}直到<td colspan="8" class="text-center py-5">No messages found.{% endfor %}
+        </tbody>
+    </table>
+</div></div>
+
+{% if messages_page.has_other_pages %}<nav class="mt-4"><ul class="pagination justify-content-center">{% if messages_page.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ messages_page.previous_page_number }}">Previous</a></li>{% endif %}{% for num in messages_page.paginator.page_range %}{% if messages_page.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > messages_page.number|add:'-3' and num < messages_page.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>{% endif %}{% endfor %}{% if messages_page.has_next %}<li class="page-item"><a class="page-link" href="?page={{ messages_page.next_page_number }}">Next</a></li>{% endif %}</ul></nav>{% endif %}
+{% endblock %}

@@ -27,14 +27,12 @@ class Language(models.Model):
             Language.objects.filter(is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
 
-
 class TranslatableModel(models.Model):
     """Model base للترجمة"""
     language = models.ForeignKey(Language, on_delete=models.CASCADE)
     
     class Meta:
         abstract = True
-
 
 class SiteSetting(models.Model):
     """إعدادات الموقع العامة - متعددة اللغات"""
@@ -152,7 +150,6 @@ class SectionContent(models.Model):
         return f"{self.section.section_key} - {self.language.name}"
 
 # ========== المعلومات الشخصية ==========
-
 class PersonalInfo(TranslatableModel):
     """المعلومات الشخصية - مترجمة"""
     name = models.CharField(max_length=100)
@@ -184,9 +181,7 @@ class PersonalInfo(TranslatableModel):
     def get_absolute_url(self):
         return reverse('personal_info', args=[self.language.code])
     
-
 # ========== التعليم ==========
-
 class Education(TranslatableModel):
     """الشهادات التعليمية - مترجمة"""
     degree = models.CharField(max_length=200)
@@ -211,10 +206,7 @@ class Education(TranslatableModel):
     def get_absolute_url(self):
         return reverse('education', args=[self.language.code])
 
-
 # ========== الخبرات العملية ==========
-
-
 class WorkExperience(TranslatableModel):
     """الخبرات المهنية - مترجمة"""
     job_title = models.CharField(max_length=200)
@@ -278,11 +270,7 @@ class Skill(TranslatableModel):
         return self.name
 
 
-
-
 # ========== الخدمات ==========
-
-
 class Service(TranslatableModel):
     """الخدمات المقدمة - مترجمة"""
     title = models.CharField(max_length=200)
@@ -336,7 +324,6 @@ class ServiceDetail(models.Model):
         return f"{self.service.title} - {self.content_title}"
 
 # ========== المشاريع (Portfolio) ==========
-
 class PortfolioCategory(TranslatableModel):
     """فئات المشاريع - مترجمة"""
     name = models.CharField(max_length=100)
@@ -349,8 +336,6 @@ class PortfolioCategory(TranslatableModel):
     
     def __str__(self):
         return self.name
-
-
 
 class Portfolio(TranslatableModel):
     """المشاريع - مترجمة"""
@@ -428,8 +413,6 @@ class Portfolio(TranslatableModel):
     def __str__(self):
         return self.title
 
-
-
 class PortfolioFeature(models.Model):
     """ميزات المشروع - كل مشروع يمكن أن يكون له عدة ميزات"""
     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name='features')
@@ -448,9 +431,7 @@ class PortfolioFeature(models.Model):
     def __str__(self):
         return self.feature_title
 
-
 # ========== نظام التقييمات (Ratings) ==========
-
 class ProjectRating(models.Model):
     """تقييمات العملاء على المشاريع"""
     portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name='ratings')
@@ -476,9 +457,7 @@ class ProjectRating(models.Model):
         return f"{self.name} - {self.portfolio.title} - {self.rating}★"
 
 
-
 # ========== الشهادات (Testimonials) ==========
-
 class Testimonial(TranslatableModel):
     """آراء العملاء - مترجمة"""
     client_name = models.CharField(max_length=200)
@@ -501,9 +480,7 @@ class Testimonial(TranslatableModel):
         return f"{self.client_name} - {self.rating}★"
 
 
-
 # ========== المدونة / المقالات ==========
-
 class BlogCategory(TranslatableModel):
     """فئات المقالات - مترجمة"""
     name = models.CharField(max_length=100)
@@ -519,7 +496,6 @@ class BlogCategory(TranslatableModel):
     
     def get_absolute_url(self):
         return reverse('blog_category', args=[self.slug])
-
 
 class BlogPost(TranslatableModel):
     """المقالات - مترجمة"""
@@ -557,9 +533,7 @@ class BlogPost(TranslatableModel):
     def get_absolute_url(self):
         return reverse('blog_detail', args=[self.slug])
 
-
 # ========== جهات الاتصال (Contact Messages) ==========
-
 class ContactMessage(models.Model):
     """رسائل الاتصال من الزوار"""
     STATUS_CHOICES = [
@@ -593,7 +567,6 @@ class ContactMessage(models.Model):
         return f"{self.name} - {self.subject}"
 
 # ========== الصفحات الثابتة ==========
-
 class StaticPage(models.Model):
     """صفحات ثابتة يمكن إضافتها مثل About, Privacy Policy"""
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='static_pages')
@@ -620,7 +593,6 @@ class StaticPage(models.Model):
         return self.title
 
 # ========== القوائم (Menus) ==========
-
 class Menu(models.Model):
     """قوائم الموقع الديناميكية"""
     name = models.CharField(max_length=100)  # 'main_menu', 'footer_menu'
@@ -660,7 +632,6 @@ class MenuItem(models.Model):
         return self.title
 
 # ========== الإعدادات الإضافية ==========
-
 class GlobalSetting(models.Model):
     """إعدادات عامة على مستوى الموقع"""
     setting_key = models.CharField(max_length=100, unique=True)
@@ -683,7 +654,6 @@ class GlobalSetting(models.Model):
         return self.setting_key
 
 # ========== نموذج للبيانات المكررة (للعناصر المتكررة) ==========
-
 class ReusableBlock(models.Model):
     """بلوكات قابلة لإعادة الاستخدام (مثل الـ CTA، الـ Newsletter)"""
     language = models.ForeignKey(Language, on_delete=models.CASCADE, related_name='reusable_blocks')
@@ -703,3 +673,8 @@ class ReusableBlock(models.Model):
     
     def __str__(self):
         return f"{self.block_key} - {self.language.name}"
+    
+    
+    
+    
+

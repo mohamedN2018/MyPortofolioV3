@@ -75,7 +75,11 @@
     <div class="social-wrapper w-100">
       {% include 'includes/social_links.html' %}
     </div>
-
+      {% if user.is_authenticated and user.is_superuser %}
+          <a href="{% url 'dashboard:index' %}" class="dashboard-link" target="_blank">
+              <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
+          </a>
+      {% endif %}
     <!-- Contact Mini Info -->
     <div class="contact-mini w-100">
       <div class="contact-mini-item">

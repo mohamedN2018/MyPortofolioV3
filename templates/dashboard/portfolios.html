@@ -1,0 +1,153 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% load static %}
+
+{% block title %}Portfolios Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-grid-3x3-gap-fill"></i> Portfolios Management</h2>
+    <a href="{% url 'dashboard:portfolio_add' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Add New Project
+    </a>
+</div>
+
+<div class="data-table">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Client</th>
+                    <th>Date</th>
+                    <th>Rating</th>
+                    <th>Featured</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in portfolios %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>
+                        {% if item.cover_image %}
+                            <img src="{{ item.cover_image.url }}" width="50" height="50" style="object-fit: cover; border-radius: 8px;">
+                        {% else %}
+                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-image text-muted"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ item.title|truncatechars:30 }}</strong><br>
+                        <small class="text-muted">{{ item.language.name|default:'No language' }}</small>
+                    </td>
+                    <td>{{ item.category.name|default:'-' }}</td>
+                    <td>{{ item.client_name|truncatechars:15 }}</td>
+                    <td>{{ item.project_date|date:"Y-m-d" }}</td>
+                    <td>
+                        <div class="rating-stars">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= item.average_rating|floatformat:"0"|add:0 %}
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                {% else %}
+                                    <i class="bi bi-star text-muted"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ms-1">({{ item.ratings_count }})</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% if item.is_featured %}
+                            <span class="badge bg-warning"><i class="bi bi-star-fill"></i> Featured</span>
+                        {% else %}
+                            <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'dashboard:portfolio_edit' item.slug %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ item.id }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Delete Modal -->
+                        <div class="modal fade" id="deleteModal{{ item.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirm Delete</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to delete "<strong>{{ item.title }}</strong>"?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <a href="{% url 'dashboard:portfolio_delete' item.slug %}" class="btn btn-danger">Delete</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center py-5">
+                        <i class="bi bi-inbox display-4 text-muted"></i>
+                        <p class="mt-2">No portfolios found. Click "Add New Project" to create one.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if portfolios.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if portfolios.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page={{ portfolios.previous_page_number }}">Previous</a></li>
+        {% endif %}
+        
+        {% for num in portfolios.paginator.page_range %}
+            {% if portfolios.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > portfolios.number|add:'-3' and num < portfolios.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if portfolios.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ portfolios.next_page_number }}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<style>
+    .rating-stars {
+        display: inline-flex;
+        gap: 2px;
+        align-items: center;
+    }
+    .rating-stars i {
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}
