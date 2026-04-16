@@ -39,74 +39,74 @@
 </div>
 
 <style>
-.language-switcher .dropdown-toggle {
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
-  border-radius: 30px;
-  padding: 8px 15px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  color: var(--default-color);
-  font-size: 13px;
-  transition: all 0.3s ease;
-}
+  .language-switcher .dropdown-toggle {
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
+    border-radius: 30px;
+    padding: 8px 15px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--default-color);
+    font-size: 13px;
+    transition: all 0.3s ease;
+  }
 
-.language-switcher .dropdown-toggle:hover {
-  border-color: var(--accent-color);
-  background-color: color-mix(in srgb, var(--accent-color), transparent 90%);
-}
+  .language-switcher .dropdown-toggle:hover {
+    border-color: var(--accent-color);
+    background-color: color-mix(in srgb, var(--accent-color), transparent 90%);
+  }
 
-.language-switcher .dropdown-toggle i:first-child {
-  font-size: 16px;
-}
+  .language-switcher .dropdown-toggle i:first-child {
+    font-size: 16px;
+  }
 
-.language-switcher .dropdown-toggle i:last-child {
-  font-size: 12px;
-  transition: transform 0.3s ease;
-}
+  .language-switcher .dropdown-toggle i:last-child {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+  }
 
-.language-switcher .dropdown-toggle[aria-expanded="true"] i:last-child {
-  transform: rotate(180deg);
-}
+  .language-switcher .dropdown-toggle[aria-expanded="true"] i:last-child {
+    transform: rotate(180deg);
+  }
 
-.language-switcher .dropdown-menu {
-  background-color: var(--surface-color);
-  border: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
-  border-radius: 12px;
-  padding: 8px;
-  min-width: 140px;
-}
+  .language-switcher .dropdown-menu {
+    background-color: var(--surface-color);
+    border: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 140px;
+  }
 
-/* RTL support for dropdown */
-body[dir="rtl"] .language-switcher .dropdown-menu {
-  text-align: right;
-}
+  /* RTL support for dropdown */
+  body[dir="rtl"] .language-switcher .dropdown-menu {
+    text-align: right;
+  }
 
-.language-switcher .dropdown-item {
-  border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 13px;
-  color: var(--default-color);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+  .language-switcher .dropdown-item {
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--default-color);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-.language-switcher .dropdown-item i {
-  font-size: 14px;
-}
+  .language-switcher .dropdown-item i {
+    font-size: 14px;
+  }
 
-.language-switcher .dropdown-item:hover {
-  background-color: color-mix(in srgb, var(--accent-color), transparent 88%);
-  color: var(--accent-color);
-}
+  .language-switcher .dropdown-item:hover {
+    background-color: color-mix(in srgb, var(--accent-color), transparent 88%);
+    color: var(--accent-color);
+  }
 
-.language-switcher .dropdown-item.active {
-  background-color: var(--accent-color);
-  color: var(--contrast-color);
-}
+  .language-switcher .dropdown-item.active {
+    background-color: var(--accent-color);
+    color: var(--contrast-color);
+  }
 </style>
