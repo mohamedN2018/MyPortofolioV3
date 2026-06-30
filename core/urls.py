@@ -23,7 +23,7 @@ urlpatterns = [
     # الصفحات الرئيسية
     # ======================
     path('', views.home_page, name='home'),
-    # path(_('about/'), views.about_page, name='about'),
+    path(_('about/'), views.about_page, name='about'),
     path(_('contact/'), views.contact_page, name='contact'),
     path(_('search/'), views.search_page, name='search'),
     

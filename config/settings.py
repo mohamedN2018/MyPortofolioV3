@@ -117,6 +117,7 @@ TEMPLATES = [
                 'core.context_processors.site_languages',
                 'core.context_processors.site_menus',
                 'core.context_processors.global_settings',
+                'core.context_processors.dashboard_stats',
 
             ],
         },
@@ -220,6 +221,22 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# =========================
+# EMAIL
+# =========================
+# الافتراضي console (يطبع الإيميل في اللوج) حتى لا يتعطّل التطوير.
+# للإرسال الفعلي: اضبط EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+# مع بيانات SMTP في ملف .env
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=(EMAIL_HOST_USER or 'no-reply@localhost'))
+# البريد الذي تصل إليه إشعارات نموذج الاتصال (افتراضياً نفس بريد المُرسِل)
+CONTACT_NOTIFY_EMAIL = config('CONTACT_NOTIFY_EMAIL', default=EMAIL_HOST_USER)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

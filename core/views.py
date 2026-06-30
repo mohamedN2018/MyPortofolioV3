@@ -603,7 +603,10 @@ def contact_page(request):
                     user_agent=request.META.get('HTTP_USER_AGENT', '')
                 )
                 contact_message.save()
-                
+
+                # إرسال إشعار بريدي لصاحب الموقع (آمن: لا يعطّل الإرسال لو فشل SMTP)
+                _send_contact_notification(contact_message)
+
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     return JsonResponse({'success': True, 'message': _('Your message has been sent successfully!')})
                 
@@ -625,6 +628,36 @@ def contact_page(request):
     context_data = {'form': form, 'site_settings': site_settings}
     context = get_common_context(request, language, context_data)
     return render(request, 'contact.html', context)
+
+
+def _send_contact_notification(contact_message):
+    """إرسال إشعار بريدي لصاحب الموقع عند وصول رسالة اتصال جديدة.
+
+    آمن تماماً: لا يرفع أي استثناء (fail_silently) حتى لا يتعطّل حفظ الرسالة
+    إذا لم يكن SMTP مضبوطاً أو حدث خطأ في الإرسال.
+    """
+    try:
+        site_settings = SiteSetting.objects.first()
+        recipient = (
+            getattr(settings, 'CONTACT_NOTIFY_EMAIL', '')
+            or (site_settings.contact_email if site_settings else '')
+        )
+        if not recipient:
+            return  # لا يوجد مستقبِل مضبوط — تخطّي بهدوء
+
+        subject = f"[Contact] {contact_message.subject}"
+        body = (
+            f"New contact message received:\n\n"
+            f"Name: {contact_message.name}\n"
+            f"Email: {contact_message.email}\n"
+            f"Phone: {contact_message.phone or '-'}\n"
+            f"Subject: {contact_message.subject}\n\n"
+            f"Message:\n{contact_message.message}\n"
+        )
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None)
+        send_mail(subject, body, from_email, [recipient], fail_silently=True)
+    except Exception as e:
+        logger.error(f"Failed to send contact notification: {e}")
 
 
 def get_client_ip(request):

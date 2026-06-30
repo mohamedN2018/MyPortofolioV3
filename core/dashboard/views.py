@@ -4,8 +4,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Count, Q, Avg
-from django.http import JsonResponse
+from django.db.models.functions import TruncDate
+from django.http import JsonResponse, Http404
 from django.utils import timezone
+from django.utils.text import slugify
 from datetime import datetime, timedelta
 
 from ..models import *
@@ -16,6 +18,39 @@ from ..forms import ContactForm, ProjectRatingForm
 def is_superuser(user):
     """التحقق من أن المستخدم هو superuser"""
     return user.is_authenticated and user.is_superuser
+
+def get_by_slug_or_404(model_class, slug):
+    """جلب عنصر بالـ slug بأمان.
+
+    الـ slug فريد لكل لغة (unique_together على slug+language)، لذلك قد توجد
+    أكثر من نسخة بنفس الـ slug. نستخدم filter().first() لتجنب
+    MultipleObjectsReturned (الذي يسبب خطأ 500).
+    """
+    obj = model_class.objects.filter(slug=slug).order_by('id').first()
+    if obj is None:
+        raise Http404(f"{model_class.__name__} with slug '{slug}' not found")
+    return obj
+
+def unique_slug(model_class, base_text, language=None, instance=None):
+    """توليد slug فريد لتجنّب IntegrityError.
+
+    الفرادة محسوبة داخل نفس اللغة لأن القيد على الموديلات هو
+    unique_together على (slug, language) — أي أن نفس الـ slug مسموح به
+    عبر لغات مختلفة (نفس العنصر بنسختين)، لكنه ممنوع داخل اللغة الواحدة.
+    """
+    base = slugify(base_text, allow_unicode=True) or 'item'
+    slug = base
+    counter = 1
+    while True:
+        qs = model_class.objects.filter(slug=slug)
+        if language is not None:
+            qs = qs.filter(language=language)
+        if instance and instance.pk:
+            qs = qs.exclude(pk=instance.pk)
+        if not qs.exists():
+            return slug
+        counter += 1
+        slug = f"{base}-{counter}"
 
 def get_dashboard_stats():
     """جلب إحصائيات الـ Dashboard"""
@@ -74,18 +109,39 @@ def dashboard_index(request):
     recent_messages = ContactMessage.objects.order_by('-created_at')[:5]
     recent_portfolios = Portfolio.objects.order_by('-project_date')[:5]
     
-    # Ratings over time (last 30 days)
+    # Ratings over time (last 30 days) - متوافق مع SQLite و PostgreSQL
     thirty_days_ago = timezone.now() - timedelta(days=30)
-    ratings_over_time = ProjectRating.objects.filter(
-        created_at__gte=thirty_days_ago
-    ).extra({'date': "date(created_at)"}).values('date').annotate(count=Count('id')).order_by('date')
-    
+    ratings_qs = (
+        ProjectRating.objects
+        .filter(created_at__gte=thirty_days_ago)
+        .annotate(day=TruncDate('created_at'))
+        .values('day')
+        .annotate(count=Count('id'))
+        .order_by('day')
+    )
+    ratings_labels = [r['day'].strftime('%b %d') for r in ratings_qs if r['day']]
+    ratings_counts = [r['count'] for r in ratings_qs if r['day']]
+
+    # توزيع المحتوى (للرسم الدائري)
+    content_distribution = {
+        'labels': ['Projects', 'Services', 'Blog Posts', 'Testimonials', 'Skills'],
+        'data': [
+            stats['total_portfolios'],
+            stats['total_services'],
+            stats['total_blog_posts'],
+            stats['total_testimonials'],
+            stats['total_skills'],
+        ],
+    }
+
     context = {
         'stats': stats,
         'recent_ratings': recent_ratings,
         'recent_messages': recent_messages,
         'recent_portfolios': recent_portfolios,
-        'ratings_over_time': list(ratings_over_time),
+        'ratings_labels': ratings_labels,
+        'ratings_counts': ratings_counts,
+        'content_distribution': content_distribution,
     }
     return render(request, 'dashboard/index.html', context)
 
@@ -108,7 +164,7 @@ def portfolio_edit(request, slug=None):
     """إضافة أو تعديل مشروع"""
     portfolio = None
     if slug:
-        portfolio = get_object_or_404(Portfolio, slug=slug)
+        portfolio = get_by_slug_or_404(Portfolio, slug)
     
     if request.method == 'POST':
         # Handle form submission
@@ -117,44 +173,69 @@ def portfolio_edit(request, slug=None):
         
         if not portfolio:
             portfolio = Portfolio()
-        
+
+        # اللغة أولاً (مطلوبة، ويُبنى عليها فرادة الـ slug)
+        language_id = data.get('language')
+        if language_id:
+            portfolio.language = Language.objects.filter(id=language_id).first()
+
+        # التحقق من الحقول المطلوبة قبل الحفظ لتجنّب أخطاء 500
+        errors = []
+        if not data.get('title'):
+            errors.append('Title is required.')
+        if not portfolio.language_id:
+            errors.append('Language is required.')
+        if not portfolio.pk and not files.get('cover_image'):
+            errors.append('Cover image is required for a new project.')
+
+        if errors:
+            for e in errors:
+                messages.error(request, e)
+            languages = Language.objects.filter(is_active=True)
+            categories = PortfolioCategory.objects.all()
+            return render(request, 'dashboard/portfolio_edit.html', {
+                'portfolio': portfolio, 'languages': languages,
+                'categories': categories, 'is_edit': slug is not None,
+            })
+
         portfolio.title = data.get('title')
-        portfolio.slug = data.get('slug')
-        portfolio.client_name = data.get('client_name')
-        portfolio.project_date = data.get('project_date')
-        portfolio.project_url = data.get('project_url')
-        portfolio.short_description = data.get('short_description')
-        portfolio.overview = data.get('overview')
-        portfolio.challenge = data.get('challenge')
-        portfolio.solution = data.get('solution')
-        portfolio.result = data.get('result')
-        portfolio.project_duration = data.get('project_duration')
+        portfolio.slug = unique_slug(
+            Portfolio, data.get('slug') or data.get('title'),
+            language=portfolio.language, instance=portfolio,
+        )
+        portfolio.client_name = data.get('client_name') or ''
+        if data.get('project_date'):
+            portfolio.project_date = data.get('project_date')
+        elif not portfolio.pk:
+            portfolio.project_date = timezone.now().date()
+        portfolio.project_url = data.get('project_url') or ''
+        portfolio.short_description = data.get('short_description') or ''
+        portfolio.overview = data.get('overview') or ''
+        portfolio.challenge = data.get('challenge') or ''
+        portfolio.solution = data.get('solution') or ''
+        portfolio.result = data.get('result') or ''
+        portfolio.project_duration = data.get('project_duration') or ''
         portfolio.team_size = data.get('team_size') or 1
         portfolio.order = data.get('order') or 0
         portfolio.is_featured = data.get('is_featured') == 'on'
         portfolio.is_active = data.get('is_active') == 'on'
-        
+
         # Get category
         category_id = data.get('category')
         if category_id:
             portfolio.category = PortfolioCategory.objects.filter(id=category_id).first()
-        
-        # Get language
-        language_id = data.get('language')
-        if language_id:
-            portfolio.language = Language.objects.filter(id=language_id).first()
-        
+
         # Handle cover image
         if files.get('cover_image'):
             portfolio.cover_image = files['cover_image']
-        
+
         # Handle technologies
         technologies = data.getlist('technologies')
         if technologies:
             portfolio.technologies = technologies
-        
+
         portfolio.save()
-        
+
         messages.success(request, f'Portfolio "{portfolio.title}" saved successfully!')
         return redirect('dashboard:portfolios')
     
@@ -173,7 +254,7 @@ def portfolio_edit(request, slug=None):
 @user_passes_test(is_superuser)
 def portfolio_delete(request, slug):
     """حذف مشروع"""
-    portfolio = get_object_or_404(Portfolio, slug=slug)
+    portfolio = get_by_slug_or_404(Portfolio, slug)
     title = portfolio.title
     portfolio.delete()
     messages.success(request, f'Portfolio "{title}" deleted successfully!')
@@ -198,7 +279,7 @@ def service_edit(request, slug=None):
     """إضافة أو تعديل خدمة"""
     service = None
     if slug:
-        service = get_object_or_404(Service, slug=slug)
+        service = get_by_slug_or_404(Service, slug)
     
     if request.method == 'POST':
         data = request.POST
@@ -206,32 +287,50 @@ def service_edit(request, slug=None):
         
         if not service:
             service = Service()
-        
-        service.title = data.get('title')
-        service.slug = data.get('slug')
-        service.short_description = data.get('short_description')
-        service.full_description = data.get('full_description')
-        service.icon = data.get('icon')
-        service.order = data.get('order') or 0
-        service.is_featured = data.get('is_featured') == 'on'
-        service.is_active = data.get('is_active') == 'on'
-        
-        # Get language
+
+        # اللغة أولاً (مطلوبة، ويُبنى عليها فرادة الـ slug)
         language_id = data.get('language')
         if language_id:
             service.language = Language.objects.filter(id=language_id).first()
-        
+
+        errors = []
+        if not data.get('title'):
+            errors.append('Title is required.')
+        if not service.language_id:
+            errors.append('Language is required.')
+
+        if errors:
+            for e in errors:
+                messages.error(request, e)
+            languages = Language.objects.filter(is_active=True)
+            return render(request, 'dashboard/service_edit.html', {
+                'service': service, 'languages': languages,
+                'is_edit': slug is not None,
+            })
+
+        service.title = data.get('title')
+        service.slug = unique_slug(
+            Service, data.get('slug') or data.get('title'),
+            language=service.language, instance=service,
+        )
+        service.short_description = data.get('short_description') or ''
+        service.full_description = data.get('full_description') or ''
+        service.icon = data.get('icon') or ''
+        service.order = data.get('order') or 0
+        service.is_featured = data.get('is_featured') == 'on'
+        service.is_active = data.get('is_active') == 'on'
+
         # Handle image
         if files.get('image'):
             service.image = files['image']
-        
+
         # Handle features
         features = data.getlist('features')
         if features:
             service.features = features
-        
+
         service.save()
-        
+
         messages.success(request, f'Service "{service.title}" saved successfully!')
         return redirect('dashboard:services')
     
@@ -248,7 +347,7 @@ def service_edit(request, slug=None):
 @user_passes_test(is_superuser)
 def service_delete(request, slug):
     """حذف خدمة"""
-    service = get_object_or_404(Service, slug=slug)
+    service = get_by_slug_or_404(Service, slug)
     title = service.title
     service.delete()
     messages.success(request, f'Service "{title}" deleted successfully!')
@@ -273,7 +372,7 @@ def blog_edit(request, slug=None):
     """إضافة أو تعديل مقال"""
     post = None
     if slug:
-        post = get_object_or_404(BlogPost, slug=slug)
+        post = get_by_slug_or_404(BlogPost, slug)
     
     if request.method == 'POST':
         data = request.POST
@@ -281,31 +380,52 @@ def blog_edit(request, slug=None):
         
         if not post:
             post = BlogPost()
-        
+
+        # اللغة أولاً (مطلوبة، ويُبنى عليها فرادة الـ slug)
+        language_id = data.get('language')
+        if language_id:
+            post.language = Language.objects.filter(id=language_id).first()
+
+        errors = []
+        if not data.get('title'):
+            errors.append('Title is required.')
+        if not post.language_id:
+            errors.append('Language is required.')
+        if not post.pk and not files.get('featured_image'):
+            errors.append('Featured image is required for a new post.')
+
+        if errors:
+            for e in errors:
+                messages.error(request, e)
+            languages = Language.objects.filter(is_active=True)
+            categories = BlogCategory.objects.all()
+            return render(request, 'dashboard/blog_edit.html', {
+                'post': post, 'languages': languages,
+                'categories': categories, 'is_edit': slug is not None,
+            })
+
         post.title = data.get('title')
-        post.slug = data.get('slug')
-        post.excerpt = data.get('excerpt')
-        post.content = data.get('content')
-        post.tags = data.get('tags')
+        post.slug = unique_slug(
+            BlogPost, data.get('slug') or data.get('title'),
+            language=post.language, instance=post,
+        )
+        post.excerpt = data.get('excerpt') or ''
+        post.content = data.get('content') or ''
+        post.tags = data.get('tags') or ''
         post.author_name = data.get('author_name') or 'Admin'
         post.is_published = data.get('is_published') == 'on'
-        
+
         # Get category
         category_id = data.get('category')
         if category_id:
             post.category = BlogCategory.objects.filter(id=category_id).first()
-        
-        # Get language
-        language_id = data.get('language')
-        if language_id:
-            post.language = Language.objects.filter(id=language_id).first()
-        
+
         # Handle featured image
         if files.get('featured_image'):
             post.featured_image = files['featured_image']
-        
+
         post.save()
-        
+
         messages.success(request, f'Blog post "{post.title}" saved successfully!')
         return redirect('dashboard:blog')
     
@@ -324,7 +444,7 @@ def blog_edit(request, slug=None):
 @user_passes_test(is_superuser)
 def blog_delete(request, slug):
     """حذف مقال"""
-    post = get_object_or_404(BlogPost, slug=slug)
+    post = get_by_slug_or_404(BlogPost, slug)
     title = post.title
     post.delete()
     messages.success(request, f'Blog post "{title}" deleted successfully!')

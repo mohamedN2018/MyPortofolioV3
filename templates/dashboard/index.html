@@ -4,9 +4,31 @@
 {% block title %}Dashboard Overview{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-speedometer2"></i> Dashboard Overview</h2>
-    <span class="text-muted">Welcome back, {{ user.username }}!</span>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <div>
+        <h2 class="mb-0"><i class="bi bi-speedometer2"></i> Dashboard Overview</h2>
+        <span class="text-muted">Welcome back, {{ user.username }}!</span>
+    </div>
+    <div class="text-muted small"><i class="bi bi-calendar3"></i> {% now "l, F d, Y" %}</div>
+</div>
+
+<!-- Quick Actions -->
+<div class="quick-actions mb-4">
+    <a href="{% url 'dashboard:portfolio_add' %}" class="quick-action-btn">
+        <i class="bi bi-plus-circle"></i> <span>New Project</span>
+    </a>
+    <a href="{% url 'dashboard:service_add' %}" class="quick-action-btn">
+        <i class="bi bi-plus-circle"></i> <span>New Service</span>
+    </a>
+    <a href="{% url 'dashboard:blog_add' %}" class="quick-action-btn">
+        <i class="bi bi-plus-circle"></i> <span>New Post</span>
+    </a>
+    <a href="{% url 'dashboard:testimonial_add' %}" class="quick-action-btn">
+        <i class="bi bi-plus-circle"></i> <span>New Testimonial</span>
+    </a>
+    <a href="{% url 'dashboard:skill_add' %}" class="quick-action-btn">
+        <i class="bi bi-plus-circle"></i> <span>New Skill</span>
+    </a>
 </div>
 
 <!-- Statistics Cards -->
@@ -113,6 +135,34 @@
         </div>
     </div>
 </div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="data-table p-3 h-100">
+            <h5 class="mb-3"><i class="bi bi-graph-up-arrow text-primary"></i> Ratings (Last 30 Days)</h5>
+            {% if ratings_labels %}
+                <canvas id="ratingsChart" height="110"></canvas>
+            {% else %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-bar-chart-line fs-1 d-block mb-2"></i>
+                    No ratings in the last 30 days yet.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="data-table p-3 h-100">
+            <h5 class="mb-3"><i class="bi bi-pie-chart-fill text-warning"></i> Content Distribution</h5>
+            <canvas id="distributionChart" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+{{ ratings_labels|json_script:"ratings-labels" }}
+{{ ratings_counts|json_script:"ratings-counts" }}
+{{ content_distribution.labels|json_script:"dist-labels" }}
+{{ content_distribution.data|json_script:"dist-data" }}
 
 <div class="row g-4">
     <!-- Recent Ratings -->
@@ -226,4 +276,111 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .quick-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .quick-action-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        color: #333;
+        padding: 12px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+    }
+    .quick-action-btn i {
+        color: var(--primary-color);
+        font-size: 1.1rem;
+    }
+    .quick-action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 18px rgba(255, 107, 53, 0.18);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    @media (max-width: 575.98px) {
+        .quick-action-btn { padding: 10px 14px; font-size: 0.8rem; }
+        .quick-action-btn span { display: none; }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    function parse(id, fallback) {
+        var el = document.getElementById(id);
+        if (!el) return fallback;
+        try { return JSON.parse(el.textContent); } catch (e) { return fallback; }
+    }
+
+    var primary = '#ff6b35';
+
+    // Ratings over time (line chart)
+    var rLabels = parse('ratings-labels', []);
+    var rCounts = parse('ratings-counts', []);
+    var ratingsCanvas = document.getElementById('ratingsChart');
+    if (ratingsCanvas && rLabels.length) {
+        new Chart(ratingsCanvas, {
+            type: 'line',
+            data: {
+                labels: rLabels,
+                datasets: [{
+                    label: 'Ratings',
+                    data: rCounts,
+                    borderColor: primary,
+                    backgroundColor: 'rgba(255, 107, 53, 0.12)',
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: primary,
+                    pointRadius: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            }
+        });
+    }
+
+    // Content distribution (doughnut)
+    var dLabels = parse('dist-labels', []);
+    var dData = parse('dist-data', []);
+    var distCanvas = document.getElementById('distributionChart');
+    if (distCanvas) {
+        new Chart(distCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: dLabels,
+                datasets: [{
+                    data: dData,
+                    backgroundColor: ['#ff6b35', '#0d6efd', '#198754', '#ffc107', '#6f42c1'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } } },
+                cutout: '60%'
+            }
+        });
+    }
+})();
+</script>
 {% endblock %}

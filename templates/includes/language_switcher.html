@@ -109,4 +109,17 @@
     background-color: var(--accent-color);
     color: var(--contrast-color);
   }
+
+  /* على الموبايل: الـ sidebar قابل للتمرير (overflow:auto) وقد يقصّ الـ dropdown،
+     لذلك نجعله يُعرض داخل التدفق (static) بدل absolute حتى يظهر دائماً */
+  @media (max-width: 1199px) {
+    .language-switcher .dropdown-menu {
+      position: static !important;
+      transform: none !important;
+      width: 100%;
+      box-shadow: none;
+      margin-top: 6px;
+      inset: auto !important;
+    }
+  }
 </style>

@@ -1,5 +1,6 @@
 # context_processors.py
 from django.utils import translation
+from django.db.models import Avg
 from .models import Language, SiteSetting, Menu
 
 def site_settings(request):
@@ -86,6 +87,48 @@ def global_settings(request):
     return {
         'global_settings': settings_dict,
     }
+
+
+def dashboard_stats(request):
+    """توفير إحصائيات لوحة التحكم لكل صفحات الـ dashboard.
+
+    تُحسب فقط لمسارات /dashboard/ ولمستخدم superuser، حتى تظهر شارات
+    (badges) التقييمات المعلّقة والرسائل غير المقروءة في القائمة الجانبية
+    على جميع الصفحات وليس صفحة الـ index فقط.
+    """
+    path = request.path or ''
+    user = getattr(request, 'user', None)
+
+    if not path.startswith('/dashboard'):
+        return {}
+    if not (user and user.is_authenticated and user.is_superuser):
+        return {}
+
+    # استيراد محلي لتجنّب أي تعارض في الاستيراد عند تحميل التطبيق
+    from .models import (
+        Portfolio, Service, BlogPost, ProjectRating,
+        ContactMessage, Testimonial, Skill, WorkExperience,
+    )
+
+    try:
+        stats = {
+            'total_portfolios': Portfolio.objects.filter(is_active=True).count(),
+            'total_portfolios_all': Portfolio.objects.count(),
+            'total_services': Service.objects.filter(is_active=True).count(),
+            'total_blog_posts': BlogPost.objects.filter(is_published=True).count(),
+            'total_ratings': ProjectRating.objects.count(),
+            'pending_ratings': ProjectRating.objects.filter(is_approved=False).count(),
+            'total_messages': ContactMessage.objects.count(),
+            'unread_messages': ContactMessage.objects.filter(status='unread').count(),
+            'total_testimonials': Testimonial.objects.filter(is_active=True).count(),
+            'total_skills': Skill.objects.filter(is_active=True).count(),
+            'total_experiences': WorkExperience.objects.filter(is_active=True).count(),
+            'avg_rating': ProjectRating.objects.filter(is_approved=True).aggregate(Avg('rating'))['rating__avg'] or 0,
+        }
+    except Exception:
+        stats = {}
+
+    return {'stats': stats}
     
     
     

@@ -494,47 +494,112 @@
         }
         
         /* ============================================
-           Dark Mode Support
+           Dark Mode Support (toggle-based via body.dark-mode)
         ============================================ */
-        @media (prefers-color-scheme: dark) {
-            body.dark-mode .dashboard-main,
-            body.dark-mode .dashboard-navbar,
-            body.dark-mode .stat-card,
-            body.dark-mode .data-table,
-            body.dark-mode .card {
-                background: #1e1e2e;
-            }
-            
-            body.dark-mode .dashboard-navbar {
-                background: #1a1a2e;
-                border-bottom-color: #333;
-            }
-            
-            body.dark-mode .stat-card,
-            body.dark-mode .data-table,
-            body.dark-mode .card {
-                background: #252540;
-            }
-            
-            body.dark-mode .data-table th {
-                background: #1e1e2e;
-                color: #fff;
-            }
-            
-            body.dark-mode .data-table td {
-                color: #ccc;
-            }
-            
-            body.dark-mode .form-control,
-            body.dark-mode .form-select {
-                background: #1a1a2e;
-                border-color: #444;
-                color: #fff;
-            }
-            
-            body.dark-mode .user-dropdown {
-                color: #fff;
-            }
+        body.dark-mode {
+            background-color: #14141f;
+            color: #d5d8e0;
+        }
+
+        body.dark-mode .dashboard-main {
+            background: #14141f;
+        }
+
+        body.dark-mode .dashboard-navbar {
+            background: #1a1a2e;
+            border-bottom: 1px solid #2a2a40;
+        }
+
+        body.dark-mode .stat-card,
+        body.dark-mode .data-table,
+        body.dark-mode .card {
+            background: #1e1e2e;
+            color: #d5d8e0;
+        }
+
+        body.dark-mode .text-muted {
+            color: #9aa0b4 !important;
+        }
+
+        body.dark-mode .table {
+            color: #d5d8e0;
+        }
+
+        body.dark-mode .data-table th {
+            background: #16161f;
+            color: #fff;
+            border-bottom-color: #2a2a40;
+        }
+
+        body.dark-mode .data-table td {
+            color: #c7ccd9;
+            border-color: #2a2a40;
+        }
+
+        body.dark-mode .table-hover > tbody > tr:hover > * {
+            background-color: #26263a;
+            color: #fff;
+        }
+
+        body.dark-mode .form-control,
+        body.dark-mode .form-select {
+            background: #16161f;
+            border-color: #33334d;
+            color: #fff;
+        }
+
+        body.dark-mode .form-control::placeholder {
+            color: #6b7088;
+        }
+
+        body.dark-mode .user-dropdown {
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .user-dropdown:hover,
+        body.dark-mode .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        body.dark-mode .dropdown-menu {
+            background: #1e1e2e;
+            border-color: #2a2a40;
+        }
+
+        body.dark-mode .dropdown-item {
+            color: #d5d8e0;
+        }
+
+        body.dark-mode .dropdown-item:hover {
+            background: #26263a;
+            color: #fff;
+        }
+
+        body.dark-mode .quick-action-btn {
+            background: #1e1e2e;
+            color: #d5d8e0;
+        }
+
+        /* Theme toggle button in navbar */
+        .theme-toggle-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            padding: 8px;
+            border-radius: 8px;
+            transition: all var(--transition-speed);
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        body.dark-mode .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
         }
         
         /* ============================================
@@ -599,6 +664,14 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- Apply saved theme immediately to avoid flash of light mode -->
+    <script>
+        (function () {
+            if (localStorage.getItem('dashboard-theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+        })();
+    </script>
     <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
@@ -674,6 +747,9 @@
                 </button>
             </div>
             <div class="user-menu">
+                <button class="theme-toggle-btn" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <i class="bi bi-moon-stars"></i>
+                </button>
                 <div class="text-end hide-on-mobile">
                     <small class="text-muted">{% now "F d, Y" %}</small>
                 </div>
@@ -768,6 +844,30 @@
                 sidebar.classList.add('closed');
             }
             
+            // Dark Mode Toggle (persisted in localStorage)
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = themeToggle ? themeToggle.querySelector('i') : null;
+
+            function applyDashboardTheme(theme) {
+                if (theme === 'dark') {
+                    document.body.classList.add('dark-mode');
+                    if (themeIcon) { themeIcon.classList.remove('bi-moon-stars'); themeIcon.classList.add('bi-sun'); }
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    if (themeIcon) { themeIcon.classList.remove('bi-sun'); themeIcon.classList.add('bi-moon-stars'); }
+                }
+            }
+
+            applyDashboardTheme(localStorage.getItem('dashboard-theme') || 'light');
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function () {
+                    const next = document.body.classList.contains('dark-mode') ? 'light' : 'dark';
+                    localStorage.setItem('dashboard-theme', next);
+                    applyDashboardTheme(next);
+                });
+            }
+
             // Auto-hide alerts after 5 seconds
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
