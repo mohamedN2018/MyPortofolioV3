@@ -2,10 +2,13 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SnapFolio\n"
+"Report-Msgid-Bugs-To: \n"
 "Language: ar\n"
+"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-# General
 msgid "Portfolio"
 msgstr "معرض الأعمال"
 
@@ -185,7 +188,6 @@ msgstr "حدث خطأ في إرسال الرسالة"
 msgid "Network error. Please try again."
 msgstr "خطأ في الشبكة. الرجاء المحاولة مرة أخرى"
 
-# Header
 msgid "Home"
 msgstr "الرئيسية"
 
@@ -195,10 +197,6 @@ msgstr "عني"
 msgid "Blog"
 msgstr "المدونة"
 
-msgid "Contact"
-msgstr "اتصل بي"
-
-# Footer
 msgid "Copyright"
 msgstr "جميع الحقوق محفوظة"
 
@@ -211,6 +209,800 @@ msgstr "الإصدار 3.0.0"
 msgid "Designed by"
 msgstr "تصميم وتطوير"
 
-# No data messages
 msgid "No skills data available"
 msgstr "لا توجد بيانات مهارات متاحة"
+
+msgid "12 items"
+msgstr "12 عنصر"
+
+msgid "24 items"
+msgstr "24 عنصر"
+
+msgid "48 items"
+msgstr "48 عنصر"
+
+msgid "6 items"
+msgstr "6 عناصر"
+
+msgid "400 - Bad Request"
+msgstr "400 - طلب غير صالح"
+
+msgid "403 - Forbidden"
+msgstr "403 - ممنوع"
+
+msgid "404 - Page Not Found"
+msgstr "404 - الصفحة غير موجودة"
+
+msgid "500 - Server Error"
+msgstr "500 - خطأ في الخادم"
+
+msgid "About Me"
+msgstr "نبذة عني"
+
+msgid "Access Forbidden"
+msgstr "الوصول ممنوع"
+
+msgid "Additional Info"
+msgstr "معلومات إضافية"
+
+msgid "All"
+msgstr "الكل"
+
+msgid "All Projects"
+msgstr "كل المشاريع"
+
+msgid "Already have an account?"
+msgstr "لديك حساب بالفعل؟"
+
+msgid "An error occurred. Please try again."
+msgstr "حدث خطأ. الرجاء المحاولة مرة أخرى."
+
+msgid "Approve selected ratings"
+msgstr "الموافقة على التقييمات المحددة"
+
+msgid "Approved"
+msgstr "مقبول"
+
+msgid "Back to Blog"
+msgstr "العودة إلى المدونة"
+
+msgid "Back to Home"
+msgstr "العودة إلى الرئيسية"
+
+msgid "Bad Request"
+msgstr "طلب غير صالح"
+
+msgid "Based on"
+msgstr "بناءً على"
+
+msgid "Basic Info"
+msgstr "معلومات أساسية"
+
+msgid "Basic Information"
+msgstr "المعلومات الأساسية"
+
+msgid "Block Info"
+msgstr "معلومات البلوك"
+
+msgid "Blog Details"
+msgstr "تفاصيل المقال"
+
+msgid "Blog Post"
+msgstr "مقال"
+
+msgid "Blog Posts"
+msgstr "المقالات"
+
+msgid "Button"
+msgstr "زر"
+
+msgid "Categories"
+msgstr "التصنيفات"
+
+msgid "Category"
+msgstr "التصنيف"
+
+msgid "Check if you need to verify your email address"
+msgstr "تحقّق مما إذا كنت بحاجة إلى تأكيد بريدك الإلكتروني"
+
+msgid "Clear"
+msgstr "مسح"
+
+msgid "Clear your browser cache and cookies"
+msgstr "امسح ذاكرة التخزين المؤقت وملفات الكوكيز في متصفحك"
+
+msgid "Client"
+msgstr "العميل"
+
+msgid "Client Feedback"
+msgstr "آراء العملاء"
+
+msgid "Client Info"
+msgstr "معلومات العميل"
+
+msgid "Client Reviews"
+msgstr "تقييمات العملاء"
+
+msgid "Comment (Optional)"
+msgstr "التعليق (اختياري)"
+
+msgid "Comment must be at least 5 characters if provided."
+msgstr "يجب ألا يقل التعليق عن 5 أحرف إذا تم إدخاله."
+
+msgid "Comment must be at least 5 characters long."
+msgstr "يجب ألا يقل التعليق عن 5 أحرف."
+
+msgid "Common causes:"
+msgstr "الأسباب الشائعة:"
+
+msgid "Contact Message"
+msgstr "رسالة اتصال"
+
+msgid "Contact Messages"
+msgstr "رسائل الاتصال"
+
+msgid "Contact Support"
+msgstr "تواصل مع الدعم"
+
+msgid "Contact Us"
+msgstr "تواصل معنا"
+
+msgid "Contact support"
+msgstr "تواصل مع الدعم"
+
+msgid "Contact the site administrator to request access"
+msgstr "تواصل مع مدير الموقع لطلب الوصول"
+
+msgid "Content"
+msgstr "المحتوى"
+
+msgid "Cover Image"
+msgstr "صورة الغلاف"
+
+msgid "Cover Letter"
+msgstr "خطاب التقديم"
+
+msgid "Customer Support"
+msgstr "دعم العملاء"
+
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+msgid "Dates"
+msgstr "التواريخ"
+
+msgid "Dedicated professionals"
+msgstr "محترفون متفانون"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Design"
+msgstr "التصميم"
+
+msgid "Design Settings"
+msgstr "إعدادات التصميم"
+
+msgid "Details"
+msgstr "التفاصيل"
+
+msgid "Disapprove selected ratings"
+msgstr "رفض التقييمات المحددة"
+
+msgid "Duration"
+msgstr "المدة"
+
+msgid "Dynamic Section"
+msgstr "قسم ديناميكي"
+
+msgid "Dynamic Sections"
+msgstr "الأقسام الديناميكية"
+
+msgid "Education Info"
+msgstr "معلومات التعليم"
+
+msgid "Educations"
+msgstr "المؤهلات التعليمية"
+
+msgid "Email address is required"
+msgstr "البريد الإلكتروني مطلوب"
+
+msgid "Email is required"
+msgstr "البريد الإلكتروني مطلوب"
+
+msgid "Enter your email"
+msgstr "أدخل بريدك الإلكتروني"
+
+msgid "Error ID:"
+msgstr "معرّف الخطأ:"
+
+msgid "Exception:"
+msgstr "الاستثناء:"
+
+msgid "Expert Team"
+msgstr "فريق خبير"
+
+msgid "Explore more projects in the same category"
+msgstr "استكشف المزيد من المشاريع في نفس التصنيف"
+
+msgid "Featured"
+msgstr "مميّز"
+
+msgid "Featured Image"
+msgstr "الصورة البارزة"
+
+msgid "Fill out the form below and I'll get back to you as soon as possible."
+msgstr "املأ النموذج أدناه وسأرد عليك في أقرب وقت ممكن."
+
+msgid "Filter Projects"
+msgstr "تصفية المشاريع"
+
+msgid "Flag"
+msgstr "العلم"
+
+msgid "Found"
+msgstr "النتائج"
+
+msgid "Full Name"
+msgstr "الاسم الكامل"
+
+msgid "General Settings"
+msgstr "الإعدادات العامة"
+
+msgid "Global Setting"
+msgstr "إعداد عام"
+
+msgid "Global Settings"
+msgstr "الإعدادات العامة"
+
+msgid "Go Back"
+msgstr "رجوع"
+
+msgid "Has Description"
+msgstr "يحتوي على وصف"
+
+msgid "Have a question or want to work together? Feel free to reach out!"
+msgstr "لديك سؤال أو ترغب في العمل معاً؟ لا تتردد في التواصل!"
+
+msgid "Homepage"
+msgstr "الصفحة الرئيسية"
+
+msgid "Icon"
+msgstr "الأيقونة"
+
+msgid "If the problem persists, try clearing your browser cache and cookies."
+msgstr "إذا استمرت المشكلة، جرّب مسح ذاكرة التخزين المؤقت وملفات الكوكيز في متصفحك."
+
+msgid "Internal Server Error"
+msgstr "خطأ داخلي في الخادم"
+
+msgid "Invalid data format in request"
+msgstr "صيغة بيانات غير صالحة في الطلب"
+
+msgid "Invalid email address."
+msgstr "بريد إلكتروني غير صالح."
+
+msgid "Invalid or malformed URL"
+msgstr "رابط غير صالح أو مشوّه"
+
+msgid "Items Count"
+msgstr "عدد العناصر"
+
+msgid "Job Info"
+msgstr "معلومات الوظيفة"
+
+msgid "Key Features"
+msgstr "الميزات الرئيسية"
+
+msgid "Language"
+msgstr "اللغة"
+
+msgid "Languages"
+msgstr "اللغات"
+
+msgid "Live Preview"
+msgstr "معاينة مباشرة"
+
+msgid "Log In"
+msgstr "تسجيل الدخول"
+
+msgid "Log in with an account that has appropriate permissions"
+msgstr "سجّل الدخول بحساب يمتلك الصلاحيات المناسبة"
+
+msgid "Logo"
+msgstr "الشعار"
+
+msgid "Mark selected messages as read"
+msgstr "تحديد الرسائل المحددة كمقروءة"
+
+msgid "Mark selected messages as replied"
+msgstr "تحديد الرسائل المحددة كمُجاب عليها"
+
+msgid "Mark selected messages as spam"
+msgstr "تحديد الرسائل المحددة كرسائل مزعجة"
+
+msgid "Media"
+msgstr "الوسائط"
+
+msgid "Message Preview"
+msgstr "معاينة الرسالة"
+
+msgid "Message cannot exceed 5000 characters."
+msgstr "يجب ألا تتجاوز الرسالة 5000 حرف."
+
+msgid "Message must be at least 10 characters long."
+msgstr "يجب ألا تقل الرسالة عن 10 أحرف."
+
+msgid "Metadata"
+msgstr "البيانات الوصفية"
+
+msgid "Missing required parameters"
+msgstr "مُعاملات مطلوبة مفقودة"
+
+msgid "Name cannot exceed 100 characters."
+msgstr "يجب ألا يتجاوز الاسم 100 حرف."
+
+msgid "Name must be at least 2 characters long."
+msgstr "يجب ألا يقل الاسم عن حرفين."
+
+msgid "Navigate back to our main page."
+msgstr "ارجع إلى صفحتنا الرئيسية."
+
+msgid "Newest First"
+msgstr "الأحدث أولاً"
+
+msgid "Next Post"
+msgstr "المقال التالي"
+
+msgid "No blog posts found."
+msgstr "لا توجد مقالات."
+
+msgid "No posts in this category yet."
+msgstr "لا توجد مقالات في هذا التصنيف بعد."
+
+msgid "No projects found"
+msgstr "لا توجد مشاريع"
+
+msgid "No results found. Please try different keywords."
+msgstr "لا توجد نتائج. الرجاء تجربة كلمات مختلفة."
+
+msgid "No reviews yet"
+msgstr "لا توجد تقييمات بعد"
+
+msgid "No reviews yet. Be the first to review a project!"
+msgstr "لا توجد تقييمات بعد. كن أول من يقيّم مشروعاً!"
+
+msgid "No services found."
+msgstr "لا توجد خدمات."
+
+msgid "Oldest First"
+msgstr "الأقدم أولاً"
+
+msgid "Only PDF and Word documents are allowed."
+msgstr "يُسمح فقط بملفات PDF و Word."
+
+msgid "Oops! Page Not Found"
+msgstr "عذراً! الصفحة غير موجودة"
+
+msgid "Our Location"
+msgstr "موقعنا"
+
+msgid "Our Solution"
+msgstr "الحل الذي قدمناه"
+
+msgid "Page Info"
+msgstr "معلومات الصفحة"
+
+msgid "Page Not Found"
+msgstr "الصفحة غير موجودة"
+
+msgid "Personal Info"
+msgstr "المعلومات الشخصية"
+
+msgid "Personal Information"
+msgstr "المعلومات الشخصية"
+
+msgid "Personal Infos"
+msgstr "المعلومات الشخصية"
+
+msgid "Please correct the errors below."
+msgstr "الرجاء تصحيح الأخطاء أدناه."
+
+msgid "Please enter a valid email address."
+msgstr "الرجاء إدخال بريد إلكتروني صالح."
+
+msgid "Please enter a valid phone number."
+msgstr "الرجاء إدخال رقم هاتف صالح."
+
+msgid "Portfolio Details"
+msgstr "تفاصيل المشروع"
+
+msgid "Portfolio Feature"
+msgstr "ميزة المشروع"
+
+msgid "Portfolio Features"
+msgstr "ميزات المشروع"
+
+msgid "Portfolio Projects"
+msgstr "مشاريع معرض الأعمال"
+
+msgid "Portfolio/Website URL (Optional)"
+msgstr "رابط معرض الأعمال/الموقع (اختياري)"
+
+msgid "Portfolios"
+msgstr "المشاريع"
+
+msgid "Position Applied For"
+msgstr "الوظيفة المتقدَّم لها"
+
+msgid "Possible solutions:"
+msgstr "الحلول الممكنة:"
+
+msgid "Post Info"
+msgstr "معلومات المقال"
+
+msgid "Posts Count"
+msgstr "عدد المقالات"
+
+msgid "Previous Post"
+msgstr "المقال السابق"
+
+msgid "Proficiency"
+msgstr "مستوى الإتقان"
+
+msgid "Profile Image"
+msgstr "صورة الملف الشخصي"
+
+msgid "Project Date"
+msgstr "تاريخ المشروع"
+
+msgid "Project Information"
+msgstr "معلومات المشروع"
+
+msgid "Project Overview"
+msgstr "نظرة عامة على المشروع"
+
+msgid "Project Rating"
+msgstr "تقييم المشروع"
+
+msgid "Project Ratings"
+msgstr "تقييمات المشاريع"
+
+msgid "Project URL"
+msgstr "رابط المشروع"
+
+msgid "Projects Count"
+msgstr "عدد المشاريع"
+
+msgid "Rate this project"
+msgstr "قيّم هذا المشروع"
+
+msgid "Rater Info"
+msgstr "معلومات المقيِّم"
+
+msgid "Rating"
+msgstr "التقييم"
+
+msgid "Read More"
+msgstr "اقرأ المزيد"
+
+msgid "Reading time"
+msgstr "وقت القراءة"
+
+msgid "Recent Posts"
+msgstr "أحدث المقالات"
+
+msgid "Refresh the page"
+msgstr "حدّث الصفحة"
+
+msgid "Related Posts"
+msgstr "مقالات ذات صلة"
+
+msgid "Related Projects"
+msgstr "مشاريع ذات صلة"
+
+msgid "Related Services"
+msgstr "خدمات ذات صلة"
+
+msgid "Report Issue"
+msgstr "الإبلاغ عن مشكلة"
+
+msgid "Report the issue to our team."
+msgstr "أبلغ فريقنا بالمشكلة."
+
+msgid "Request size too large"
+msgstr "حجم الطلب كبير جداً"
+
+msgid "Reset Filters"
+msgstr "إعادة تعيين الفلاتر"
+
+msgid "Results & Impact"
+msgstr "النتائج والأثر"
+
+msgid "Resume file size must be less than 5MB."
+msgstr "يجب أن يكون حجم ملف السيرة الذاتية أقل من 5 ميجابايت."
+
+msgid "Return to homepage"
+msgstr "العودة إلى الصفحة الرئيسية"
+
+msgid "SEO"
+msgstr "تحسين محركات البحث"
+
+msgid "Search"
+msgstr "بحث"
+
+msgid "Search Projects"
+msgstr "ابحث في المشاريع"
+
+msgid "Search Results"
+msgstr "نتائج البحث"
+
+msgid "Search by title, client..."
+msgstr "ابحث بالعنوان أو العميل..."
+
+msgid "Search for what you're looking for:"
+msgstr "ابحث عمّا تريده:"
+
+msgid "Search posts..."
+msgstr "ابحث في المقالات..."
+
+msgid "Search..."
+msgstr "بحث..."
+
+msgid "Section Content"
+msgstr "محتوى القسم"
+
+msgid "Section Contents"
+msgstr "محتويات الأقسام"
+
+msgid "Section Info"
+msgstr "معلومات القسم"
+
+msgid "Sender Info"
+msgstr "معلومات المُرسِل"
+
+msgid "Sending..."
+msgstr "جاري الإرسال..."
+
+msgid "Server Error"
+msgstr "خطأ في الخادم"
+
+msgid "Service"
+msgstr "خدمة"
+
+msgid "Service Detail"
+msgstr "تفاصيل الخدمة"
+
+msgid "Service Details"
+msgstr "تفاصيل الخدمة"
+
+msgid "Service Duration"
+msgstr "مدة الخدمة"
+
+msgid "Service Info"
+msgstr "معلومات الخدمة"
+
+msgid "Service Information"
+msgstr "معلومات الخدمة"
+
+msgid "Settings"
+msgstr "الإعدادات"
+
+msgid "Share"
+msgstr "مشاركة"
+
+msgid "Share your experience with this project..."
+msgstr "شارك تجربتك مع هذا المشروع..."
+
+msgid "Site Basic Info"
+msgstr "المعلومات الأساسية للموقع"
+
+msgid "Site Name"
+msgstr "اسم الموقع"
+
+msgid "Site Setting"
+msgstr "إعداد الموقع"
+
+msgid "Site Settings"
+msgstr "إعدادات الموقع"
+
+msgid "Skill"
+msgstr "مهارة"
+
+msgid "Skill Info"
+msgstr "معلومات المهارة"
+
+msgid "Skills Count"
+msgstr "عدد المهارات"
+
+msgid "SnapFolio Admin Portal"
+msgstr "بوابة إدارة سناب فوليو"
+
+msgid "SnapFolio Administration"
+msgstr "إدارة سناب فوليو"
+
+msgid "Social Media Links"
+msgstr "روابط التواصل الاجتماعي"
+
+msgid "Something went wrong on our end. Our technical team has been notified and is working to fix the issue."
+msgstr "حدث خطأ ما لدينا. تم إخطار فريقنا التقني ويعمل على إصلاح المشكلة."
+
+msgid "Sometimes it's just a temporary glitch."
+msgstr "أحياناً يكون مجرد خلل مؤقت."
+
+msgid "Static Page"
+msgstr "صفحة ثابتة"
+
+msgid "Static Pages"
+msgstr "الصفحات الثابتة"
+
+msgid "Statistics"
+msgstr "الإحصائيات"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Subject cannot exceed 200 characters."
+msgstr "يجب ألا يتجاوز الموضوع 200 حرف."
+
+msgid "Subject must be at least 3 characters long."
+msgstr "يجب ألا يقل الموضوع عن 3 أحرف."
+
+msgid "Submit Rating"
+msgstr "إرسال التقييم"
+
+msgid "Support"
+msgstr "الدعم"
+
+msgid "Tags"
+msgstr "الوسوم"
+
+msgid "Team Size"
+msgstr "حجم الفريق"
+
+msgid "Technical Details"
+msgstr "التفاصيل التقنية"
+
+msgid "Technical Info"
+msgstr "معلومات تقنية"
+
+msgid "Technologies Used"
+msgstr "التقنيات المستخدمة"
+
+msgid "Testimonial"
+msgstr "رأي عميل"
+
+msgid "Thank you for subscribing!"
+msgstr "شكراً لاشتراكك!"
+
+msgid "Thank you for your rating! It will appear after approval."
+msgstr "شكراً لتقييمك! سيظهر بعد الموافقة عليه."
+
+msgid "Thank you! You have already rated this project."
+msgstr "شكراً لك! لقد قيّمت هذا المشروع بالفعل."
+
+msgid "The Challenge"
+msgstr "التحدي"
+
+msgid "The issue might resolve quickly."
+msgstr "قد تُحل المشكلة سريعاً."
+
+msgid "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable."
+msgstr "الصفحة التي تبحث عنها ربما تم حذفها أو تغيير اسمها أو أنها غير متاحة مؤقتاً."
+
+msgid "The request could not be understood by the server due to malformed syntax. Please check your input and try again."
+msgstr "تعذّر على الخادم فهم الطلب بسبب صيغة غير صحيحة. الرجاء التحقق من مدخلاتك والمحاولة مرة أخرى."
+
+msgid "Timestamp:"
+msgstr "الطابع الزمني:"
+
+msgid "Title A-Z"
+msgstr "العنوان أ-ي"
+
+msgid "Title Z-A"
+msgstr "العنوان ي-أ"
+
+msgid "Total Projects"
+msgstr "إجمالي المشاريع"
+
+msgid "Try Again"
+msgstr "حاول مرة أخرى"
+
+msgid "Try adjusting your search or filter criteria."
+msgstr "حاول تعديل معايير البحث أو التصفية."
+
+msgid "Value"
+msgstr "القيمة"
+
+msgid "Varies by project scope"
+msgstr "يختلف حسب نطاق المشروع"
+
+msgid "View Details"
+msgstr "عرض التفاصيل"
+
+msgid "View Our Projects"
+msgstr "شاهد مشاريعنا"
+
+msgid "Wait a few minutes"
+msgstr "انتظر بضع دقائق"
+
+msgid "Welcome to SnapFolio Dashboard"
+msgstr "مرحباً بك في لوحة تحكم سناب فوليو"
+
+msgid "What others say"
+msgstr "ماذا يقول الآخرون"
+
+msgid "What our clients say about our projects"
+msgstr "ماذا يقول عملاؤنا عن مشاريعنا"
+
+msgid "What people say about this project"
+msgstr "ماذا يقول الناس عن هذا المشروع"
+
+msgid "What you can do:"
+msgstr "ما يمكنك فعله:"
+
+msgid "Work Experience"
+msgstr "الخبرة العملية"
+
+msgid "Work Experiences"
+msgstr "الخبرات العملية"
+
+msgid "You don't have permission to access this page. This could be due to login requirements or insufficient privileges."
+msgstr "ليس لديك صلاحية الوصول إلى هذه الصفحة. قد يكون ذلك بسبب متطلبات تسجيل الدخول أو عدم كفاية الصلاحيات."
+
+msgid "You have already rated this project. Thank you!"
+msgstr "لقد قيّمت هذا المشروع بالفعل. شكراً لك!"
+
+msgid "You might also like these articles"
+msgstr "قد تعجبك هذه المقالات أيضاً"
+
+msgid "You might be looking for:"
+msgstr "ربما تبحث عن:"
+
+msgid "Your Comment"
+msgstr "تعليقك"
+
+msgid "Your Email Address"
+msgstr "بريدك الإلكتروني"
+
+msgid "Your Message"
+msgstr "رسالتك"
+
+msgid "Your Phone (Optional)"
+msgstr "هاتفك (اختياري)"
+
+msgid "Your Rating"
+msgstr "تقييمك"
+
+msgid "Your Website (Optional)"
+msgstr "موقعك الإلكتروني (اختياري)"
+
+msgid "Your message has been sent successfully!"
+msgstr "تم إرسال رسالتك بنجاح!"
+
+msgid "article(s)"
+msgstr "مقال"
+
+msgid "members"
+msgstr "أعضاء"
+
+msgid "min"
+msgstr "دقيقة"
+
+msgid "posts"
+msgstr "مقالات"
+
+msgid "projects"
+msgstr "مشاريع"
+
+msgid "results for"
+msgstr "نتائج لـ"
+
+msgid "reviews"
+msgstr "تقييمات"
+
+msgid "skills"
+msgstr "مهارات"
+
+msgid "views"
+msgstr "مشاهدات"

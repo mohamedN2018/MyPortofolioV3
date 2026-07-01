@@ -54,6 +54,9 @@ cover/
 # Translations
 *.mo
 *.pot
+# ...but DO track compiled locale catalogs so translations deploy without a
+# compilemessages step (the Docker image has no gettext).
+!locale/**/*.mo
 
 # Django stuff:
 *.log
