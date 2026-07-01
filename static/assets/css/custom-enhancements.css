@@ -1,0 +1,224 @@
+/**
+ * Custom Enhancements — additive layer on top of main.css
+ * - Professional Arabic font (Cairo) for RTL
+ * - Refreshed accent gradient, spacing rhythm, cards, hero, buttons
+ * - RTL polish
+ * Loaded AFTER main.css so it overrides safely. Uses existing CSS variables
+ * so dark/light mode keeps working.
+ */
+
+/* =========================================================
+   1) Design tokens: accent gradient + softer shadows
+   ========================================================= */
+:root {
+  --accent-2: #8b5cf6;                 /* violet partner for gradients */
+  --accent-gradient: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-2) 100%);
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 18px 40px rgba(15, 23, 42, 0.12);
+  --radius: 16px;
+  --radius-lg: 22px;
+}
+
+[data-theme="dark"] {
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 20px 44px rgba(0, 0, 0, 0.55);
+}
+
+/* =========================================================
+   2) Arabic font (Cairo) — applied only to RTL / Arabic
+   ========================================================= */
+body[dir="rtl"] {
+  --default-font: "Cairo", "Tajawal", "Segoe UI", system-ui, sans-serif;
+  --heading-font: "Cairo", "Tajawal", sans-serif;
+  --nav-font: "Cairo", "Tajawal", sans-serif;
+  letter-spacing: 0;                    /* Arabic must not have letter-spacing */
+}
+
+body[dir="rtl"],
+body[dir="rtl"] p,
+body[dir="rtl"] li,
+body[dir="rtl"] .lead,
+body[dir="rtl"] .description {
+  line-height: 1.9;                     /* Arabic reads better with more leading */
+}
+
+body[dir="rtl"] h1,
+body[dir="rtl"] h2,
+body[dir="rtl"] h3,
+body[dir="rtl"] h4,
+body[dir="rtl"] h5 {
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   3) Typography & rhythm
+   ========================================================= */
+.section {
+  padding: 72px 0;
+}
+@media (max-width: 768px) {
+  .section { padding: 48px 0; }
+}
+
+/* Section title — modern gradient underline */
+.section-title h2 {
+  font-weight: 700;
+}
+.section-title h2::after {
+  background: var(--accent-gradient) !important;
+}
+.section-title p {
+  color: color-mix(in srgb, var(--default-color), transparent 25%);
+}
+
+/* =========================================================
+   4) Buttons — gradient primary + smooth lift
+   ========================================================= */
+.btn-primary,
+.hero .hero-actions .btn.btn-primary,
+.services .btn,
+.contact .btn,
+button[type="submit"].btn {
+  background: var(--accent-gradient) !important;
+  border: none !important;
+  color: #fff !important;
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent-color), transparent 65%);
+  transition: transform 0.28s ease, box-shadow 0.28s ease, filter 0.28s ease;
+}
+.btn-primary:hover,
+.hero .hero-actions .btn.btn-primary:hover,
+.services .btn:hover,
+.contact .btn:hover,
+button[type="submit"].btn:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.05);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--accent-color), transparent 50%);
+}
+
+.btn-outline,
+.hero .hero-actions .btn.btn-outline {
+  border-radius: 999px;
+  padding: 12px 28px;
+  font-weight: 600;
+  border: 2px solid color-mix(in srgb, var(--accent-color), transparent 55%);
+  transition: all 0.28s ease;
+}
+.btn-outline:hover,
+.hero .hero-actions .btn.btn-outline:hover {
+  border-color: var(--accent-color);
+  background: color-mix(in srgb, var(--accent-color), transparent 90%);
+  transform: translateY(-3px);
+}
+
+/* =========================================================
+   5) Hero polish
+   ========================================================= */
+.hero .hero-text h1 .accent-text {
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero .hero-text h1 .accent-text::after {
+  background: var(--accent-gradient) !important;
+}
+.hero .background-elements .bg-circle {
+  filter: blur(2px);
+  opacity: 0.5;
+}
+.hero .social-links a {
+  transition: transform 0.28s ease, background 0.28s ease, color 0.28s ease;
+}
+.hero .social-links a:hover {
+  transform: translateY(-4px);
+  background: var(--accent-gradient);
+  color: #fff;
+}
+
+/* =========================================================
+   6) Cards: portfolio, services, generic
+   ========================================================= */
+.portfolio .portfolio-wrap,
+.services .service-item,
+.card {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease;
+  overflow: hidden;
+}
+.portfolio .portfolio-wrap:hover,
+.services .service-item:hover,
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* smooth image zoom inside portfolio cards */
+.portfolio .portfolio-wrap img {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.portfolio .portfolio-wrap:hover img {
+  transform: scale(1.06);
+}
+
+/* service icon accent */
+.services .service-item .icon,
+.services .service-item i.icon {
+  color: var(--accent-color);
+}
+
+/* =========================================================
+   7) Forms — nicer focus rings
+   ========================================================= */
+.form-control,
+.form-select {
+  border-radius: 12px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-color), transparent 85%);
+}
+
+/* =========================================================
+   8) RTL polish
+   ========================================================= */
+body[dir="rtl"] .section-title h2::before,
+body[dir="rtl"] .section-title h2::after {
+  /* keep decorative bars symmetric in RTL */
+}
+body[dir="rtl"] .hero-actions,
+body[dir="rtl"] .post-footer,
+body[dir="rtl"] .btn i {
+  direction: rtl;
+}
+/* arrows that point "forward" should mirror in RTL */
+body[dir="rtl"] .read-more i,
+body[dir="rtl"] .btn .bi-arrow-right,
+body[dir="rtl"] .btn-view-projects i {
+  transform: scaleX(-1);
+}
+body[dir="rtl"] .breadcrumbs ol {
+  padding-right: 0;
+}
+
+/* =========================================================
+   9) Misc niceties
+   ========================================================= */
+::selection {
+  background: color-mix(in srgb, var(--accent-color), transparent 70%);
+  color: var(--heading-color);
+}
+img {
+  image-rendering: -webkit-optimize-contrast;
+}
+a {
+  transition: color 0.2s ease;
+}
