@@ -14,7 +14,11 @@ services:
       DB_PORT: 5432
     command: gunicorn --chdir /usr/src/app --timeout 320 --workers 25 --access-logfile /dev/stdout --error-logfile /dev/stderr --bind :80 config.wsgi:application
     depends_on:
-      - config-db
+      config-db:
+        condition: service_healthy
+    networks:
+      - backend
+      - dokploy-network
 
 
   config-db:
@@ -29,6 +33,13 @@ services:
     volumes:
       - postgresql_data:/var/lib/postgresql/data
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - backend
 
 
   pgadmin:
@@ -44,6 +55,8 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - config-db
+    networks:
+      - backend
     ports:
       - "5020:80" 
     command: >
@@ -58,3 +71,9 @@ volumes:
   django-media:
   postgresql_data:
   pgadmin_data:
+
+
+networks:
+  backend:
+  dokploy-network:
+    external: true
