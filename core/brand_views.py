@@ -64,6 +64,7 @@ def robots_txt(request):
         "Allow: /",
         "Disallow: /admin/",
         "Disallow: /dashboard/",
+        "Disallow: /hub/",
         "Disallow: /api/",
         "Disallow: /search/",
         "Disallow: /set-language/",

@@ -1,0 +1,10 @@
+# Copy to %USERPROFILE%\.mnp-agent\config.yaml
+# NO secrets here. The device credential is stored with `mnp-agent login`
+# in Windows Credential Manager.
+
+server_url: https://mohamednabilpro.deplois.net   # http://127.0.0.1:8000 only for local development
+device_name: Windows PC
+poll_seconds: 20          # how often to ask for tasks (min 5)
+heartbeat_seconds: 30     # online status (min 10)
+allow_open_browser: true  # lets the agent open APPROVED official apply pages in your browser
+allowed_apply_hosts: []   # optional allowlist, e.g. [boards.greenhouse.io, jobs.lever.co]

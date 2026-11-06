@@ -1,0 +1,20 @@
+{% extends "hub/base.html" %}
+{% block title %}CV & documents{% endblock %}
+{% block content %}
+<div class="head"><div><h1>CV &amp; documents</h1><p>CV versions per market (Egypt / Gulf) and cover-letter templates. Files are stored outside the public media folder and downloaded only after sign-in.</p></div></div>
+<div class="grid g2">
+<section class="card"><h2>Versions</h2>
+<div class="table-wrap"><table><thead><tr><th>Title</th><th>Market</th><th>Status</th><th></th></tr></thead><tbody>
+{% for d in docs %}<tr>
+  <td><b>{{ d.title }}</b><div class="small muted">{{ d.get_kind_display }} · {{ d.get_language_display }}{% if d.is_default %} · default{% endif %}{% if d.sha256 %} · <span class="mono">{{ d.sha256|slice:":10" }}</span>{% endif %}</div></td>
+  <td>{{ d.get_market_display }}</td>
+  <td><span class="pill {% if d.is_active %}ok{% else %}bad{% endif %}">{% if d.is_active %}active{% else %}inactive{% endif %}</span> <span class="pill {% if d.status == 'verified' %}ok{% else %}warn{% endif %}">{{ d.get_status_display }}</span></td>
+  <td class="row">{% if d.file %}<a class="btn" href="{% url 'hub:document_download' d.pk %}">Download</a>{% endif %}<a class="btn" href="{% url 'hub:document_edit' d.pk %}">Edit</a>
+    <form method="post" action="{% url 'hub:document_toggle' d.pk %}">{% csrf_token %}<button class="btn" type="submit">{% if d.is_active %}Deactivate{% else %}Activate{% endif %}</button></form></td>
+</tr>{% empty %}<tr><td colspan="4" class="muted">No documents. Upload a CV or run <code>python manage.py hub_setup --import-cv</code>.</td></tr>{% endfor %}
+</tbody></table></div>
+<p class="small muted">Cover-letter templates can use {name}, {company}, {title}, {skills}, {headline}, {site}.</p></section>
+<section class="card"><h2>{% if editing %}Edit {{ editing.title }}{% else %}Upload{% endif %}</h2>
+<form method="post" enctype="multipart/form-data" action="{% if editing %}{% url 'hub:document_edit' editing.pk %}{% else %}{% url 'hub:documents' %}{% endif %}">{% csrf_token %}{{ form.as_p }}<button class="btn primary" type="submit">Save</button></form></section>
+</div>
+{% endblock %}

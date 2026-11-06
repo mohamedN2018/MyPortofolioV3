@@ -1,0 +1,25 @@
+{% extends "hub/base.html" %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block content %}
+<div class="head"><div><p><a href="{% url 'hub:jobs' %}">← Job center</a></p><h1>{{ job.title }}</h1><p>{{ job.company }} · {{ job.location|default:"Location not stated" }} · {{ job.get_work_mode_display }}</p></div>
+  <div class="row"><a class="btn" href="{{ job.url }}" target="_blank" rel="noopener noreferrer">Official posting ↗</a>
+  {% if app %}<a class="btn primary" href="{% url 'hub:application' app.pk %}">Open application</a>{% else %}
+  <form method="post" action="{% url 'hub:job_prepare' job.pk %}">{% csrf_token %}<button class="btn primary" type="submit">Prepare application</button></form>{% endif %}
+  <form method="post" action="{% url 'hub:job_archive' job.pk %}">{% csrf_token %}<button class="btn" type="submit">Archive</button></form></div></div>
+{% if dupes %}<div class="banner warn">Possible duplicate of: {% for d in dupes %}<a href="{% url 'hub:job' d.pk %}">{{ d.title }} ({{ d.source }})</a>{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+<div class="grid g3">
+<section class="card" style="grid-column: span 2"><h2>Match score: {{ job.match.score }}/100</h2>
+  <div class="table-wrap"><table><tbody>{% for key, part in job.match.breakdown.items %}<tr><th style="width:140px">{{ key }}</th><td style="width:110px"><span class="score">{{ part.points }}</span>/{{ part.max }}</td><td>{{ part.why }}</td></tr>{% endfor %}</tbody></table></div>
+  <p class="small muted">Missing information is never guessed: it receives half credit and is labelled "not stated".</p>
+</section>
+<section class="card"><h2>Facts</h2>
+  <p><b>Source:</b> {{ job.source }}</p><p><b>Salary:</b> {{ job.salary_text|default:"Not published" }}</p>
+  <p><b>Experience:</b> {% if job.min_years is not None %}{{ job.min_years }}+ years{% else %}Not stated{% endif %}</p>
+  <p><b>Languages:</b> {{ job.language_requirements|default:"Not stated" }}</p>
+  <p><b>Posted:</b> {{ job.posted_at|default:"Unknown" }} · <b>Deadline:</b> {{ job.deadline|default:"Unknown" }}</p>
+  <p><b>Skills:</b></p><div class="row">{% for s in job.required_skills %}<span class="pill">{{ s }}</span>{% empty %}<span class="muted">none detected</span>{% endfor %}</div>
+</section>
+</div>
+<section class="card" style="margin-top:16px"><h2>Description <span class="pill warn">untrusted external text</span></h2>
+  <div class="untrusted"><pre>{{ job.description|default:"No description stored." }}</pre></div></section>
+{% endblock %}

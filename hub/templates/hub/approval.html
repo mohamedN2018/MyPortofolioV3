@@ -1,0 +1,31 @@
+{% extends "hub/base.html" %}
+{% block title %}Approval{% endblock %}
+{% block content %}
+<div class="head"><div><p><a href="{% url 'hub:approvals' %}">← Approvals</a></p><h1>{{ a.title }}</h1>
+  <p><span class="pill {{ a.status }}">{{ a.get_status_display }}</span> · <span class="pill {% if a.level == 'critical' %}bad{% else %}warn{% endif %}">{{ a.get_level_display }}</span> · requested by {{ a.requested_by }} · {% if a.status == 'pending' %}expires in {{ a.expires_at|timeuntil }}{% else %}expires {{ a.expires_at }}{% endif %}</p></div></div>
+<div class="grid g3">
+<section class="card" style="grid-column: span 2"><h2>Final preview — exactly what will be used</h2>
+{% with s=a.summary %}
+{% if a.action == 'submit_application' %}
+  <div class="table-wrap"><table><tbody>
+    <tr><th>Company</th><td>{{ s.company }}</td></tr><tr><th>Job</th><td>{{ s.job }}</td></tr>
+    <tr><th>Application URL</th><td><a href="{{ s.application_url }}" target="_blank" rel="noopener noreferrer">{{ s.application_url }}</a></td></tr>
+    <tr><th>Account</th><td>{{ s.account }}</td></tr><tr><th>Submission</th><td>{{ s.submission_mode }}</td></tr>
+    <tr><th>CV version</th><td>{{ s.cv|default:"none" }}</td></tr><tr><th>Documents</th><td>{{ s.documents|join:", "|default:"—" }}</td></tr>
+  </tbody></table></div>
+  <h3>Cover letter</h3><pre>{{ s.cover_letter|default:"(none)" }}</pre>
+  <h3>Form answers</h3>{% if s.answers %}<div class="table-wrap"><table><tbody>{% for q, v in s.answers.items %}<tr><th>{{ q }}</th><td>{{ v }}</td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="muted">None.</p>{% endif %}
+  {% if s.flags %}<h3>Flags</h3><ul>{% for f in s.flags %}<li>{{ f }}</li>{% endfor %}</ul>{% endif %}
+{% else %}<pre>{{ summary_json }}</pre>{% endif %}
+{% endwith %}
+</section>
+<section class="card stack"><h2>Decision</h2>
+{% if a.status == 'pending' %}
+  <p class="small">Approving allows this one action, once, until it expires. Any change to the application afterwards invalidates it.</p>
+  <form method="post">{% csrf_token %}<input type="hidden" name="decision" value="approve"><button class="btn primary" type="submit">Approve{% if a.level == 'critical' %} &amp; execute{% endif %}</button></form>
+  <form method="post">{% csrf_token %}<input type="hidden" name="decision" value="reject"><button class="btn danger" type="submit">Reject</button></form>
+{% else %}<p>Decided by {{ a.decided_by|default:"—" }} {{ a.decided_at|default:"" }}</p>{% if a.consumed_at %}<p>Used {{ a.consumed_at }}</p>{% endif %}{% endif %}
+  {% if a.application %}<p><a href="{% url 'hub:application' a.application.pk %}">Open application</a></p>{% endif %}
+  {% if a.task %}<p><a href="{% url 'hub:task' a.task.pk %}">Open task</a></p>{% endif %}
+</section></div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "hub/base.html" %}
+{% block title %}Verify{% endblock %}
+{% block body %}
+<main class="login" id="main">
+  <div class="card stack">
+    <div><h1>Two-factor check</h1><p class="muted">Enter the 6-digit code from your authenticator app.</p></div>
+    {% if error %}<ul class="msgs"><li class="error">{{ error }}</li></ul>{% endif %}
+    <form method="post">{% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <p><label for="c">Code</label><input id="c" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]{6,7}" required autofocus></p>
+      <button class="btn primary" type="submit">Verify</button>
+    </form>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,6 @@
+<div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line)">
+  <div class="row"><span class="logo">{{ a.provider.logo_text }}</span><div><a href="{% url 'hub:account' a.pk %}"><b>{{ a.provider.name }}</b></a><div class="small muted">{{ a.label|default:a.account_identifier|default:"(no identifier)" }} · {{ a.get_method_display }}</div>
+    <div class="small muted">{% if a.last_success_at %}Last success {{ a.last_success_at|timesince }} ago{% else %}Never succeeded{% endif %}{% if a.last_error %} · <span style="color:var(--bad)">{{ a.last_error }}</span>{% endif %}</div></div></div>
+  <div class="row"><span class="pill {{ a.status }}">{{ a.get_status_display }}</span>
+    {% for p, on in a.permissions.items %}{% if on %}<span class="pill local">{{ p }}</span>{% endif %}{% endfor %}</div>
+</div>

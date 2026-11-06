@@ -1,0 +1,30 @@
+{% extends "hub/base.html" %}
+{% block title %}Job center{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Job center</h1><p>Jobs from connected public sources or links you add. Scores use your verified profile only.</p></div>
+  <form class="row" method="get"><input name="q" value="{{ q }}" placeholder="Search title, company, location" aria-label="Search jobs" style="width:240px">
+    <select name="market" aria-label="Market"><option value="">All markets</option><option value="egypt">Egypt</option><option value="ksa">Saudi Arabia</option><option value="uae">UAE</option><option value="other">Other</option></select>
+    <button class="btn" type="submit">Filter</button></form></div>
+<div class="grid g3">
+<section class="card" style="grid-column: span 2">
+<div class="table-wrap"><table><thead><tr><th>Score</th><th>Job</th><th>Location</th><th>Source</th><th>Status</th></tr></thead><tbody>
+{% for j in page %}<tr>
+  <td style="width:90px"><span class="score">{{ j.match.score|default:"—" }}</span><div class="bar"><i style="width:{{ j.match.score|default:0 }}%"></i></div></td>
+  <td><a href="{% url 'hub:job' j.pk %}"><b>{{ j.title }}</b></a><div class="small muted">{{ j.company }}{% if j.salary_text %} · {{ j.salary_text }}{% endif %}</div></td>
+  <td>{{ j.location|default:"—" }}<div class="small muted">{{ j.get_work_mode_display }}</div></td>
+  <td><span class="pill">{{ j.source }}</span></td>
+  <td>{% if j.application %}<span class="pill {{ j.application.status }}">{{ j.application.get_status_display }}</span>{% else %}<span class="muted small">—</span>{% endif %}</td>
+</tr>{% empty %}<tr><td colspan="5" class="muted">No jobs yet. Add a link on the right or connect a source in <a href="{% url 'hub:job_accounts' %}">Job accounts</a>.</td></tr>{% endfor %}
+</tbody></table></div>
+{% if page.has_other_pages %}<div class="row" style="margin-top:12px">{% if page.has_previous %}<a class="btn" href="?page={{ page.previous_page_number }}&q={{ q|urlencode }}">← Previous</a>{% endif %}<span class="muted">Page {{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="btn" href="?page={{ page.next_page_number }}&q={{ q|urlencode }}">Next →</a>{% endif %}</div>{% endif %}
+</section>
+<div class="stack">
+<section class="card"><h2>Pull from sources</h2>
+  {% for a in sources %}<form method="post" action="{% url 'hub:jobs_sync' a.pk %}" class="row between" style="padding:4px 0">{% csrf_token %}<span>{{ a }} <span class="pill {{ a.status }}">{{ a.get_status_display }}</span></span><button class="btn" type="submit">Sync</button></form>
+  {% empty %}<p class="muted small">No API sources yet (Remote OK, Greenhouse or Lever boards). <a href="{% url 'hub:job_account_add' %}">Add one</a>.</p>{% endfor %}
+</section>
+<section class="card"><h2>Add a job by link</h2><p class="small muted">The server never opens this link; it only stores it. The description is treated as untrusted text.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn primary" type="submit">Save job</button></form></section>
+</div>
+</div>
+{% endblock %}

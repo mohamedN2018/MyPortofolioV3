@@ -1,0 +1,6 @@
+{% extends "hub/base.html" %}
+{% block title %}Job preferences{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Job preferences</h1><p>Used for match scores. Saving recalculates every job.</p></div></div>
+<section class="card" style="max-width:720px"><form method="post">{% csrf_token %}{{ form.as_p }}<button class="btn primary" type="submit">Save preferences</button></form></section>
+{% endblock %}

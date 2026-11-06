@@ -1,0 +1,17 @@
+{% extends "hub/base.html" %}
+{% block title %}Connected accounts{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Connected accounts</h1><p>Official OAuth with least-privilege, read-only scopes. Tokens are encrypted at rest and never shown or sent to the agent. Job platforms live in <a href="{% url 'hub:job_accounts' %}">Job accounts</a>.</p></div></div>
+<div class="grid g3">
+{% for p, ready, accounts in providers %}
+<section class="card stack">
+  <div class="row"><span class="logo">{{ p.logo_text }}</span><div><h2 style="margin:0">{{ p.name }}</h2><span class="small muted">{{ p.get_category_display }}</span></div></div>
+  <p class="small">{{ p.limitations }}</p>
+  {% for a in accounts %}<div class="row between"><a href="{% url 'hub:account' a.pk %}">{{ a.label|default:a.account_identifier }}</a><span class="pill {{ a.status }}">{{ a.get_status_display }}</span></div>
+    {% if a.scopes %}<div class="small muted">Scopes: {{ a.scopes|join:", " }}</div>{% endif %}{% endfor %}
+  {% if ready %}<form method="post" action="{% url 'hub:oauth_start' p.slug %}">{% csrf_token %}<button class="btn primary" type="submit">{% if accounts %}Reconnect{% else %}Connect with {{ p.name }}{% endif %}</button></form>
+  {% else %}<p class="small"><span class="pill warn">Not configured</span> Set <code>HUB_OAUTH_{{ p.connector|upper }}_CLIENT_ID</code> and <code>_CLIENT_SECRET</code> on the server. Callback URL: <code>/hub/accounts/oauth/{{ p.connector }}/callback/</code></p>{% endif %}
+</section>
+{% empty %}<p class="muted">Provider catalog is empty — run <code>python manage.py hub_setup</code>.</p>{% endfor %}
+</div>
+{% endblock %}

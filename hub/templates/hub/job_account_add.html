@@ -1,0 +1,37 @@
+{% extends "hub/base.html" %}{% load hub_extras %}
+{% block title %}Add job account{% endblock %}
+{% block content %}
+<div class="head"><div><p><a href="{% url 'hub:job_accounts' %}">← Job accounts</a></p><h1>Add a job account</h1></div></div>
+<div class="steps" aria-label="Steps"><span class="{% if step == 1 %}on{% endif %}">1 · Platform</span><span class="{% if step == 2 %}on{% endif %}">2 · Method</span><span class="{% if step == 2 %}on{% endif %}">3 · Authorization</span><span class="{% if step == 2 %}on{% endif %}">4 · Permissions</span><span>5 · Test</span><span>6 · Saved</span></div>
+{% if step == 1 %}
+<div class="grid g3">
+{% for p in providers %}<a class="card kcard" href="{% url 'hub:job_account_add_provider' p.slug %}" style="margin:0">
+  <div class="row"><span class="logo">{{ p.logo_text }}</span><div><b>{{ p.name }}</b><div class="small muted">{{ p.get_category_display }}</div></div></div>
+  <p class="small" style="margin:8px 0 0">{% if p.connector %}<span class="pill ok">connector: {{ p.connector }}</span>{% else %}<span class="pill assisted">manual / assisted</span>{% endif %}
+  {% if p.can_submit %}<span class="pill ok">API submission</span>{% else %}<span class="pill unsupported">no automated submission</span>{% endif %}</p></a>
+{% endfor %}</div>
+{% else %}
+<div class="grid g2">
+<section class="card"><div class="row"><span class="logo">{{ provider.logo_text }}</span><h2 style="margin:0">{{ provider.name }}</h2></div>
+  <form method="post" style="margin-top:12px">{% csrf_token %}
+    {{ form.non_field_errors }}
+    <p>{{ form.method.label_tag }} {{ form.method }}<span class="helptext">Only methods this platform officially allows are offered.</span></p>
+    <p>{{ form.label.label_tag }} {{ form.label }}<span class="helptext">{{ form.label.help_text }}</span></p>
+    <p>{{ form.account_identifier.label_tag }} {{ form.account_identifier }}{{ form.account_identifier.errors }}<span class="helptext">{{ form.account_identifier.help_text }}</span></p>
+    <fieldset class="card" style="padding:12px"><legend><b>What Claude may do with this account</b></legend>
+      <p class="check">{{ form.perm_read }} {{ form.perm_read.label_tag }} <span class="helptext">Read permitted job / profile information.</span></p>
+      <p class="check">{{ form.perm_prepare }} {{ form.perm_prepare.label_tag }} <span class="helptext">Prepare answers, tailored CVs and cover letters.</span></p>
+      <p class="check">{{ form.perm_write }} {{ form.perm_write.label_tag }} <span class="helptext">Save drafts / tracking records linked to this account.</span></p>
+      <p class="check">{{ form.perm_submit }} {{ form.perm_submit.label_tag }} <span class="helptext">{% if provider.can_submit %}Each submission still needs your explicit approval.{% else %}Not available: {{ provider.name }} has no official submission API — you will apply on the official page.{% endif %}</span></p>
+    </fieldset>
+    <p class="small muted" style="margin-top:12px">Saving runs a real connection test and records the actual capabilities.</p>
+    <button class="btn primary" type="submit">Save &amp; test</button>
+  </form></section>
+<section class="card stack"><h2>What {{ provider.name }} supports</h2>
+  <div class="table-wrap"><table><tbody>{% for k, v in provider.capabilities.items %}<tr><th>{{ k }}</th><td><span class="pill {{ v }}">{{ v }}</span></td></tr>{% endfor %}</tbody></table></div>
+  <p class="small">{{ provider.limitations }}</p>
+  {% if provider.docs_url %}<p class="small"><a href="{{ provider.docs_url }}" target="_blank" rel="noopener">Official documentation ↗</a></p>{% endif %}
+  <p class="small muted">Sign in to {{ provider.name }} yourself in your own browser. The hub never asks for or stores passwords, one-time codes or cookies.</p>
+</section></div>
+{% endif %}
+{% endblock %}

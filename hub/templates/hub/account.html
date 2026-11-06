@@ -1,0 +1,37 @@
+{% extends "hub/base.html" %}{% load hub_extras %}
+{% block title %}{{ acc }}{% endblock %}
+{% block content %}
+<div class="head"><div><p><a href="{% if acc.provider.category == 'developer' or acc.provider.category == 'google' %}{% url 'hub:integrations' %}{% else %}{% url 'hub:job_accounts' %}{% endif %}">← Back</a></p>
+  <div class="row"><span class="logo">{{ acc.provider.logo_text }}</span><h1 style="margin:0">{{ acc }}</h1><span class="pill {{ acc.status }}">{{ acc.get_status_display }}</span></div>
+  <p>{{ acc.get_method_display }}{% if acc.scopes %} · scopes: {{ acc.scopes|join:", " }}{% endif %}</p></div>
+  <div class="row">
+    <form method="post">{% csrf_token %}<input type="hidden" name="action" value="test"><button class="btn" type="submit">Test connection</button></form>
+    <form method="post">{% csrf_token %}<input type="hidden" name="action" value="reconnect"><button class="btn" type="submit">Reconnect</button></form>
+    <form method="post" onsubmit="return confirm('Disconnect this account?')">{% csrf_token %}<input type="hidden" name="action" value="disconnect"><button class="btn danger" type="submit">Disconnect</button></form>
+    <form method="post" onsubmit="return confirm('Revoke access and destroy stored tokens?')">{% csrf_token %}<input type="hidden" name="action" value="revoke"><button class="btn danger solid" type="submit">Revoke access</button></form>
+  </div></div>
+{% if acc.required_action %}<div class="banner warn">Required action: {{ acc.required_action }}</div>{% endif %}
+<div class="grid g3">
+<section class="card"><h2>Health</h2>
+  <p><b>Last sync:</b> {{ acc.last_sync_at|default:"never" }}</p><p><b>Last success:</b> {{ acc.last_success_at|default:"never" }}</p>
+  <p><b>Last failure:</b> {{ acc.last_failure_at|default:"—" }}</p><p><b>Last error:</b> {{ acc.last_error|default:"—" }}</p>
+  <h3>Stored secrets</h3>{% for t in token_rows %}<p class="small">{{ t.get_kind_display }} · {% if t.revoked_at %}<span class="pill revoked">revoked {{ t.revoked_at|date:"Y-m-d" }}</span>{% else %}<span class="pill ok">encrypted</span>{% endif %}{% if t.expires_at %} · expires {{ t.expires_at }}{% endif %}</p>{% empty %}<p class="small muted">None (no tokens are needed for this method).</p>{% endfor %}
+</section>
+<section class="card"><h2>Permissions for Claude</h2>
+  <form method="post">{% csrf_token %}<input type="hidden" name="action" value="permissions">
+  {% for p, on in perm_list %}<p class="check"><label class="check"><input type="checkbox" name="perm_{{ p }}" {% if on %}checked{% endif %} {% if p == 'submit' and not acc.provider.can_submit %}disabled{% endif %}> {{ p|capfirst }}</label>
+    {% if p == 'submit' and not acc.provider.can_submit %}<span class="helptext">Unavailable — no official submission API.</span>{% endif %}</p>{% endfor %}
+  <p class="small muted">External actions are always off by default and still need a per-application approval.</p>
+  <button class="btn primary" type="submit">Save permissions</button></form>
+</section>
+<section class="card"><h2>Capabilities</h2>
+  <div class="table-wrap"><table><thead><tr><th>Capability</th><th>Provider</th></tr></thead><tbody>
+  {% for k, label in capabilities %}{% with v=acc.provider.capabilities|get:k %}{% if v %}<tr><td>{{ label }}</td><td><span class="pill {{ v }}">{{ v }}</span></td></tr>{% endif %}{% endwith %}{% endfor %}</tbody></table></div>
+  <h3>Last real test</h3>{% if acc.verified_capabilities %}<pre>{% for k, v in acc.verified_capabilities.items %}{{ k }}: {{ v }}
+{% endfor %}</pre>{% else %}<p class="muted small">Not tested yet.</p>{% endif %}
+  <p class="small">{{ acc.provider.limitations }}</p>
+</section></div>
+<section class="card" style="margin-top:16px"><h2>Audit history</h2>
+{% for e in history %}<div class="row between small" style="padding:4px 0"><span><span class="pill {% if e.outcome == 'ok' %}ok{% else %}bad{% endif %}">{{ e.outcome }}</span> {{ e.action }}</span><span class="muted">{{ e.actor_label }} · {{ e.created_at }}</span></div>{% empty %}<p class="muted">No events.</p>{% endfor %}
+</section>
+{% endblock %}

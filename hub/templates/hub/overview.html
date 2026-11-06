@@ -1,0 +1,34 @@
+{% extends "hub/base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Overview</h1><p>Agent status, approvals and your job pipeline at a glance.</p></div>
+  <div class="row"><a class="btn" href="{% url 'hub:jobs' %}">Add a job</a><a class="btn primary" href="{% url 'hub:approvals' %}">Review approvals</a></div></div>
+{% if not key_ok %}<div class="banner warn">HUB_ENCRYPTION_KEYS is not set on this server — tokens are encrypted with a development key derived from SECRET_KEY. Set a dedicated key before connecting real accounts (see docs/AI-HUB-SECURITY.md).</div>{% endif %}
+<div class="grid g4">
+  <div class="card stat"><div class="n">{{ online|length }}/{{ devices|length }}</div><div class="l">Agents online</div></div>
+  <div class="card stat"><div class="n">{{ pending }}</div><div class="l">Pending approvals</div></div>
+  <div class="card stat"><div class="n">{{ jobs }}</div><div class="l">Jobs tracked</div></div>
+  <div class="card stat"><div class="n">{{ app_total }}</div><div class="l">Applications</div></div>
+</div>
+<div class="grid g2" style="margin-top:16px">
+  <section class="card"><h2>Agent devices</h2>
+    {% for d in devices %}<div class="row between" style="padding:6px 0"><span class="row"><span class="dot {% if d.online %}on{% endif %}"></span>{{ d.name }}</span><span class="muted small">{% if d.last_heartbeat %}last seen {{ d.last_heartbeat|timesince }} ago{% else %}never connected{% endif %}</span></div>
+    {% empty %}<p class="muted">No device registered. <a href="{% url 'hub:agent' %}">Register your Windows PC</a>.</p>{% endfor %}
+    {% if running %}<h3 style="margin-top:12px">Running</h3>{% for t in running %}<p><a href="{% url 'hub:task' t.pk %}">{{ t.tool }}</a> <span class="muted">· {{ t.progress }}%</span></p>{% endfor %}{% endif %}
+    {% if failed %}<h3 style="margin-top:12px">Recent failures</h3>{% for t in failed %}<p><a href="{% url 'hub:task' t.pk %}">{{ t.tool }}</a> <span class="pill {{ t.status }}">{{ t.get_status_display }}</span> <span class="muted small">{{ t.error }}</span></p>{% endfor %}{% endif %}
+  </section>
+  <section class="card"><h2>Best matches</h2>
+    {% for j in top_jobs %}<div style="padding:6px 0"><div class="row between"><a href="{% url 'hub:job' j.pk %}">{{ j.title }} — {{ j.company }}</a><span class="score">{{ j.match.score }}</span></div><div class="bar"><i style="width:{{ j.match.score }}%"></i></div></div>
+    {% empty %}<p class="muted">No jobs yet.</p>{% endfor %}
+  </section>
+  <section class="card"><h2>Integration health</h2>
+    {% for a in accounts %}<div class="row between" style="padding:5px 0"><a href="{% url 'hub:account' a.pk %}">{{ a }}</a><span class="pill {{ a.status }}">{{ a.get_status_display }}</span></div>
+    {% empty %}<p class="muted">No accounts connected. <a href="{% url 'hub:job_accounts' %}">Add one</a>.</p>{% endfor %}
+  </section>
+  <section class="card"><h2>Recent activity</h2>
+    {% for e in events %}<div class="row between small" style="padding:4px 0"><span><span class="pill {% if e.outcome == 'ok' %}ok{% elif e.outcome == 'denied' %}bad{% else %}warn{% endif %}">{{ e.outcome }}</span> {{ e.action }}</span><span class="muted">{{ e.actor_label }} · {{ e.created_at|timesince }}</span></div>
+    {% empty %}<p class="muted">Nothing yet.</p>{% endfor %}
+    <p><a href="{% url 'hub:activity' %}">Full activity log →</a></p>
+  </section>
+</div>
+{% endblock %}
