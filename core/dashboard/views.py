@@ -882,6 +882,10 @@ def site_settings_edit(request):
         settings.linkedin_url = data.get('linkedin_url')
         settings.github_url = data.get('github_url')
         settings.instagram_url = data.get('instagram_url')
+        settings.gitlab_url = data.get('gitlab_url', '')
+        settings.stackoverflow_url = data.get('stackoverflow_url', '')
+        settings.behance_url = data.get('behance_url', '')
+        settings.show_phone_publicly = data.get('show_phone_publicly') == 'on'
         settings.enable_rtl = data.get('enable_rtl') == 'on'
         settings.maintenance_mode = data.get('maintenance_mode') == 'on'
         

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% block body_class %}gallery-page{% endblock %}
+
+{% block content %}
+<header class="mnp-page-head">
+  <div class="container">
+    <nav class="mnp-breadcrumbs" aria-label="breadcrumb">
+      <ol><li><a href="{% url 'home' %}">{% trans "Home" %}</a></li><li aria-current="page">{% if seo.lang == 'ar' %}معرض الصور{% else %}Gallery{% endif %}</li></ol>
+    </nav>
+    <h1>{% if seo.lang == 'ar' %}معرض صور محمد نبيل{% else %}Mohamed Nabil — Media Gallery{% endif %}</h1>
+    <p class="text-body-secondary mb-0">{{ page_description }}</p>
+  </div>
+</header>
+
+<section class="mnp-section pt-3" aria-labelledby="portraits">
+  <div class="container">
+    <h2 id="portraits" class="h4 fw-bold mb-3">{% if seo.lang == 'ar' %}صور شخصية مهنية{% else %}Professional portraits{% endif %}</h2>
+    <div class="mnp-gallery">
+      <figure>
+        <picture>
+          <source type="image/webp" srcset="{{ brand.portrait_800_webp }}">
+          <img src="{{ brand.portrait_800_jpg }}" alt="{{ brand.portrait_alt }}" width="800" height="800" loading="lazy">
+        </picture>
+        <figcaption>{{ brand.name }} — {{ brand.job_title }}</figcaption>
+      </figure>
+      {% for item in items %}{% if item.category == 'portraits' %}
+      <figure>
+        <img src="{{ item.image.url }}" alt="{{ item.alt }}" loading="lazy">
+        {% if item.caption or item.title %}<figcaption>{{ item.caption|default:item.title }}</figcaption>{% endif %}
+      </figure>
+      {% endif %}{% endfor %}
+    </div>
+  </div>
+</section>
+
+{% for key, label in categories %}{% if key != 'portraits' %}
+<section class="mnp-section pt-0" aria-labelledby="g-{{ key }}">
+  <div class="container">
+    <h2 id="g-{{ key }}" class="h4 fw-bold mb-3">{{ label }}</h2>
+    <div class="mnp-gallery">
+      {% for item in items %}{% if item.category == key %}
+      <figure>
+        <img src="{{ item.image.url }}" alt="{{ item.alt }}" loading="lazy">
+        {% if item.caption or item.title %}<figcaption>{{ item.caption|default:item.title }}{% if item.taken_on %} · {{ item.taken_on|date:"Y" }}{% endif %}</figcaption>{% endif %}
+      </figure>
+      {% endif %}{% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}{% endfor %}
+
+{% if project_shots %}
+<section class="mnp-section pt-0" aria-labelledby="g-projects-shots">
+  <div class="container">
+    <h2 id="g-projects-shots" class="h4 fw-bold mb-3">{% if seo.lang == 'ar' %}لقطات من المشاريع{% else %}Project screenshots{% endif %}</h2>
+    <div class="mnp-gallery">
+      {% for p in project_shots %}
+      <figure>
+        <a href="{% url 'portfolio_detail' p.slug %}"><img src="{{ p.cover_image.url }}" alt="{{ p.title }} — {% if seo.lang == 'ar' %}لقطة شاشة لمشروع من تطوير محمد نبيل{% else %}screenshot of a project by Mohamed Nabil{% endif %}" loading="lazy"></a>
+        <figcaption>{{ p.title }}</figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

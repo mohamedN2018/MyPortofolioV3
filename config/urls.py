@@ -24,6 +24,12 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+elif getattr(settings, 'SERVE_MEDIA', False):
+    # Production without a separate media server (Dokploy): serve uploads via
+    # Django. Static files are served by WhiteNoise.
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    ]
 
 
 # تسجيل معالجات الأخطاء المخصّصة (وإلا لن تُعرض قوالب error/*.html أبداً)

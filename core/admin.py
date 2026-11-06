@@ -11,9 +11,9 @@ from .models import *
 # إعدادات عامة للـ Admin
 # ============================================================
 
-admin.site.site_header = _("SnapFolio Administration")
-admin.site.site_title = _("SnapFolio Admin Portal")
-admin.site.index_title = _("Welcome to SnapFolio Dashboard")
+admin.site.site_header = "Mohamed Nabil Pro — Administration"
+admin.site.site_title = "Mohamed Nabil Pro Admin"
+admin.site.index_title = "Content management"
 
 # ============================================================
 # نماذج الترجمة واللغات
@@ -61,11 +61,11 @@ class SiteSettingAdmin(admin.ModelAdmin):
             'fields': ('site_logo', 'favicon', 'site_name_ar', 'site_name_en', 'footer_text_ar', 'footer_text_en')
         }),
         (_('Contact Information'), {
-            'fields': ('contact_email', 'contact_phone', 'contact_address_ar', 'contact_address_en')
+            'fields': ('contact_email', 'contact_phone', 'show_phone_publicly', 'contact_address_ar', 'contact_address_en')
         }),
-        (_('Social Media Links'), {
-            'fields': ('facebook_url', 'twitter_url', 'linkedin_url', 'github_url', 'instagram_url'),
-            'classes': ('collapse',)
+        (_('Official profiles (used for Person.sameAs)'), {
+            'fields': ('linkedin_url', 'github_url', 'gitlab_url', 'stackoverflow_url', 'behance_url',
+                       'facebook_url', 'twitter_url', 'instagram_url'),
         }),
         (_('General Settings'), {
             'fields': ('default_language', 'enable_rtl', 'maintenance_mode')
@@ -657,3 +657,23 @@ class ProjectRatingAdmin(admin.ModelAdmin):
     
     def has_add_permission(self, request):
         return False  # المستخدمون يضيفون تقييمات من الواجهة الأمامية فقط
+
+
+
+@admin.register(GalleryItem)
+class GalleryItemAdmin(admin.ModelAdmin):
+    list_display = ['thumb', 'title_en', 'category', 'is_public', 'order', 'created_at']
+    list_filter = ['category', 'is_public']
+    list_editable = ['is_public', 'order']
+    search_fields = ['title_en', 'title_ar', 'alt_en', 'alt_ar']
+    fieldsets = (
+        (None, {'fields': ('image', 'category', 'is_public', 'order', 'taken_on')}),
+        ('English', {'fields': ('title_en', 'alt_en', 'caption_en')}),
+        ('العربية', {'fields': ('title_ar', 'alt_ar', 'caption_ar')}),
+    )
+
+    def thumb(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" style="height:48px;border-radius:6px" alt="">', obj.image.url)
+        return "-"
+    thumb.short_description = _("Image")

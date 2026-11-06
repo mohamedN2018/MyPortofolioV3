@@ -10,6 +10,7 @@ from django.utils import translation
 from django.utils.translation import gettext as _
 from django.urls import reverse
 from django.db.models import Q, Count, Avg
+from django.db import models
 from datetime import datetime
 import json
 import logging
@@ -48,6 +49,25 @@ def get_current_language(request):
     request.LANGUAGE_CODE = lang_code
     
     return language, lang_code
+
+
+def _get_translated_object(model, request, language, slug, **filters):
+    """جلب عنصر بالـ slug: أولاً بلغة الزائر، ثم بأي لغة.
+
+    إصلاح SEO: روابط الصفحات العربية (slug ينتهي بـ -ar) كانت تُرجع 404 لأي
+    زائر بلا جلسة عربية (ومنهم Googlebot). إذا وُجد العنصر بلغة أخرى نعرضه
+    بلغته الأصلية لهذا الطلب فقط.
+    """
+    obj = model.objects.filter(slug=slug, language=language, **filters).first()
+    if obj is None:
+        obj = model.objects.filter(slug=slug, **filters).select_related('language').first()
+        if obj is None:
+            from django.http import Http404
+            raise Http404
+        translation.activate(obj.language.code)
+        request.LANGUAGE_CODE = obj.language.code
+        language = obj.language
+    return obj, language
 
 
 def get_default_language():
@@ -102,10 +122,8 @@ def get_common_context(request, language, extra_context=None):
     if hard_workers_count == 0:
         hard_workers_count = 1
     
-    # ساعات الدعم التلقائية
-    support_hours = total_projects * 10
-    if support_hours < 100:
-        support_hours = 1463
+    # لا أرقام مُختلَقة: هذا المؤشر لم يعد يُعرض في القوالب
+    support_hours = 0
     
     auto_stats = {
         'total_projects': total_projects,
@@ -233,13 +251,7 @@ def service_detail_page(request, slug):
     language, lang_code = get_current_language(request)
     default_language = get_default_language()
     
-    try:
-        service = Service.objects.get(slug=slug, language=language, is_active=True)
-    except Service.DoesNotExist:
-        if default_language:
-            service = get_object_or_404(Service, slug=slug, language=default_language, is_active=True)
-        else:
-            raise
+    service, language = _get_translated_object(Service, request, language, slug, is_active=True)
     
     service_details = ServiceDetail.objects.filter(service=service, language=language).order_by('order')
     if not service_details.exists() and default_language:
@@ -328,13 +340,7 @@ def portfolio_detail_page(request, slug):
     language, lang_code = get_current_language(request)
     default_language = get_default_language()
     
-    try:
-        portfolio = Portfolio.objects.get(slug=slug, language=language, is_active=True)
-    except Portfolio.DoesNotExist:
-        if default_language:
-            portfolio = get_object_or_404(Portfolio, slug=slug, language=default_language, is_active=True)
-        else:
-            raise
+    portfolio, language = _get_translated_object(Portfolio, request, language, slug, is_active=True)
     
     # التحقق من وجود الصورة
     if not portfolio.cover_image or not hasattr(portfolio.cover_image, 'url'):
@@ -397,6 +403,7 @@ def portfolio_detail_page(request, slug):
     }
     
     context = get_common_context(request, language, context_data)
+    context['page_jsonld'] = _portfolio_jsonld(request, portfolio, context.get('site_settings'))
     return render(request, 'portfolio-detail.html', context)
 
 
@@ -463,16 +470,9 @@ def blog_detail_page(request, slug):
     language, lang_code = get_current_language(request)
     default_language = get_default_language()
     
-    try:
-        post = BlogPost.objects.get(slug=slug, language=language, is_published=True)
-    except BlogPost.DoesNotExist:
-        if default_language:
-            post = get_object_or_404(BlogPost, slug=slug, language=default_language, is_published=True)
-        else:
-            raise
+    post, language = _get_translated_object(BlogPost, request, language, slug, is_published=True)
     
-    post.views_count += 1
-    post.save()
+    BlogPost.objects.filter(pk=post.pk).update(views_count=models.F('views_count') + 1)
     
     related_posts = BlogPost.objects.filter(
         language=language, is_published=True, category=post.category
@@ -498,6 +498,7 @@ def blog_detail_page(request, slug):
     }
     
     context = get_common_context(request, language, context_data)
+    context['page_jsonld'] = _blog_jsonld(request, post, context.get('site_settings'))
     return render(request, 'blog-detail.html', context)
 
 
@@ -537,33 +538,12 @@ def blog_category_page(request, slug):
 
 
 def about_page(request):
-    """صفحة من نحن"""
-    language, lang_code = get_current_language(request)
-    default_language = get_default_language()
-    
-    try:
-        page = StaticPage.objects.get(slug='about', language=language, is_published=True)
-    except StaticPage.DoesNotExist:
-        if default_language:
-            page = StaticPage.objects.filter(slug='about', language=default_language, is_published=True).first()
-        else:
-            page = None
-    
-    stats = {
-        'projects_count': get_model_data(Portfolio, language, fallback=True, is_active=True).count(),
-        'clients_count': get_model_data(Testimonial, language, fallback=True, is_active=True).count(),
-        'experience_years': get_model_data(WorkExperience, language, fallback=True, is_active=True).count(),
-        'articles_count': get_model_data(BlogPost, language, fallback=True, is_published=True).count(),
-    }
-    
-    context_data = {
-        'page': page,
-        'stats': stats,
-        'skills': get_model_data(Skill, language, fallback=True, is_active=True)[:8],
-    }
-    
-    context = get_common_context(request, language, context_data)
-    return render(request, 'about.html', context)
+    """/about/ → الصفحة الرسمية الوحيدة للهوية (301) لتفادي المحتوى المكرر."""
+    from django.http import HttpResponsePermanentRedirect
+    target = reverse('identity')
+    if request.GET.get('lang') in ('ar', 'en'):
+        target += '?lang=' + request.GET['lang']
+    return HttpResponsePermanentRedirect(target)
 
 
 def static_page_view(request, slug):
@@ -591,6 +571,19 @@ def contact_page(request):
     
     if request.method == 'POST':
         form = ContactForm(request.POST)
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        # Honeypot: real visitors never fill the hidden "website" field.
+        if request.POST.get('website'):
+            logger.info("Contact form honeypot triggered from %s", get_client_ip(request))
+            if is_ajax:
+                return JsonResponse({'success': True, 'message': _('Your message has been sent successfully!')})
+            messages.success(request, _('Your message has been sent successfully!'))
+            return redirect('contact')
+        if _contact_rate_limited(request):
+            if is_ajax:
+                return JsonResponse({'success': False, 'error': _('Too many messages. Please try again later.')}, status=429)
+            messages.error(request, _('Too many messages. Please try again later.'))
+            return redirect('contact')
         if form.is_valid():
             try:
                 contact_message = ContactMessage(
@@ -600,7 +593,7 @@ def contact_page(request):
                     subject=form.cleaned_data['subject'],
                     message=form.cleaned_data['message'],
                     ip_address=get_client_ip(request),
-                    user_agent=request.META.get('HTTP_USER_AGENT', '')
+                    user_agent=request.META.get('HTTP_USER_AGENT', '')[:500]
                 )
                 contact_message.save()
 
@@ -628,6 +621,19 @@ def contact_page(request):
     context_data = {'form': form, 'site_settings': site_settings}
     context = get_common_context(request, language, context_data)
     return render(request, 'contact.html', context)
+
+
+def _contact_rate_limited(request):
+    """حدّ بسيط لعدد الرسائل لكل IP في الساعة (يستخدم الكاش)."""
+    from django.core.cache import cache
+
+    limit = getattr(settings, 'CONTACT_RATE_LIMIT', 5)
+    key = f"contact-rate:{get_client_ip(request)}"
+    count = cache.get(key, 0)
+    if count >= limit:
+        return True
+    cache.set(key, count + 1, 3600)
+    return False
 
 
 def _send_contact_notification(contact_message):
@@ -662,12 +668,29 @@ def _send_contact_notification(contact_message):
 
 def get_client_ip(request):
     """الحصول على IP الزائر"""
+    cf_ip = request.META.get('HTTP_CF_CONNECTING_IP')  # الموقع خلف Cloudflare
+    if cf_ip:
+        return cf_ip.strip()
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
+        ip = x_forwarded_for.split(',')[0].strip()
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+def _safe_next_url(request, next_url):
+    """منع Open Redirect + إزالة باراميتر lang حتى يُطبَّق الاختيار الجديد."""
+    from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
+    from django.utils.http import url_has_allowed_host_and_scheme
+
+    if not next_url or not url_has_allowed_host_and_scheme(
+        next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return '/'
+    parts = urlsplit(next_url)
+    query = urlencode([(k, v) for k, v in parse_qsl(parts.query) if k != 'lang'])
+    return urlunsplit(('', '', parts.path or '/', query, parts.fragment))
 
 
 def set_language(request):
@@ -681,7 +704,7 @@ def set_language(request):
             request.session['django_language'] = language_code
             request.LANGUAGE_CODE = language_code
             
-            next_url = request.POST.get('next', '/')
+            next_url = _safe_next_url(request, request.POST.get('next', '/'))
             response = redirect(next_url)
             response.set_cookie('django_language', language_code, max_age=365*24*60*60)
             
@@ -889,3 +912,56 @@ def handler500(request):
 
 
 
+
+
+# ======================================================================
+# Structured data (JSON-LD) for detail pages — one shared Person entity
+# ======================================================================
+def _portfolio_jsonld(request, portfolio, site_settings):
+    from . import seo
+    work = {
+        "@type": "CreativeWork",
+        "@id": seo.canonical_for(request) + "#project",
+        "name": portfolio.title,
+        "headline": portfolio.title,
+        "description": portfolio.short_description,
+        "url": seo.canonical_for(request),
+        "inLanguage": seo.current_lang(),
+        "creator": {"@id": seo.absolute(seo.PERSON_ID)},
+        "author": {"@id": seo.absolute(seo.PERSON_ID)},
+        "keywords": ", ".join(portfolio.technologies or []),
+    }
+    if portfolio.cover_image:
+        work["image"] = seo.absolute(portfolio.cover_image.url)
+    if portfolio.project_date:
+        work["dateCreated"] = portfolio.project_date.isoformat()
+    if portfolio.project_url:
+        work["sameAs"] = portfolio.project_url
+    page = seo.page_entity(request, portfolio.title, portfolio.short_description, breadcrumbs=[
+        ("Home", "/"), ("Projects", reverse('portfolio')), (portfolio.title, request.path)])
+    page["mainEntity"] = {"@id": work["@id"]}
+    return seo.graph(seo.website_entity(), seo.person_entity(site_settings), page, work)
+
+
+def _blog_jsonld(request, post, site_settings):
+    from . import seo
+    article = {
+        "@type": "BlogPosting",
+        "@id": seo.canonical_for(request) + "#article",
+        "headline": post.title[:110],
+        "description": post.meta_description or post.excerpt,
+        "url": seo.canonical_for(request),
+        "inLanguage": seo.current_lang(),
+        "datePublished": post.published_date.isoformat(),
+        "dateModified": post.updated_date.isoformat(),
+        "author": {"@id": seo.absolute(seo.PERSON_ID)},
+        "publisher": {"@id": seo.absolute(seo.PERSON_ID)},
+        "mainEntityOfPage": seo.canonical_for(request),
+    }
+    if post.featured_image:
+        article["image"] = seo.absolute(post.featured_image.url)
+    if post.tags:
+        article["keywords"] = post.tags
+    page = seo.page_entity(request, post.title, post.excerpt, breadcrumbs=[
+        ("Home", "/"), ("Blog", reverse('blog')), (post.title, request.path)])
+    return seo.graph(seo.website_entity(), seo.person_entity(site_settings), page, article)

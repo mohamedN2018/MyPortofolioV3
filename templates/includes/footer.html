@@ -1,20 +1,34 @@
 {% load i18n %}
-
-<footer id="footer" class="footer position-relative">
+<footer id="footer" class="footer brand-footer position-relative">
   <div class="container">
-    <div class="copyright text-center">
-      <p>
-        © <span>{% trans "Copyright" %}</span> 
-        <strong class="px-1 sitename">{{ site_settings.get_site_name|default:'MohaMed NabiL' }}</strong> 
-        <span>{% trans "All Rights Reserved" %}</span> 
-        <span class="text-success fw-bold">{% trans "Version 3.0.0" %}</span>
-      </p>
+    <div class="row gy-4 align-items-start">
+      <div class="col-lg-5">
+        <p class="footer-name mb-1"><strong>{{ brand.name_en }}</strong> · <span lang="ar" dir="rtl">{{ brand.name_ar }}</span></p>
+        <p class="footer-brand mb-2">{{ brand.brand }} — {{ brand.job_title }}</p>
+        <p class="footer-tagline small mb-0">{{ brand.tagline }}</p>
+      </div>
+      <div class="col-lg-3 col-6">
+        <p class="footer-heading">{% if seo.lang == 'ar' %}روابط{% else %}Explore{% endif %}</p>
+        <ul class="footer-links list-unstyled">
+          <li><a href="{% url 'identity' %}">{% trans "About" %}</a></li>
+          <li><a href="{% url 'cv' %}" class="footer-cv"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> {% if seo.lang == 'ar' %}السيرة الذاتية (CV){% else %}CV / Resume{% endif %}</a></li>
+          <li><a href="{% url 'portfolio' %}">{% if seo.lang == 'ar' %}المشاريع{% else %}Projects{% endif %}</a></li>
+          <li><a href="{% url 'gallery' %}">{% if seo.lang == 'ar' %}معرض الصور{% else %}Gallery{% endif %}</a></li>
+          <li><a href="{% url 'blog' %}">{% trans "Blog" %}</a></li>
+          <li><a href="{% url 'contact' %}">{% trans "Contact" %}</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-6">
+        <p class="footer-heading">{% if seo.lang == 'ar' %}الحسابات الرسمية{% else %}Official profiles{% endif %}</p>
+        <ul class="footer-links list-unstyled">
+          {% for p in brand.profiles %}
+          <li><a href="{{ p.url }}" target="_blank" rel="noopener noreferrer me"><i class="bi {{ p.icon }}" aria-hidden="true"></i> {{ p.label }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-    <div class="credits text-center">
-      {% trans "Designed by" %} <a target="_blank">MohaMed NabiL</a>
-      {% if site_settings.get_footer_text %}
-        <br><small>{{ site_settings.get_footer_text }}</small>
-      {% endif %}
+    <div class="copyright text-center mt-4">
+      <p class="mb-0">© {% now "Y" %} <strong>{{ brand.name }}</strong> — {{ brand.brand }}. {% trans "All Rights Reserved" %}</p>
     </div>
   </div>
 </footer>

@@ -58,6 +58,15 @@ class SiteSetting(models.Model):
     linkedin_url = models.URLField(blank=True)
     github_url = models.URLField(blank=True)
     instagram_url = models.URLField(blank=True)
+    gitlab_url = models.URLField(blank=True)
+    stackoverflow_url = models.URLField(blank=True)
+    behance_url = models.URLField(blank=True)
+
+    # الخصوصية: رقم الهاتف لا يظهر للعامة إلا بموافقة صريحة
+    show_phone_publicly = models.BooleanField(
+        default=False,
+        help_text="Show the contact phone number on public pages and structured data.",
+    )
     
     # إعدادات عامة
     default_language = models.ForeignKey(Language, on_delete=models.SET_NULL, null=True, related_name='default_site')
@@ -678,3 +687,53 @@ class ReusableBlock(models.Model):
     
     
 
+
+
+
+# ========== معرض الصور (Media Gallery) ==========
+class GalleryItem(models.Model):
+    """صورة في معرض الوسائط. لا تظهر للعامة إلا إذا تم تفعيل is_public صراحةً."""
+    CATEGORY_CHOICES = [
+        ('portraits', _('Professional portraits')),
+        ('work', _('Work environment')),
+        ('projects', _('Projects')),
+        ('achievements', _('Technical achievements')),
+        ('events', _('Events and activities')),
+        ('public', _('Public professional moments')),
+    ]
+
+    image = models.ImageField(upload_to='gallery/')
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='projects')
+    title_en = models.CharField(max_length=200, blank=True)
+    title_ar = models.CharField(max_length=200, blank=True)
+    alt_en = models.CharField(max_length=250, help_text="Descriptive alt text (English) — required for accessibility & image SEO.")
+    alt_ar = models.CharField(max_length=250, blank=True, help_text="Descriptive alt text (Arabic).")
+    caption_en = models.CharField(max_length=300, blank=True)
+    caption_ar = models.CharField(max_length=300, blank=True)
+    taken_on = models.DateField(null=True, blank=True)
+    is_public = models.BooleanField(default=False, help_text="Only approved (public) photos are shown on the site.")
+    order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = _("Gallery Item")
+        verbose_name_plural = _("Gallery Items")
+
+    def __str__(self):
+        return self.title_en or self.alt_en
+
+    def _pick(self, en, ar):
+        return ar if (translation.get_language() or '').startswith('ar') and ar else en
+
+    @property
+    def title(self):
+        return self._pick(self.title_en, self.title_ar)
+
+    @property
+    def alt(self):
+        return self._pick(self.alt_en, self.alt_ar)
+
+    @property
+    def caption(self):
+        return self._pick(self.caption_en, self.caption_ar)

@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load static i18n %}
 
-{% block title %}{% trans "Server Error" %} | {{ site_settings.get_site_name }}{% endblock %}
+{% block title %}{% trans "Server Error" %} | {{ brand.name }} — {{ brand.brand }}{% endblock %}
 
+{% block robots %}noindex, follow{% endblock %}
 {% block content %}
 
 <!-- Page Title -->

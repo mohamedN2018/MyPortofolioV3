@@ -32,7 +32,11 @@ SECURE_SSL_REDIRECT = not DEBUG
 MAIN_DOMAIN = config('MAIN_DOMAIN', default='mohamednabilpro.deplois.net').replace('https://', '').replace('http://', '')
 
 
-ALLOWED_HOSTS = [MAIN_DOMAIN, f'www.{MAIN_DOMAIN}', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [MAIN_DOMAIN, f'www.{MAIN_DOMAIN}', '127.0.0.1', 'localhost', 'testserver']
+
+# Absolute public base URL used for canonical URLs, sitemap, robots.txt,
+# Open Graph and JSON-LD. Never hardcode a development URL here.
+SITE_URL = config('SITE_URL', default=f'https://{MAIN_DOMAIN}').rstrip('/')
 
 if DEBUG:
     ALLOWED_HOSTS += ['127.0.0.1', 'localhost', 'https://mohamednabilpro.deplois.net/', 'http://mohamednabilpro.deplois.net/']
@@ -51,6 +55,16 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Security headers (safe defaults; HSTS only when explicitly enabled)
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'SAMEORIGIN'  # allows the same-origin CV PDF preview iframe
+SECURE_HSTS_SECONDS = config('SECURE_HSTS_SECONDS', default=0, cast=int)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+# Health checks / internal probes hit plain HTTP; keep the public redirect
+# to HTTPS but never redirect the Google verification file or robots.
+SECURE_REDIRECT_EXEMPT = [r'^google[0-9a-f]+\.html$', r'^robots\.txt$']
 
 
 if DEBUG:
@@ -87,7 +101,9 @@ SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'core.middleware.RequestLanguageIsolationMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -118,6 +134,7 @@ TEMPLATES = [
                 'core.context_processors.site_menus',
                 'core.context_processors.global_settings',
                 'core.context_processors.dashboard_stats',
+                'core.seo.seo_context',
 
             ],
         },
@@ -174,6 +191,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # =========================
 
 LANGUAGE_CODE = 'en-us'
+# Language served to visitors without an explicit choice (no ?lang=, no session).
+SITE_DEFAULT_LANGUAGE = config('SITE_DEFAULT_LANGUAGE', default='en')
 TIME_ZONE = 'Africa/Cairo'
 USE_I18N = True
 USE_TZ = True
@@ -215,9 +234,25 @@ LOCALE_PATHS = [
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
-    "/usr/src/app/static/",
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise serves /static/ in production (DEBUG=False) without nginx.
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedStaticFilesStorage"},
+}
+
+# Serve straight from STATICFILES_DIRS as well, so new assets work even if the
+# Docker build's `collectstatic || true` step fails (no env vars at build time).
+WHITENOISE_USE_FINDERS = True
+
+# Public root files (e.g. Google Search Console verification) served at "/<name>".
+PUBLIC_ROOT = BASE_DIR / "public"
+
+# Serve user-uploaded /media/ through Django when there is no separate web
+# server for it (Dokploy/Traefik setup). Set SERVE_MEDIA=False if nginx serves it.
+SERVE_MEDIA = config('SERVE_MEDIA', default=True, cast=bool)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -237,6 +272,15 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=(EMAIL_HOST_USER or 'no-reply@localhost'))
 # البريد الذي تصل إليه إشعارات نموذج الاتصال (افتراضياً نفس بريد المُرسِل)
 CONTACT_NOTIFY_EMAIL = config('CONTACT_NOTIFY_EMAIL', default=EMAIL_HOST_USER)
+
+# Simple per-IP throttling for the public contact form (uses the cache).
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'mnp-default',
+    }
+}
+CONTACT_RATE_LIMIT = config('CONTACT_RATE_LIMIT', default=5, cast=int)  # messages / hour / IP
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

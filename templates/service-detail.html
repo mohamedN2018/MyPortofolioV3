@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static i18n %}
 
-{% block title %}{{ service.title }} | {% trans "Service Details" %}{% endblock %}
+{% block title %}{{ service.meta_title|default:service.title }} | {{ brand.name }} — {{ brand.brand }}{% endblock %}
+{% block description %}{{ service.meta_description|default:service.short_description }}{% endblock %}
 
 {% block content %}
 

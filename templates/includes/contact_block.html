@@ -1,0 +1,77 @@
+{% load i18n %}
+<div class="row g-4 g-lg-5">
+  <div class="col-lg-5">
+    <div class="mnp-card">
+      <h3 class="h5 fw-bold">{% if seo.lang == 'ar' %}قنوات التواصل الرسمية{% else %}Official contact channels{% endif %}</h3>
+      <p class="text-body-secondary small">{% if seo.lang == 'ar' %}للتعاون أو فرص العمل أو الاستشارات التقنية.{% else %}For collaboration, job opportunities or technical consulting.{% endif %}</p>
+      <dl class="mnp-facts mb-3">
+        {% if brand.email %}<dt>{% if seo.lang == 'ar' %}البريد{% else %}Email{% endif %}</dt><dd><a href="mailto:{{ brand.email }}">{{ brand.email }}</a></dd>{% endif %}
+        {% if brand.show_phone %}<dt>{% if seo.lang == 'ar' %}الهاتف{% else %}Phone{% endif %}</dt><dd><a href="tel:{{ site_settings.contact_phone }}" dir="ltr">{{ site_settings.contact_phone }}</a></dd>{% endif %}
+        <dt>{% if seo.lang == 'ar' %}الدولة{% else %}Based in{% endif %}</dt><dd>{{ brand.country }}</dd>
+      </dl>
+      <div class="mnp-profiles mb-3">
+        {% for p in brand.profiles %}
+        <a href="{{ p.url }}" target="_blank" rel="noopener noreferrer me"><i class="bi {{ p.icon }}" aria-hidden="true"></i> {{ p.label }}</a>
+        {% endfor %}
+      </div>
+      <a href="{% url 'cv' %}" class="mnp-btn mnp-btn-outline w-100 justify-content-center"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> {% if seo.lang == 'ar' %}مسؤول توظيف؟ اطّلع على سيرتي الذاتية{% else %}Recruiter? Review my CV{% endif %}</a>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="contact-form">
+      <h3>{% trans "Send Me a Message" %}</h3>
+      <form method="post" action="{% url 'contact' %}" class="contact-form-ajax" novalidate>
+        {% csrf_token %}
+        <div class="hp-field" aria-hidden="true">
+          <label for="website-{{ form_id|default:'c' }}">Website</label>
+          <input type="text" id="website-{{ form_id|default:'c' }}" name="website" tabindex="-1" autocomplete="off">
+        </div>
+        <div class="row gy-3">
+          <div class="col-md-6">
+            <label class="form-label" for="cf-name-{{ form_id|default:'c' }}">{% trans "Your Name" %}</label>
+            <input type="text" id="cf-name-{{ form_id|default:'c' }}" name="name" class="form-control" maxlength="100" autocomplete="name" required>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="cf-email-{{ form_id|default:'c' }}">{% trans "Your Email" %}</label>
+            <input type="email" id="cf-email-{{ form_id|default:'c' }}" name="email" class="form-control" autocomplete="email" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="cf-subject-{{ form_id|default:'c' }}">{% trans "Subject" %}</label>
+            <input type="text" id="cf-subject-{{ form_id|default:'c' }}" name="subject" class="form-control" maxlength="200" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="cf-message-{{ form_id|default:'c' }}">{% trans "Your Message" %}</label>
+            <textarea id="cf-message-{{ form_id|default:'c' }}" name="message" class="form-control" rows="6" maxlength="5000" required></textarea>
+          </div>
+          <div class="col-12">
+            <div class="loading" style="display:none;" role="status">{% trans "Sending..." %}</div>
+            <div class="error-message" style="display:none;" role="alert"></div>
+            <div class="sent-message" style="display:none;" role="status">{% trans "Your message has been sent. Thank you!" %}</div>
+            <button type="submit" class="mnp-btn mnp-btn-primary">{% trans "Send Message" %}</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  document.querySelectorAll('.contact-form-ajax').forEach(function (form) {
+    if (form.dataset.bound) return; form.dataset.bound = '1';
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var loading = form.querySelector('.loading'), err = form.querySelector('.error-message'), ok = form.querySelector('.sent-message');
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      loading.style.display = 'block'; err.style.display = 'none'; ok.style.display = 'none';
+      try {
+        var res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+        var data = await res.json();
+        if (data.success) { ok.style.display = 'block'; form.reset(); }
+        else { err.textContent = data.error || '{% trans "Error sending message" %}'; err.style.display = 'block'; }
+      } catch (x) {
+        err.textContent = '{% trans "Network error. Please try again." %}'; err.style.display = 'block';
+      } finally { loading.style.display = 'none'; }
+    });
+  });
+})();
+</script>

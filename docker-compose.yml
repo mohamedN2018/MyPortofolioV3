@@ -12,7 +12,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_HOST: config-db
       DB_PORT: 5432
-    command: gunicorn --chdir /usr/src/app --timeout 320 --workers 25 --access-logfile /dev/stdout --error-logfile /dev/stderr --bind :80 config.wsgi:application
+    # Apply pending migrations (additive) before starting the app server.
+    command: sh -c "python manage.py migrate --noinput && exec gunicorn --chdir /usr/src/app --timeout 320 --workers 25 --access-logfile /dev/stdout --error-logfile /dev/stderr --bind :80 config.wsgi:application"
     depends_on:
       config-db:
         condition: service_healthy

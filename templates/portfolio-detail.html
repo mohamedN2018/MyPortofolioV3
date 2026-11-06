@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
 {% load static i18n %}
 
-{% block title %}{{ portfolio.title }} | {% trans "Portfolio Details" %} | {{ site_settings.get_site_name }}{% endblock %}
+{% block title %}{{ portfolio.meta_title|default:portfolio.title }} — {% trans "Project by" %} {{ brand.name }}{% endblock %}
+{% block description %}{{ portfolio.meta_description|default:portfolio.short_description }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_image %}{% if portfolio.cover_image %}{{ seo.site_url }}{{ portfolio.cover_image.url }}{% else %}{{ seo.og_image }}{% endif %}{% endblock %}
 
 {% block content %}
 
@@ -65,15 +68,11 @@
             <ul>
               <li><strong>{% trans "Category" %}</strong> <span>{{ portfolio.category.name|default:_('Uncategorized') }}</span></li>
               <li><strong>{% trans "Client" %}</strong> <span>{{ portfolio.client_name }}</span></li>
-              <li><strong>{% trans "Project Date" %}</strong> <span>{{ portfolio.project_date|date:"F d, Y" }}</span></li>
               {% if portfolio.project_url %}
                 <li><strong>{% trans "Project URL" %}</strong> <a href="{{ portfolio.project_url }}" target="_blank" rel="noopener noreferrer">{{ portfolio.project_url|truncatechars:30 }}</a></li>
               {% endif %}
               {% if portfolio.project_duration %}
                 <li><strong>{% trans "Duration" %}</strong> <span>{{ portfolio.project_duration }}</span></li>
-              {% endif %}
-              {% if portfolio.team_size %}
-                <li><strong>{% trans "Team Size" %}</strong> <span>{{ portfolio.team_size }} {% trans "members" %}</span></li>
               {% endif %}
               <li class="rating-item-detail">
                 <strong>{% trans "Rating" %}</strong>

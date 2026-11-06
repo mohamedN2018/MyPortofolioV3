@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% block body_class %}cv-page{% endblock %}
+
+{% block content %}
+<header class="mnp-page-head">
+  <div class="container">
+    <nav class="mnp-breadcrumbs" aria-label="breadcrumb">
+      <ol><li><a href="{% url 'home' %}">{% trans "Home" %}</a></li><li aria-current="page">{% if seo.lang == 'ar' %}السيرة الذاتية{% else %}CV{% endif %}</li></ol>
+    </nav>
+    <div class="row g-4 align-items-end">
+      <div class="col-lg-8">
+        <span class="mnp-eyebrow">{% if seo.lang == 'ar' %}السيرة الذاتية{% else %}CV / Resume{% endif %}</span>
+        <h1>{{ brand.name }} — {% if seo.lang == 'ar' %}السيرة الذاتية{% else %}CV{% endif %}</h1>
+        <p class="mnp-headline mb-0">{{ brand.headline }}</p>
+      </div>
+      <div class="col-lg-4">
+        <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+          {% if cv_available %}
+          <a href="{% url 'cv_download' %}" class="mnp-btn mnp-btn-primary" download="Mohamed-Nabil-CV.pdf"><i class="bi bi-download" aria-hidden="true"></i> {% if seo.lang == 'ar' %}تحميل PDF{% else %}Download PDF{% endif %}</a>
+          <a href="{% url 'cv_view' %}" class="mnp-btn mnp-btn-outline" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> {% if seo.lang == 'ar' %}فتح في المتصفح{% else %}Open in browser{% endif %}</a>
+          {% endif %}
+          {% for p in brand.profiles %}{% if p.key == 'linkedin' %}<a href="{{ p.url }}" class="mnp-btn mnp-btn-ghost" target="_blank" rel="noopener noreferrer me"><i class="bi bi-linkedin" aria-hidden="true"></i> LinkedIn</a>{% endif %}{% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="mnp-section pt-3">
+  <div class="container">
+    <div class="row g-4">
+      <!-- HTML CV: indexable, accessible alternative to the PDF -->
+      <div class="col-lg-5">
+        <div class="mnp-card mb-4">
+          <h2 class="h5 fw-bold">{% if seo.lang == 'ar' %}الملخص المهني{% else %}Professional summary{% endif %}</h2>
+          {% if personal.bio %}{{ personal.bio|linebreaks }}{% else %}<p>{{ brand.tagline }}</p>{% endif %}
+          <dl class="mnp-facts mt-3">
+            <dt>{% if seo.lang == 'ar' %}الاسم{% else %}Name{% endif %}</dt><dd>{{ brand.name_en }} · <span lang="ar">{{ brand.name_ar }}</span></dd>
+            <dt>{% if seo.lang == 'ar' %}الدولة{% else %}Location{% endif %}</dt><dd>{{ brand.country }}</dd>
+            <dt>{% if seo.lang == 'ar' %}اللغات{% else %}Languages{% endif %}</dt><dd>{{ cv_languages }}</dd>
+            {% if brand.email %}<dt>{% if seo.lang == 'ar' %}البريد{% else %}Email{% endif %}</dt><dd><a href="mailto:{{ brand.email }}">{{ brand.email }}</a></dd>{% endif %}
+          </dl>
+        </div>
+
+        {% if skill_groups %}
+        <div class="mnp-card mb-4">
+          <h2 class="h5 fw-bold">{% if seo.lang == 'ar' %}المهارات التقنية{% else %}Technical skills{% endif %}</h2>
+          {% for g in skill_groups %}
+            <h3 class="h6 fw-bold mt-3 mb-2">{{ g.name }}</h3>
+            {% for s in g.skills %}<span class="mnp-chip">{{ s }}</span>{% endfor %}
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if experiences %}
+        <div class="mnp-card mb-4">
+          <h2 class="h5 fw-bold mb-3">{% if seo.lang == 'ar' %}الخبرة العملية{% else %}Work experience{% endif %}</h2>
+          <ol class="mnp-timeline">
+            {% for e in experiences %}
+            <li>
+              <h3>{{ e.job_title }}</h3>
+              <p class="when mb-1">{{ e.company_name }} · {{ e.start_date|date:"M Y" }} – {% if e.is_current %}{% if seo.lang == 'ar' %}الآن{% else %}Present{% endif %}{% else %}{{ e.end_date|date:"M Y" }}{% endif %}</p>
+              {% if e.achievements %}<ul class="small mb-0">{% for a in e.achievements %}<li>{{ a }}</li>{% endfor %}</ul>{% else %}<p class="small mb-0">{{ e.description|truncatewords:50 }}</p>{% endif %}
+            </li>
+            {% endfor %}
+          </ol>
+        </div>
+        {% endif %}
+
+        {% if projects %}
+        <div class="mnp-card mb-4">
+          <h2 class="h5 fw-bold mb-3">{% if seo.lang == 'ar' %}مشاريع مختارة{% else %}Selected projects{% endif %}</h2>
+          <ul class="list-unstyled mb-0">
+            {% for p in projects %}
+            <li class="mb-2"><a href="{% url 'portfolio_detail' p.slug %}" class="fw-bold">{{ p.title }}</a><br><span class="small text-body-secondary">{{ p.short_description|truncatechars:130 }}</span></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        {% if educations %}
+        <div class="mnp-card">
+          <h2 class="h5 fw-bold mb-3">{% if seo.lang == 'ar' %}التعليم{% else %}Education{% endif %}</h2>
+          <ol class="mnp-timeline">
+            {% for ed in educations %}
+            <li><h3>{{ ed.degree }}{% if ed.field_of_study %} — {{ ed.field_of_study }}{% endif %}</h3><p class="when mb-0">{{ ed.institution }} · {{ ed.start_year|stringformat:"d" }}–{% if ed.is_current %}{% if seo.lang == 'ar' %}الآن{% else %}Present{% endif %}{% else %}{{ ed.end_year|stringformat:"d" }}{% endif %}</p></li>
+            {% endfor %}
+          </ol>
+          <h3 class="h6 fw-bold mt-3">{% if seo.lang == 'ar' %}الدورات والتدريب{% else %}Certifications & training{% endif %}</h3>
+          <p class="small mb-0">{{ cv_training }}</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- PDF preview (loaded only on this page, lazily) -->
+      <div class="col-lg-7">
+        {% if cv_available %}
+          <iframe class="mnp-pdf" src="{% url 'cv_view' %}#view=FitH" title="{% if seo.lang == 'ar' %}معاينة السيرة الذاتية لمحمد نبيل (PDF){% else %}Mohamed Nabil CV preview (PDF){% endif %}" loading="lazy"></iframe>
+          <div class="mnp-card mnp-pdf-mobile text-center" style="display:none">
+            <i class="bi bi-file-earmark-pdf display-5 text-danger" aria-hidden="true"></i>
+            <p class="mt-2">{% if seo.lang == 'ar' %}لأفضل عرض على الموبايل افتح الملف أو حمّله.{% else %}On mobile, open or download the PDF for the best view.{% endif %}</p>
+            <div class="d-flex flex-column gap-2">
+              <a href="{% url 'cv_view' %}" class="mnp-btn mnp-btn-outline justify-content-center" target="_blank" rel="noopener">{% if seo.lang == 'ar' %}فتح PDF{% else %}Open PDF{% endif %}</a>
+              <a href="{% url 'cv_download' %}" class="mnp-btn mnp-btn-primary justify-content-center" download>{% if seo.lang == 'ar' %}تحميل PDF{% else %}Download PDF{% endif %}</a>
+            </div>
+          </div>
+        {% else %}
+          <div class="mnp-card text-center">
+            <i class="bi bi-file-earmark-pdf display-5" aria-hidden="true"></i>
+            <p class="mt-2 mb-0">{% if seo.lang == 'ar' %}نسخة PDF من السيرة الذاتية سيتم رفعها قريباً. يمكنك التواصل مباشرة في الوقت الحالي.{% else %}The PDF version of the CV will be uploaded soon. Meanwhile, feel free to get in touch.{% endif %}</p>
+            <a href="{% url 'contact' %}" class="mnp-btn mnp-btn-primary mt-3">{% trans "Contact" %}</a>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

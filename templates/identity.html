@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static i18n %}
+{% block body_class %}identity-page{% endblock %}
+
+{% block content %}
+<article>
+  <header class="mnp-page-head">
+    <div class="container">
+      <nav class="mnp-breadcrumbs" aria-label="breadcrumb">
+        <ol><li><a href="{% url 'home' %}">{% trans "Home" %}</a></li><li aria-current="page">{{ brand.name }}</li></ol>
+      </nav>
+      <div class="row g-4 align-items-center mt-1">
+        <div class="col-lg-8">
+          <span class="mnp-eyebrow">{% if seo.lang == 'ar' %}الملف الرسمي{% else %}Official profile{% endif %}</span>
+          <h1>{{ brand.name }}</h1>
+          <p class="mnp-names">
+            {% if seo.lang == 'ar' %}<span class="alt" lang="en" dir="ltr">{{ brand.name_en }}</span>{% else %}<span class="alt" lang="ar" dir="rtl">{{ brand.name_ar }}</span>{% endif %}
+            <span class="sep" aria-hidden="true">·</span>
+            <span class="brand">{{ brand.brand }}</span>
+          </p>
+          <p class="mnp-headline">{{ brand.headline }}</p>
+          <div class="mnp-actions mb-0">
+            <a href="{% url 'cv' %}" class="mnp-btn mnp-btn-primary"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> {% if seo.lang == 'ar' %}السيرة الذاتية{% else %}View CV{% endif %}</a>
+            {% if cv_available %}<a href="{% url 'cv_download' %}" class="mnp-btn mnp-btn-outline" download><i class="bi bi-download" aria-hidden="true"></i> {% if seo.lang == 'ar' %}تحميل PDF{% else %}Download CV{% endif %}</a>{% endif %}
+            <a href="{% url 'contact' %}" class="mnp-btn mnp-btn-ghost">{% trans "Contact" %}</a>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <figure class="mnp-portrait" style="max-width:300px">
+            <picture>
+              <source type="image/webp" srcset="{{ brand.portrait_400_webp }} 400w, {{ brand.portrait_800_webp }} 800w" sizes="300px">
+              <img src="{{ brand.portrait_800_jpg }}" alt="{{ brand.portrait_alt }}" width="800" height="800">
+            </picture>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Summary (factual, quotable) -->
+  <section class="mnp-section pt-4" aria-labelledby="who">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-lg-7">
+          <h2 id="who" class="h3 fw-bold">{% if seo.lang == 'ar' %}من هو محمد نبيل؟{% else %}Who is Mohamed Nabil?{% endif %}</h2>
+          {% if personal.bio %}
+            {{ personal.bio|linebreaks }}
+          {% elif seo.lang == 'ar' %}
+            <p><strong>محمد نبيل</strong> (بالإنجليزية: <span lang="en" dir="ltr">Mohamed Nabil</span>)، المعروف على الإنترنت باسم <strong lang="en" dir="ltr">Mohamed Nabil Pro</strong>، مهندس برمجيات من مصر. {{ brand.tagline }}</p>
+          {% else %}
+            <p><strong>Mohamed Nabil</strong> (Arabic: <span lang="ar" dir="rtl">محمد نبيل</span>), known online as <strong>Mohamed Nabil Pro</strong>, is a software engineer from Egypt. {{ brand.tagline }}</p>
+          {% endif %}
+          <p class="mnp-card py-3 mt-3 small">{% if seo.lang == 'ar' %}الأسماء «محمد نبيل» و«<span dir="ltr">Mohamed Nabil</span>» و«<span dir="ltr">Mohamed Nabil Pro</span>» تشير إلى الشخص نفسه، وهذا الموقع (<a href="{{ seo.site_url }}/" dir="ltr">{{ seo.site_url|cut:'https://' }}</a>) هو المصدر الرسمي لمعلوماته العامة.{% else %}"Mohamed Nabil", "محمد نبيل" and "Mohamed Nabil Pro" refer to the same person. This website (<a href="{{ seo.site_url }}/">{{ seo.site_url|cut:'https://' }}</a>) is the official source of his public information.{% endif %}</p>
+        </div>
+        <div class="col-lg-5">
+          <div class="mnp-card">
+            <h2 class="h6 fw-bold mb-3">{% if seo.lang == 'ar' %}حقائق سريعة{% else %}Quick facts{% endif %}</h2>
+            <dl class="mnp-facts">
+              <dt>{% if seo.lang == 'ar' %}الاسم بالعربية{% else %}Arabic name{% endif %}</dt><dd lang="ar">{{ brand.name_ar }}</dd>
+              <dt>{% if seo.lang == 'ar' %}الاسم بالإنجليزية{% else %}English name{% endif %}</dt><dd lang="en">{{ brand.name_en }}</dd>
+              <dt>{% if seo.lang == 'ar' %}العلامة الشخصية{% else %}Personal brand{% endif %}</dt><dd>{{ brand.brand }}</dd>
+              <dt>{% if seo.lang == 'ar' %}المهنة{% else %}Profession{% endif %}</dt><dd>{{ brand.job_title }}</dd>
+              <dt>{% if seo.lang == 'ar' %}الدولة{% else %}Country{% endif %}</dt><dd>{{ brand.country }}</dd>
+              <dt>{% if seo.lang == 'ar' %}اللغات{% else %}Languages{% endif %}</dt><dd>{% if seo.lang == 'ar' %}العربية، الإنجليزية{% else %}Arabic, English{% endif %}</dd>
+              <dt>{% if seo.lang == 'ar' %}الموقع الرسمي{% else %}Official website{% endif %}</dt><dd><a href="{{ seo.site_url }}/">{{ seo.site_url|cut:'https://' }}</a></dd>
+              {% if brand.email %}<dt>{% if seo.lang == 'ar' %}البريد{% else %}Email{% endif %}</dt><dd><a href="mailto:{{ brand.email }}">{{ brand.email }}</a></dd>{% endif %}
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Expertise -->
+  {% if skill_groups %}
+  <section class="mnp-section pt-0" aria-labelledby="expertise">
+    <div class="container">
+      <div class="mnp-section-head"><span class="kicker">{% if seo.lang == 'ar' %}الخبرة التقنية{% else %}Technical expertise{% endif %}</span>
+        <h2 id="expertise">{% if seo.lang == 'ar' %}المهارات والتقنيات{% else %}Skills & technologies{% endif %}</h2></div>
+      <div class="row g-3">
+        {% for g in skill_groups %}
+        <div class="col-md-6 col-lg-3">
+          <div class="mnp-card">
+            <h3 class="h6 fw-bold">{{ g.name }}</h3>
+            {% for s in g.skills %}<span class="mnp-chip">{{ s }}</span>{% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Projects -->
+  {% if projects %}
+  <section class="mnp-section pt-0" aria-labelledby="projects">
+    <div class="container">
+      <div class="mnp-section-head"><span class="kicker">{% if seo.lang == 'ar' %}المشاريع{% else %}Projects{% endif %}</span>
+        <h2 id="projects">{% if seo.lang == 'ar' %}برمجيات طوّرها محمد نبيل{% else %}Software developed by Mohamed Nabil{% endif %}</h2></div>
+      <ul class="list-unstyled row g-3">
+        {% for p in projects %}
+        <li class="col-md-6">
+          <div class="mnp-card">
+            <h3 class="h6 fw-bold mb-1"><a href="{% url 'portfolio_detail' p.slug %}">{{ p.title }}</a></h3>
+            <p class="small text-body-secondary mb-1">{{ p.client_name }}</p>
+            <p class="mb-0 small">{{ p.short_description }}</p>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Experience -->
+  {% if experiences or educations %}
+  <section class="mnp-section pt-0" aria-labelledby="experience">
+    <div class="container">
+      <div class="row g-4">
+        {% if experiences %}
+        <div class="col-lg-7">
+          <h2 id="experience" class="h4 fw-bold mb-3">{% if seo.lang == 'ar' %}الخبرة المهنية{% else %}Professional experience{% endif %}</h2>
+          <ol class="mnp-timeline">
+            {% for e in experiences %}
+            <li>
+              <h3>{{ e.job_title }}</h3>
+              <p class="when mb-1">{{ e.company_name }} · {{ e.start_date|date:"Y" }} – {% if e.is_current %}{% if seo.lang == 'ar' %}الآن{% else %}Present{% endif %}{% else %}{{ e.end_date|date:"Y" }}{% endif %}</p>
+              <p class="small mb-0">{{ e.description|truncatewords:45 }}</p>
+            </li>
+            {% endfor %}
+          </ol>
+        </div>
+        {% endif %}
+        {% if educations %}
+        <div class="col-lg-5">
+          <h2 class="h4 fw-bold mb-3">{% if seo.lang == 'ar' %}التعليم{% else %}Education{% endif %}</h2>
+          <ol class="mnp-timeline">
+            {% for ed in educations %}
+            <li><h3>{{ ed.degree }}</h3><p class="when mb-0">{{ ed.institution }} · {{ ed.start_year|stringformat:"d" }}–{% if ed.is_current %}{% if seo.lang == 'ar' %}الآن{% else %}Present{% endif %}{% else %}{{ ed.end_year|stringformat:"d" }}{% endif %}</p></li>
+            {% endfor %}
+          </ol>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Official profiles -->
+  <section class="mnp-section pt-0" aria-labelledby="profiles">
+    <div class="container">
+      <div class="mnp-card">
+        <h2 id="profiles" class="h4 fw-bold">{% if seo.lang == 'ar' %}الحسابات الرسمية لمحمد نبيل{% else %}Official profiles of Mohamed Nabil{% endif %}</h2>
+        <p class="text-body-secondary small">{% if seo.lang == 'ar' %}هذه هي الحسابات الوحيدة التي تخصه؛ أي حساب آخر بنفس الاسم لا يمثله.{% else %}These are the only profiles that belong to him; other accounts with the same name do not represent him.{% endif %}</p>
+        <ul class="list-unstyled mb-0 row g-2">
+          {% for p in brand.profiles %}
+          <li class="col-sm-6 col-lg-4"><a href="{{ p.url }}" target="_blank" rel="noopener noreferrer me"><i class="bi {{ p.icon }}" aria-hidden="true"></i> {{ p.label }}</a> <span class="small text-body-secondary d-block text-break" dir="ltr">{{ p.url|cut:'https://' }}</span></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+</article>
+{% endblock %}

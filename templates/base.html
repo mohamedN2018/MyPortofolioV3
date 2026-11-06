@@ -1,34 +1,51 @@
-{% load static i18n %}
-<!DOCTYPE html>
-<html lang="{{ current_language.code|default:'en' }}" dir="{{ current_language.direction|default:'ltr' }}">
+{% load static i18n %}<!DOCTYPE html>
+<html lang="{{ seo.lang }}" dir="{{ seo.dir }}">
 <head>
   <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, shrink-to-fit=no" name="viewport">
-  <title>{% block title %}{{ site_settings.get_site_name|default:'SnapFolio' }}{% endblock %}</title>
-  <meta name="description" content="{% block description %}{% endblock %}">
-  <meta name="keywords" content="{% block keywords %}{% endblock %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ page_title|default:seo.default_title }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ page_description|default:seo.default_description }}{% endblock %}">
+  <meta name="author" content="{{ brand.name_en }} ({{ brand.name_ar }})">
+  <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large, max-snippet:-1{% endblock %}">
+  <link rel="canonical" href="{% block canonical %}{{ seo.canonical }}{% endblock %}">
+  {% for alt in seo.alternates %}<link rel="alternate" hreflang="{{ alt.hreflang }}" href="{{ alt.href }}">
+  {% endfor %}
+  <meta name="theme-color" content="#0b1120">
 
+  <!-- Open Graph / social sharing -->
+  <meta property="og:site_name" content="{{ brand.brand }}">
+  <meta property="og:type" content="{% block og_type %}profile{% endblock %}">
+  <meta property="og:title" content="{% block og_title %}{{ page_title|default:seo.default_title }}{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ page_description|default:seo.default_description }}{% endblock %}">
+  <meta property="og:url" content="{{ seo.canonical }}">
+  <meta property="og:image" content="{% block og_image %}{{ seo.og_image }}{% endblock %}">
+  <meta property="og:image:alt" content="{{ brand.name_en }} ({{ brand.name_ar }}) — {{ brand.brand }}">
+  <meta property="og:locale" content="{{ seo.og_locale }}">
+  <meta property="og:locale:alternate" content="{{ seo.og_locale_alt }}">
+  {% block og_profile %}<meta property="profile:first_name" content="Mohamed">
+  <meta property="profile:last_name" content="Nabil">{% endblock %}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ page_title|default:seo.default_title }}">
+  <meta name="twitter:description" content="{{ page_description|default:seo.default_description }}">
+  <meta name="twitter:image" content="{{ seo.og_image }}">
 
-  {% comment %} <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/img/favicon-32x32.png' %}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'icons/favicon-16x16.png' %}"> {% endcomment %}
+  <!-- Structured data: one consistent Person entity (Mohamed Nabil / محمد نبيل / Mohamed Nabil Pro) -->
+  <script type="application/ld+json">{% block jsonld %}{{ page_jsonld|default:seo.default_jsonld }}{% endblock %}</script>
+  {% block extra_head %}{% endblock %}
 
-  <!--Favicon from SiteSettings -->
+  <!-- Favicon -->
   {% if site_settings.favicon %}
   <link rel="icon" type="image/png" sizes="32x32" href="{{ site_settings.favicon.url }}">
-  <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}">
   {% else %}
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/img/favicon-32x32.png' %}">
-  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'icons/favicon-16x16.png' %}">
-  <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}">
   {% endif %}
+  <link rel="shortcut icon" href="{% static 'assets/img/favicon.ico' %}">
+  <link rel="apple-touch-icon" href="{% static 'brand/mohamed-nabil-software-engineer-400.jpg' %}">
 
-  <!-- Fonts -->
+  <!-- Fonts (trimmed: 2 families, 4 weights) -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
-
-  <!-- Arabic font (Cairo / Tajawal) for RTL -->
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
@@ -42,6 +59,8 @@
 
   <!-- Custom Enhancements (Arabic font, refreshed UI) -->
   <link href="{% static 'assets/css/custom-enhancements.css' %}" rel="stylesheet">
+  <!-- Mohamed Nabil Pro brand layer (identity, hero, CV, cards) -->
+  <link href="{% static 'assets/css/brand.css' %}" rel="stylesheet">
 
   {% block extra_css %}{% endblock %}
 
@@ -93,18 +112,19 @@
 
 </head>
 
-<body class="{% block body_class %}index-page{% endblock %}" dir="{{ current_language.direction|default:'ltr' }}">
+<body class="{% block body_class %}index-page{% endblock %}" dir="{{ seo.dir }}">
+  <a class="skip-link" href="#main-content">{% if seo.lang == 'ar' %}تخطَّ إلى المحتوى{% else %}Skip to content{% endif %}</a>
 
   {% include 'includes/header.html' %}
 
-  <main class="main">
+  <main class="main" id="main-content" tabindex="-1">
     {% block content %}{% endblock %}
   </main>
 
   {% include 'includes/footer.html' %}
 
   <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center" aria-label="{% if seo.lang == 'ar' %}العودة للأعلى{% else %}Back to top{% endif %}">
     <i class="bi bi-arrow-up-short"></i>
   </a>
   

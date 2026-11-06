@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static i18n %}
 
-{% block title %}{{ page.meta_title|default:page.title }} | {{ site_settings.get_site_name }}{% endblock %}
+{% block title %}{{ page.meta_title|default:page.title }} | {{ brand.name }} — {{ brand.brand }}{% endblock %}
 {% block description %}{{ page.meta_description|default:page.title }}{% endblock %}
 
 {% block content %}

@@ -7,60 +7,40 @@
   </div>
 
   <div class="header-container d-flex flex-column align-items-start">
-    <!-- Logo / Site Name -->
+    <!-- Brand identity -->
     <div class="logo-area text-center w-100 mb-3">
-      <a href="{% url 'home' %}" class="logo-link">
-        {% if site_settings.site_logo %}
-          <img src="{{ site_settings.site_logo.url }}" alt="{{ site_settings.get_site_name }}" class="logo-img">
-        {% else %}
-          <div class="logo-icon">
-            <i class="bi bi-camera-fill"></i>
-          </div>
-        {% endif %}
-        <h5 class="site-name mt-2 mb-0">{{ site_settings.get_site_name|default:'SnapFolio' }}</h5>
+      <a href="{% url 'home' %}" class="logo-link" aria-label="{{ brand.name }} — {{ brand.brand }}">
+        <picture>
+          <source srcset="{{ brand.portrait_400_webp }}" type="image/webp">
+          <img src="{{ brand.portrait_400_jpg }}" alt="{{ brand.portrait_alt }}" class="logo-img" width="64" height="64">
+        </picture>
+        <span class="site-name d-block mt-2 mb-0">{{ brand.name }}</span>
+        <span class="site-brand d-block">{{ brand.brand }}</span>
       </a>
     </div>
 
     <!-- Navigation Menu -->
-    <nav id="navmenu" class="navmenu w-100">
+    <nav id="navmenu" class="navmenu w-100" aria-label="{% if seo.lang == 'ar' %}القائمة الرئيسية{% else %}Main navigation{% endif %}">
+      {% with un=request.resolver_match.url_name %}
       <ul>
-        <li>
-          <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-            <i class="bi bi-house navicon"></i>
-            <span>{% trans "Home" %}</span>
-          </a>
-        </li>
-        <li>
-          <a href="#about">
-            <i class="bi bi-person navicon"></i>
-            <span>{% trans "About" %}</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'services' %}" class="{% if request.resolver_match.url_name == 'services' or request.resolver_match.url_name == 'service_detail' %}active{% endif %}">
-            <i class="bi bi-grid navicon"></i>
-            <span>{% trans "Services" %}</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'portfolio' %}" class="{% if request.resolver_match.url_name == 'portfolio' or request.resolver_match.url_name == 'portfolio_detail' %}active{% endif %}">
-            <i class="bi bi-images navicon"></i>
-            <span>{% trans "Portfolio" %}</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'blog' %}" class="{% if request.resolver_match.url_name == 'blog' or request.resolver_match.url_name == 'blog_detail' %}active{% endif %}">
-            <i class="bi bi-pen navicon"></i>
-            <span>{% trans "Blog" %}</span>
-          </a>
-        </li>
-        <li>
-          <a href="{% url 'contact' %}" class="{% if request.resolver_match.url_name == 'contact' %}active{% endif %}">
-            <i class="bi bi-envelope navicon"></i>
-            <span>{% trans "Contact" %}</span>
-          </a>
-        </li>
+        <li><a href="{% url 'home' %}" class="{% if un == 'home' %}active{% endif %}"{% if un == 'home' %} aria-current="page"{% endif %}>
+            <i class="bi bi-house navicon" aria-hidden="true"></i><span>{% trans "Home" %}</span></a></li>
+        <li><a href="{% url 'identity' %}" class="{% if un == 'identity' %}active{% endif %}"{% if un == 'identity' %} aria-current="page"{% endif %}>
+            <i class="bi bi-person navicon" aria-hidden="true"></i><span>{% trans "About" %}</span></a></li>
+        <li><a href="{% url 'cv' %}" class="nav-cv {% if un == 'cv' %}active{% endif %}"{% if un == 'cv' %} aria-current="page"{% endif %}>
+            <i class="bi bi-file-earmark-person navicon" aria-hidden="true"></i><span>{% if seo.lang == 'ar' %}سيرتي الذاتية{% else %}My CV{% endif %}</span><span class="nav-cv-badge">PDF</span></a></li>
+        <li><a href="{% url 'portfolio' %}" class="{% if un == 'portfolio' or un == 'portfolio_detail' %}active{% endif %}">
+            <i class="bi bi-kanban navicon" aria-hidden="true"></i><span>{% if seo.lang == 'ar' %}المشاريع{% else %}Projects{% endif %}</span></a></li>
+        <li><a href="{% url 'services' %}" class="{% if un == 'services' or un == 'service_detail' %}active{% endif %}">
+            <i class="bi bi-grid navicon" aria-hidden="true"></i><span>{% trans "Services" %}</span></a></li>
+        <li><a href="{% url 'blog' %}" class="{% if un == 'blog' or un == 'blog_detail' or un == 'blog_category' %}active{% endif %}">
+            <i class="bi bi-pen navicon" aria-hidden="true"></i><span>{% trans "Blog" %}</span></a></li>
+        <li><a href="{% url 'gallery' %}" class="{% if un == 'gallery' %}active{% endif %}">
+            <i class="bi bi-images navicon" aria-hidden="true"></i><span>{% if seo.lang == 'ar' %}معرض الصور{% else %}Gallery{% endif %}</span></a></li>
+        <li><a href="{% url 'contact' %}" class="{% if un == 'contact' %}active{% endif %}">
+            <i class="bi bi-envelope navicon" aria-hidden="true"></i><span>{% trans "Contact" %}</span></a></li>
       </ul>
+      {% endwith %}
     </nav>
 
     <!-- Divider -->
@@ -82,19 +62,17 @@
       {% endif %}
     <!-- Contact Mini Info -->
     <div class="contact-mini w-100">
+      {% if brand.email %}
       <div class="contact-mini-item">
-        <i class="bi bi-envelope"></i>
-        <a href="mailto:{{ site_settings.contact_email|default:'contact@example.com' }}" class="text-break">
-          {{ site_settings.contact_email|default:'contact@example.com' }}
-        </a>
+        <i class="bi bi-envelope" aria-hidden="true"></i>
+        <a href="mailto:{{ brand.email }}" class="text-break">{{ brand.email }}</a>
       </div>
-      {% if site_settings.contact_phone %}
-        <div class="contact-mini-item">
-          <i class="bi bi-telephone"></i>
-          <a href="tel:{{ site_settings.contact_phone }}">
-            {{ site_settings.contact_phone }}
-          </a>
-        </div>
+      {% endif %}
+      {% if brand.show_phone %}
+      <div class="contact-mini-item">
+        <i class="bi bi-telephone" aria-hidden="true"></i>
+        <a href="tel:{{ site_settings.contact_phone }}">{{ site_settings.contact_phone }}</a>
+      </div>
       {% endif %}
     </div>
   </div>

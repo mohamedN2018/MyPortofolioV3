@@ -1,33 +1,10 @@
 <div class="social-links">
-  {% if site_settings.facebook_url %}
-    <a href="{{ site_settings.facebook_url }}" target="_blank" rel="noopener noreferrer">
-      <i class="bi bi-facebook"></i>
+  {% for p in brand.profiles %}
+    <a href="{{ p.url }}" target="_blank" rel="noopener noreferrer me" title="{{ p.label }}"
+       aria-label="{{ brand.name }} {% if seo.lang == 'ar' %}على{% else %}on{% endif %} {{ p.label }}">
+      <i class="bi {{ p.icon }}" aria-hidden="true"></i>
     </a>
-  {% endif %}
-  
-  {% if site_settings.twitter_url %}
-    <a href="{{ site_settings.twitter_url }}" target="_blank" rel="noopener noreferrer">
-      <i class="bi bi-twitter-x"></i>
-    </a>
-  {% endif %}
-  
-  {% if site_settings.instagram_url %}
-    <a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener noreferrer">
-      <i class="bi bi-instagram"></i>
-    </a>
-  {% endif %}
-  
-  {% if site_settings.linkedin_url %}
-    <a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer">
-      <i class="bi bi-linkedin"></i>
-    </a>
-  {% endif %}
-  
-  {% if site_settings.github_url %}
-    <a href="{{ site_settings.github_url }}" target="_blank" rel="noopener noreferrer">
-      <i class="bi bi-github"></i>
-    </a>
-  {% endif %}
+  {% endfor %}
 </div>
 
 <style>

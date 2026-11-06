@@ -26,6 +26,7 @@
         <div class="row">
             <div class="col-md-6 mb-3"><label class="form-label">Contact Email</label><input type="email" name="contact_email" class="form-control" value="{{ settings.contact_email|default:'' }}"></div>
             <div class="col-md-6 mb-3"><label class="form-label">Contact Phone</label><input type="text" name="contact_phone" class="form-control" value="{{ settings.contact_phone|default:'' }}"></div>
+            <div class="col-md-6 mb-3"><div class="form-check mt-4"><input class="form-check-input" type="checkbox" name="show_phone_publicly" id="show_phone_publicly" {% if settings.show_phone_publicly %}checked{% endif %}><label class="form-check-label" for="show_phone_publicly">Show phone publicly (site + structured data)</label></div></div>
             <div class="col-md-6 mb-3"><label class="form-label">Address (Arabic)</label><textarea name="contact_address_ar" class="form-control" rows="2">{{ settings.contact_address_ar|default:'' }}</textarea></div>
             <div class="col-md-6 mb-3"><label class="form-label">Address (English)</label><textarea name="contact_address_en" class="form-control" rows="2">{{ settings.contact_address_en|default:'' }}</textarea></div>
         </div>
@@ -37,6 +38,9 @@
             <div class="col-md-6 mb-3"><label class="form-label">LinkedIn</label><input type="url" name="linkedin_url" class="form-control" value="{{ settings.linkedin_url|default:'' }}"></div>
             <div class="col-md-6 mb-3"><label class="form-label">GitHub</label><input type="url" name="github_url" class="form-control" value="{{ settings.github_url|default:'' }}"></div>
             <div class="col-md-6 mb-3"><label class="form-label">Instagram</label><input type="url" name="instagram_url" class="form-control" value="{{ settings.instagram_url|default:'' }}"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">GitLab</label><input type="url" name="gitlab_url" class="form-control" value="{{ settings.gitlab_url|default:'' }}"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">Stack Overflow</label><input type="url" name="stackoverflow_url" class="form-control" value="{{ settings.stackoverflow_url|default:'' }}"></div>
+            <div class="col-md-6 mb-3"><label class="form-label">Behance</label><input type="url" name="behance_url" class="form-control" value="{{ settings.behance_url|default:'' }}"></div>
         </div>
         
         <h5 class="mb-3 mt-4"><i class="bi bi-images"></i> Logos</h5>
