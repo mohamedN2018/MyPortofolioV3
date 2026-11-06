@@ -24,6 +24,10 @@
         </picture>
         <figcaption>{{ brand.name }} — {{ brand.job_title }}</figcaption>
       </figure>
+      <figure>
+        <img src="{{ brand.alt_portrait_800_jpg }}" alt="{{ brand.portrait_alt }}" width="800" height="800" loading="lazy">
+        <figcaption>{{ brand.name }} · {{ brand.brand }}</figcaption>
+      </figure>
       {% for item in items %}{% if item.category == 'portraits' %}
       <figure>
         <img src="{{ item.image.url }}" alt="{{ item.alt }}" loading="lazy">

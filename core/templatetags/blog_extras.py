@@ -124,3 +124,10 @@ def query_transform(request, **kwargs):
         else:
             updated.pop(key, None)
     return updated.urlencode()
+
+@register.filter
+def split_tags(value):
+    """'django, python ,orm' -> ['django', 'python', 'orm']"""
+    if not value:
+        return []
+    return [t.strip() for t in str(value).replace("،", ",").split(",") if t.strip()]

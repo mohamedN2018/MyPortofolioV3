@@ -1,6 +1,7 @@
 {% load static i18n %}<!DOCTYPE html>
 <html lang="{{ seo.lang }}" dir="{{ seo.dir }}">
 <head>
+  <script>document.documentElement.classList.add("js");try{var t=localStorage.getItem("theme");if(t==="dark"||(t!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.setAttribute("data-theme","dark")}catch(e){}</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ page_title|default:seo.default_title }}{% endblock %}</title>
@@ -45,70 +46,25 @@
   <!-- Fonts (trimmed: 2 families, 4 weights) -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  {% if seo.lang == 'ar' %}{% with fonts="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Inter:wght@400;600&display=swap" %}
+  <link rel="preload" as="style" href="{{ fonts }}" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="{{ fonts }}"></noscript>{% endwith %}
+  {% else %}{% with fonts="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@700;800&display=swap" %}
+  <link rel="preload" as="style" href="{{ fonts }}" onload="this.onload=null;this.rel='stylesheet'"><noscript><link rel="stylesheet" href="{{ fonts }}"></noscript>{% endwith %}{% endif %}
 
   <!-- Vendor CSS Files -->
-  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <!-- Only the Bootstrap layers actually used (reboot + grid + utilities), RTL builds for Arabic -->
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap-reboot' %}{% if seo.dir == 'rtl' %}.rtl{% endif %}.min.css" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap-grid' %}{% if seo.dir == 'rtl' %}.rtl{% endif %}.min.css" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap-utilities' %}{% if seo.dir == 'rtl' %}.rtl{% endif %}.min.css" rel="stylesheet">
   <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
-  <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
-  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
-  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
 
-  <!-- Main CSS File -->
-  <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
 
-  <!-- Custom Enhancements (Arabic font, refreshed UI) -->
-  <link href="{% static 'assets/css/custom-enhancements.css' %}" rel="stylesheet">
   <!-- Mohamed Nabil Pro brand layer (identity, hero, CV, cards) -->
   <link href="{% static 'assets/css/brand.css' %}" rel="stylesheet">
 
   {% block extra_css %}{% endblock %}
 
-<style>
-  /* RTL Support */
-  body[dir="rtl"] {
-    text-align: right;
-  }
-  
-  /* General margin for main content */
-  @media (min-width: 1200px) {
-    .header~main,
-    .header~#footer {
-      margin-left: 330px;
-    }
-    
-    /* RTL override for main margin */
-    body[dir="rtl"] .header~main,
-    body[dir="rtl"] .header~#footer {
-      margin-left: 0;
-      margin-right: 330px;
-    }
-    
-    /* RTL override for header position */
-    body[dir="rtl"] .header {
-      left: auto;
-      right: 30px;
-    }
-  }
-  
-  /* Mobile RTL adjustments */
-  @media (max-width: 1199px) {
-    body[dir="rtl"] .header {
-      left: auto !important;
-      right: -100% !important;
-    }
-    
-    body[dir="rtl"] .header.header-show {
-      left: auto !important;
-      right: 0 !important;
-    }
-    
-    body[dir="rtl"] .header-toggle-wrapper {
-      right: auto;
-      left: 20px;
-    }
-  }
-</style>
+
 
 </head>
 
@@ -128,27 +84,14 @@
     <i class="bi bi-arrow-up-short"></i>
   </a>
   
-  <!-- Theme Toggle Button -->
-  <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Dark/Light Mode">
-    <i class="bi bi-moon-stars"></i>
-  </button>
 
-  <!-- Preloader -->
-  <div id="preloader"></div>
 
   <!-- Vendor JS Files -->
-  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-  <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
-  <script src="{% static 'assets/vendor/typed.js/typed.umd.js' %}"></script>
-  <script src="{% static 'assets/vendor/purecounter/purecounter_vanilla.js' %}"></script>
-  <script src="{% static 'assets/vendor/waypoints/noframework.waypoints.js' %}"></script>
-  <script src="{% static 'assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
-  <script src="{% static 'assets/vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
-  <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
-  <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
 
   <!-- Main JS File -->
   <script src="{% static 'assets/js/main.js' %}"></script>
+  <!-- Brand interactions: nav, 3D hero, tilt (no dependencies) -->
+  <script src="{% static 'assets/js/brand.js' %}" defer></script>
   
   <!-- CSRF Token for AJAX -->
   <script>

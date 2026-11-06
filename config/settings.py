@@ -36,6 +36,9 @@ ALLOWED_HOSTS = [MAIN_DOMAIN, f'www.{MAIN_DOMAIN}', '127.0.0.1', 'localhost', 't
 
 # Absolute public base URL used for canonical URLs, sitemap, robots.txt,
 # Open Graph and JSON-LD. Never hardcode a development URL here.
+# Which portrait set the site uses: 'studio' (default) or 'camera'. See core/seo.py.
+BRAND_PORTRAIT = config('BRAND_PORTRAIT', default='studio')
+
 SITE_URL = config('SITE_URL', default=f'https://{MAIN_DOMAIN}').rstrip('/')
 
 if DEBUG:

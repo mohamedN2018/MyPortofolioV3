@@ -1,478 +1,54 @@
 {% load i18n %}
-{% load static %}
+{% with un=request.resolver_match.url_name ar=seo.lang %}
+<header class="mnp-nav" id="mnp-nav">
+  <div class="container mnp-nav-inner">
+    <a href="{% url 'home' %}" class="mnp-brand" aria-label="{{ brand.name }} — {{ brand.brand }}">
+      <picture>
+        <source srcset="{{ brand.portrait_400_webp }}" type="image/webp">
+        <img src="{{ brand.portrait_400_jpg }}" alt="" width="40" height="40">
+      </picture>
+      <span class="mnp-brand-text">
+        <strong>{{ brand.name }}</strong>
+        <small>{{ brand.brand }}</small>
+      </span>
+    </a>
 
-<header id="header" class="header d-flex flex-column">
-  <div class="header-toggle-wrapper">
-    <i class="header-toggle bi bi-list"></i>
-  </div>
-
-  <div class="header-container d-flex flex-column align-items-start">
-    <!-- Brand identity -->
-    <div class="logo-area text-center w-100 mb-3">
-      <a href="{% url 'home' %}" class="logo-link" aria-label="{{ brand.name }} — {{ brand.brand }}">
-        <picture>
-          <source srcset="{{ brand.portrait_400_webp }}" type="image/webp">
-          <img src="{{ brand.portrait_400_jpg }}" alt="{{ brand.portrait_alt }}" class="logo-img" width="64" height="64">
-        </picture>
-        <span class="site-name d-block mt-2 mb-0">{{ brand.name }}</span>
-        <span class="site-brand d-block">{{ brand.brand }}</span>
-      </a>
-    </div>
-
-    <!-- Navigation Menu -->
-    <nav id="navmenu" class="navmenu w-100" aria-label="{% if seo.lang == 'ar' %}القائمة الرئيسية{% else %}Main navigation{% endif %}">
-      {% with un=request.resolver_match.url_name %}
+    <nav class="mnp-menu" id="mnp-menu" aria-label="{% if ar == 'ar' %}القائمة الرئيسية{% else %}Main navigation{% endif %}">
       <ul>
-        <li><a href="{% url 'home' %}" class="{% if un == 'home' %}active{% endif %}"{% if un == 'home' %} aria-current="page"{% endif %}>
-            <i class="bi bi-house navicon" aria-hidden="true"></i><span>{% trans "Home" %}</span></a></li>
-        <li><a href="{% url 'identity' %}" class="{% if un == 'identity' %}active{% endif %}"{% if un == 'identity' %} aria-current="page"{% endif %}>
-            <i class="bi bi-person navicon" aria-hidden="true"></i><span>{% trans "About" %}</span></a></li>
-        <li><a href="{% url 'cv' %}" class="nav-cv {% if un == 'cv' %}active{% endif %}"{% if un == 'cv' %} aria-current="page"{% endif %}>
-            <i class="bi bi-file-earmark-person navicon" aria-hidden="true"></i><span>{% if seo.lang == 'ar' %}سيرتي الذاتية{% else %}My CV{% endif %}</span><span class="nav-cv-badge">PDF</span></a></li>
-        <li><a href="{% url 'portfolio' %}" class="{% if un == 'portfolio' or un == 'portfolio_detail' %}active{% endif %}">
-            <i class="bi bi-kanban navicon" aria-hidden="true"></i><span>{% if seo.lang == 'ar' %}المشاريع{% else %}Projects{% endif %}</span></a></li>
-        <li><a href="{% url 'services' %}" class="{% if un == 'services' or un == 'service_detail' %}active{% endif %}">
-            <i class="bi bi-grid navicon" aria-hidden="true"></i><span>{% trans "Services" %}</span></a></li>
-        <li><a href="{% url 'blog' %}" class="{% if un == 'blog' or un == 'blog_detail' or un == 'blog_category' %}active{% endif %}">
-            <i class="bi bi-pen navicon" aria-hidden="true"></i><span>{% trans "Blog" %}</span></a></li>
-        <li><a href="{% url 'gallery' %}" class="{% if un == 'gallery' %}active{% endif %}">
-            <i class="bi bi-images navicon" aria-hidden="true"></i><span>{% if seo.lang == 'ar' %}معرض الصور{% else %}Gallery{% endif %}</span></a></li>
-        <li><a href="{% url 'contact' %}" class="{% if un == 'contact' %}active{% endif %}">
-            <i class="bi bi-envelope navicon" aria-hidden="true"></i><span>{% trans "Contact" %}</span></a></li>
+        <li><a href="{% url 'home' %}"{% if un == 'home' %} class="active" aria-current="page"{% endif %}>{% trans "Home" %}</a></li>
+        <li><a href="{% url 'identity' %}"{% if un == 'identity' %} class="active" aria-current="page"{% endif %}>{% trans "About" %}</a></li>
+        <li><a href="{% url 'portfolio' %}"{% if un == 'portfolio' or un == 'portfolio_detail' %} class="active"{% endif %}>{% if ar == 'ar' %}المشاريع{% else %}Projects{% endif %}</a></li>
+        <li><a href="{% url 'services' %}"{% if un == 'services' or un == 'service_detail' %} class="active"{% endif %}>{% trans "Services" %}</a></li>
+        <li><a href="{% url 'blog' %}"{% if un == 'blog' or un == 'blog_detail' or un == 'blog_category' %} class="active"{% endif %}>{% trans "Blog" %}</a></li>
+        <li><a href="{% url 'gallery' %}"{% if un == 'gallery' %} class="active" aria-current="page"{% endif %}>{% if ar == 'ar' %}الصور{% else %}Gallery{% endif %}</a></li>
+        <li><a href="{% url 'contact' %}"{% if un == 'contact' %} class="active" aria-current="page"{% endif %}>{% trans "Contact" %}</a></li>
       </ul>
-      {% endwith %}
+      <div class="mnp-menu-extra">
+        <div class="mnp-profiles">
+          {% for p in brand.profiles %}<a href="{{ p.url }}" target="_blank" rel="noopener noreferrer me" aria-label="{{ p.label }}"><i class="bi {{ p.icon }}" aria-hidden="true"></i></a>{% endfor %}
+        </div>
+      </div>
     </nav>
 
-    <!-- Divider -->
-    <div class="nav-divider"></div>
-
-    <!-- Language Switcher -->
-    <div class="language-wrapper w-100">
-      {% include 'includes/language_switcher.html' %}
-    </div>
-
-    <!-- Social Links -->
-    <div class="social-wrapper w-100">
-      {% include 'includes/social_links.html' %}
-    </div>
+    <div class="mnp-nav-actions">
+      <form action="{% url 'set_language' %}" method="post" class="m-0">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        {% if ar == 'ar' %}
+          <button type="submit" name="language" value="en" class="mnp-icon-btn" aria-label="Switch to English" lang="en">EN</button>
+        {% else %}
+          <button type="submit" name="language" value="ar" class="mnp-icon-btn" aria-label="التبديل إلى العربية" lang="ar">ع</button>
+        {% endif %}
+      </form>
+      <button id="theme-toggle" type="button" class="mnp-icon-btn" aria-label="{% if ar == 'ar' %}تبديل الوضع الليلي{% else %}Toggle dark mode{% endif %}"><i class="bi bi-moon-stars" aria-hidden="true"></i></button>
+      <a href="{% url 'cv' %}" class="mnp-btn mnp-btn-primary mnp-nav-cv{% if un == 'cv' %} active{% endif %}"><i class="bi bi-file-earmark-person" aria-hidden="true"></i><span>{% if ar == 'ar' %}سيرتي الذاتية{% else %}My CV{% endif %}</span></a>
       {% if user.is_authenticated and user.is_superuser %}
-          <a href="{% url 'dashboard:index' %}" class="dashboard-link" target="_blank">
-              <i class="bi bi-speedometer2"></i> {% trans "Dashboard" %}
-          </a>
+        <a href="{% url 'dashboard:index' %}" class="mnp-icon-btn" aria-label="Dashboard"><i class="bi bi-speedometer2" aria-hidden="true"></i></a>
       {% endif %}
-    <!-- Contact Mini Info -->
-    <div class="contact-mini w-100">
-      {% if brand.email %}
-      <div class="contact-mini-item">
-        <i class="bi bi-envelope" aria-hidden="true"></i>
-        <a href="mailto:{{ brand.email }}" class="text-break">{{ brand.email }}</a>
-      </div>
-      {% endif %}
-      {% if brand.show_phone %}
-      <div class="contact-mini-item">
-        <i class="bi bi-telephone" aria-hidden="true"></i>
-        <a href="tel:{{ site_settings.contact_phone }}">{{ site_settings.contact_phone }}</a>
-      </div>
-      {% endif %}
+      <button type="button" class="mnp-icon-btn mnp-burger" aria-controls="mnp-menu" aria-expanded="false" aria-label="{% if ar == 'ar' %}فتح القائمة{% else %}Open menu{% endif %}">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
 </header>
-
-<!-- Mobile Menu Overlay -->
-<div class="mobile-menu-overlay"></div>
-
-<style>
-  /* ============================================
-    Header Styling - Modern & Clean
-    ============================================ */
-
-  .header .logo-area {
-    padding: 15px 0 10px;
-    border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
-    margin-bottom: 10px;
-  }
-
-  .header .logo-link {
-    text-decoration: none;
-    display: block;
-  }
-
-  .header .logo-img {
-    width: 55px;
-    height: 55px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 2px solid var(--accent-color);
-    padding: 3px;
-    transition: transform 0.3s ease;
-  }
-
-  .header .logo-img:hover {
-    transform: scale(1.05);
-  }
-
-  .header .logo-icon {
-    width: 55px;
-    height: 55px;
-    margin: 0 auto;
-    background: linear-gradient(135deg, var(--accent-color), color-mix(in srgb, var(--accent-color), #a855f7 50%));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease;
-  }
-
-  .header .logo-icon:hover {
-    transform: scale(1.05);
-  }
-
-  .header .logo-icon i {
-    font-size: 28px;
-    color: white;
-  }
-
-  .header .site-name {
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    color: var(--heading-color);
-  }
-
-  /* Navigation Menu */
-  .header .navmenu ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .header .navmenu li {
-    margin: 2px 0;
-  }
-
-  .header .navmenu a {
-    display: flex;
-    align-items: center;
-    padding: 10px 12px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--nav-color);
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    gap: 10px;
-    text-decoration: none;
-  }
-
-  .header .navmenu a .navicon {
-    font-size: 18px;
-    width: 24px;
-    transition: all 0.3s ease;
-  }
-
-  .header .navmenu a span {
-    flex: 1;
-  }
-
-  .header .navmenu a:hover {
-    color: var(--nav-hover-color);
-    background-color: color-mix(in srgb, var(--accent-color), transparent 88%);
-  }
-
-  .header .navmenu a:hover .navicon {
-    color: var(--accent-color);
-    transform: translateX(3px);
-  }
-
-  .header .navmenu a.active {
-    color: var(--nav-hover-color);
-    background: linear-gradient(90deg, color-mix(in srgb, var(--accent-color), transparent 85%), transparent);
-    border-left: 3px solid var(--accent-color);
-  }
-
-  .header .navmenu a.active .navicon {
-    color: var(--accent-color);
-  }
-
-  /* RTL support for active border */
-  body[dir="rtl"] .header .navmenu a.active {
-    border-left: none;
-    border-right: 3px solid var(--accent-color);
-    background: linear-gradient(270deg, color-mix(in srgb, var(--accent-color), transparent 85%), transparent);
-  }
-
-  body[dir="rtl"] .header .navmenu a:hover .navicon {
-    transform: translateX(-3px);
-  }
-
-  /* Divider */
-  .header .nav-divider {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-color), transparent 70%), transparent);
-    margin: 15px 0;
-    width: 100%;
-  }
-
-  /* Language Wrapper */
-  .header .language-wrapper {
-    margin-bottom: 15px;
-  }
-
-  /* Social Wrapper */
-  .header .social-wrapper {
-    margin-bottom: 15px;
-  }
-
-  /* Contact Mini */
-  .header .contact-mini {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
-    width: 100%;
-  }
-
-  .header .contact-mini-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 0;
-    font-size: 12px;
-    flex-wrap: wrap;
-  }
-
-  .header .contact-mini-item i {
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: color-mix(in srgb, var(--accent-color), transparent 85%);
-    border-radius: 50%;
-    font-size: 12px;
-    color: var(--accent-color);
-    transition: all 0.3s ease;
-    flex-shrink: 0;
-  }
-
-  .header .contact-mini-item:hover i {
-    background-color: var(--accent-color);
-    color: var(--contrast-color);
-  }
-
-  .header .contact-mini-item a {
-    color: var(--default-color);
-    text-decoration: none;
-    transition: color 0.3s ease;
-    font-size: 11px;
-    word-break: break-word;
-    flex: 1;
-  }
-
-  .header .contact-mini-item a:hover {
-    color: var(--accent-color);
-  }
-
-  .header .header-container {
-    background-color: var(--surface-color);
-    border-radius: 20px;
-    padding: 15px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-    border: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
-  }
-
-  /* Desktop Menu - Header Position */
-  .header {
-    position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 30px;
-    width: 280px;
-    z-index: 997;
-    transition: all 0.3s ease-in-out;
-  }
-
-  @media (min-width: 1200px) {
-    .header~main,
-    .header~#footer {
-      margin-left: 330px;
-    }
-    
-    body[dir="rtl"] .header~main,
-    body[dir="rtl"] .header~#footer {
-      margin-left: 0;
-      margin-right: 330px;
-    }
-    
-    body[dir="rtl"] .header {
-      left: auto;
-      right: 30px;
-    }
-  }
-
-  /* ============================================
-    MOBILE MENU
-    ============================================ */
-
-  .header-toggle-wrapper {
-    display: none;
-  }
-
-  .mobile-menu-overlay {
-    display: none;
-  }
-
-  @media (max-width: 1199px) {
-    .header-toggle-wrapper {
-      display: block;
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 10001;
-    }
-    
-    body[dir="rtl"] .header-toggle-wrapper {
-      right: auto;
-      left: 20px;
-    }
-    
-    .header-toggle {
-      width: 50px;
-      height: 50px;
-      background-color: var(--accent-color);
-      color: var(--contrast-color);
-      border-radius: 50%;
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 24px;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-    
-    .header-toggle:hover {
-      transform: scale(1.1);
-    }
-    
-    .mobile-menu-overlay {
-      display: block;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(5px);
-      z-index: 9998;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-    }
-    
-    body.menu-open .mobile-menu-overlay {
-      opacity: 1;
-      visibility: visible;
-    }
-    
-    .header {
-      position: fixed !important;
-      top: 0 !important;
-      left: -100% !important;
-      right: auto !important;
-      bottom: 0 !important;
-      transform: none !important;
-      width: 300px !important;
-      height: 100vh !important;
-      padding: 20px 15px !important;
-      margin: 0 !important;
-      background-color: var(--surface-color) !important;
-      transition: left 0.3s ease-in-out !important;
-      z-index: 9999 !important;
-      overflow-y: auto !important;
-      box-shadow: 2px 0 30px rgba(0, 0, 0, 0.2) !important;
-    }
-    
-    body[dir="rtl"] .header {
-      left: auto !important;
-      right: -100% !important;
-    }
-    
-    .header.header-show {
-      left: 0 !important;
-    }
-    
-    body[dir="rtl"] .header.header-show {
-      left: auto !important;
-      right: 0 !important;
-    }
-    
-    .header .header-container {
-      background-color: transparent !important;
-      padding: 0 !important;
-      border: none !important;
-      box-shadow: none !important;
-    }
-    
-    .header .logo-area {
-      padding: 10px 0 !important;
-    }
-    
-    .header .logo-img,
-    .header .logo-icon {
-      width: 50px !important;
-      height: 50px !important;
-    }
-    
-    .header .site-name {
-      font-size: 1rem !important;
-    }
-    
-    .header .navmenu a {
-      padding: 12px 15px !important;
-      font-size: 15px !important;
-    }
-    
-    .header .navmenu a .navicon {
-      font-size: 20px !important;
-    }
-    
-    .header::-webkit-scrollbar {
-      width: 4px;
-    }
-    
-    .header::-webkit-scrollbar-track {
-      background: color-mix(in srgb, var(--default-color), transparent 90%);
-    }
-    
-    .header::-webkit-scrollbar-thumb {
-      background: var(--accent-color);
-      border-radius: 10px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .header {
-      width: 280px !important;
-    }
-  }
-
-  [data-theme="dark"] .header .header-container {
-    border-color: color-mix(in srgb, var(--accent-color), transparent 85%);
-  }
-
-  [data-theme="dark"] .header .navmenu a:hover {
-    background-color: color-mix(in srgb, var(--accent-color), transparent 92%);
-  }
-
-  [data-theme="dark"] .header {
-    background-color: var(--surface-color);
-  }
-
-  [data-theme="dark"] .mobile-menu-overlay {
-    background-color: rgba(0, 0, 0, 0.7);
-  }
-  
-  .text-break {
-    word-break: break-all !important;
-    overflow-wrap: break-word !important;
-  }
-</style>
+{% endwith %}

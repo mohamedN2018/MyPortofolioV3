@@ -91,7 +91,7 @@ def sitemap_xml(request):
     from xml.sax.saxutils import escape
 
     entries = []  # (loc, lastmod, alternates[(lang, href)], images[(loc, caption)])
-    portrait = (seo.static_abs(seo.PORTRAIT_STATIC), "Mohamed Nabil (محمد نبيل) — Software Engineer")
+    portrait = (seo.static_abs(seo.portrait_path()), "Mohamed Nabil (محمد نبيل) — Software Engineer")
 
     static_pages = [
         ("home", [portrait]), ("identity", [portrait]), ("cv", [portrait]),
