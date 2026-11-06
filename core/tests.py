@@ -200,7 +200,7 @@ class CvTests(BrandTestBase):
     def test_cv_reachable_from_nav_home_footer(self):
         self.attach_cv()
         html = self.client.get("/").content.decode()
-        self.assertIn('class="nav-cv', html)            # navigation
+        self.assertIn('mnp-nav-cv', html)               # navigation
         self.assertIn('href="/cv/download/"', html)       # hero + CV band
         self.assertIn('class="footer-cv"', html)          # footer
         self.assertIn('href="/cv/"', self.client.get("/about/mohamed-nabil/").content.decode())

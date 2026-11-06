@@ -2,73 +2,45 @@
 {% load static i18n %}
 
 {% block title %}{% trans "Services" %} | {{ brand.name }} — {{ brand.brand }}{% endblock %}
+{% block description %}{% if seo.lang == 'ar' %}خدمات محمد نبيل: تطوير Backend بـ Python و Django، واجهات API، قواعد البيانات والنشر بـ Docker.{% else %}Services by Mohamed Nabil: Python & Django backend development, REST APIs, databases and Docker deployment.{% endif %}{% endblock %}
 
 {% block content %}
-
-<!-- Page Title -->
-<div class="page-title dark-background">
-  <div class="container d-lg-flex justify-content-between align-items-center">
-    <h1 class="mb-2 mb-lg-0">{% trans "Services" %}</h1>
-    <nav class="breadcrumbs">
-      <ol>
-        <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
-        <li class="current">{% trans "Services" %}</li>
-      </ol>
-    </nav>
+{% with ar=seo.lang %}
+<header class="mnp-page-head">
+  <div class="container">
+    <nav class="mnp-breadcrumbs" aria-label="breadcrumb"><ol><li><a href="{% url 'home' %}">{% trans "Home" %}</a></li><li aria-current="page">{% trans "Services" %}</li></ol></nav>
+    <span class="mnp-kicker mt-3">{% trans "Services" %}</span>
+    <h1>{% if ar == 'ar' %}كيف أساعدك{% else %}How I can help{% endif %}</h1>
+    <p>{% if ar == 'ar' %}من تصميم قاعدة البيانات وواجهات API حتى النشر والصيانة على الإنتاج.{% else %}From database design and APIs to deployment and maintenance in production.{% endif %}</p>
   </div>
-</div>
-
-<!-- Services Section -->
-<section id="services" class="services section">
-  <div class="container" data-aos="fade-up" data-aos-delay="100">
-    <div class="row gy-4">
+</header>
+<section class="mnp-section pt-2">
+  <div class="container">
+    <div class="row g-3">
       {% for service in services %}
-        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 100 %}">
-          <div class="service-card position-relative z-1">
-            <div class="service-icon">
-              <i class="bi bi-{{ service.icon|default:'palette' }}"></i>
-            </div>
-            <a href="{% url 'service_detail' service.slug %}" class="card-action d-flex align-items-center justify-content-center rounded-circle">
-              <i class="bi bi-arrow-up-right"></i>
-            </a>
-            <h3>
-              <a href="{% url 'service_detail' service.slug %}">
-                {{ service.title }}
-              </a>
-            </h3>
-            <p>{{ service.short_description }}</p>
-          </div>
-        </div>
+      <div class="col-md-6 col-lg-4" data-reveal>
+        <article class="mnp-card mnp-service">
+          <span class="mnp-service-icon"><i class="bi bi-{{ service.icon|default:'code-slash' }}" aria-hidden="true"></i></span>
+          <h2 class="h5 fw-bold mt-3"><a class="stretched-link text-reset text-decoration-none" href="{% url 'service_detail' service.slug %}">{{ service.title }}</a></h2>
+          <p class="mb-0 text-body-secondary">{{ service.short_description }}</p>
+        </article>
+      </div>
       {% empty %}
-        <div class="col-12 text-center">
-          <p>{% trans "No services found." %}</p>
-        </div>
+      <p class="text-body-secondary">{% if ar == 'ar' %}لا توجد خدمات حالياً.{% else %}No services listed yet.{% endif %}</p>
       {% endfor %}
     </div>
-    
-    <!-- Pagination -->
     {% if services.has_other_pages %}
-      <div class="pagination-container mt-5">
-        <nav aria-label="Page navigation">
-          <ul class="pagination justify-content-center">
-            {% if services.has_previous %}
-              <li class="page-item"><a class="page-link" href="?page={{ services.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">&laquo;</a></li>
-            {% endif %}
-            {% for i in services.paginator.page_range %}
-              {% if services.number == i %}
-                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
-              {% else %}
-                <li class="page-item"><a class="page-link" href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ i }}</a></li>
-              {% endif %}
-            {% endfor %}
-            {% if services.has_next %}
-              <li class="page-item"><a class="page-link" href="?page={{ services.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">&raquo;</a></li>
-            {% endif %}
-          </ul>
-        </nav>
-      </div>
+    <nav aria-label="pagination"><ul class="mnp-pagination">
+      {% for n in services.paginator.page_range %}<li>{% if n == services.number %}<span class="current" aria-current="page">{{ n }}</span>{% else %}<a href="?page={{ n }}">{{ n }}</a>{% endif %}</li>{% endfor %}
+    </ul></nav>
     {% endif %}
+    <div class="mnp-cv-band mt-5" data-reveal>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <h2 class="h3 m-0">{% if ar == 'ar' %}عندك مشروع؟ خلّينا نتكلم.{% else %}Have a project in mind? Let's talk.{% endif %}</h2>
+        <div class="d-flex flex-wrap gap-2"><a href="{% url 'contact' %}" class="mnp-btn mnp-btn-primary">{% trans "Contact" %}</a><a href="{% url 'portfolio' %}" class="mnp-btn mnp-btn-outline">{% if ar == 'ar' %}المشاريع{% else %}Projects{% endif %}</a></div>
+      </div>
+    </div>
   </div>
 </section>
-
+{% endwith %}
 {% endblock %}

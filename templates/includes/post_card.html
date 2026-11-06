@@ -1,0 +1,10 @@
+{% load i18n static %}
+<article class="mnp-card mnp-project" data-tilt="4">
+  <div class="shot">{% if post.featured_image %}<img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy" decoding="async" width="800" height="500">{% else %}<img src="{% static 'assets/img/blog/placeholder.jpg' %}" alt="" loading="lazy" width="800" height="450">{% endif %}</div>
+  <div class="body">
+    <span class="meta">{% if post.category %}{{ post.category.name }} · {% endif %}<time datetime="{{ post.published_date|date:'Y-m-d' }}">{{ post.published_date|date:"Y-m-d" }}</time></span>
+    <h3><a href="{% url 'blog_detail' post.slug %}">{{ post.title }}</a></h3>
+    <p>{{ post.excerpt|truncatechars:150 }}</p>
+    <span class="go">{% if seo.lang == 'ar' %}اقرأ المقال{% else %}Read article{% endif %} <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+  </div>
+</article>

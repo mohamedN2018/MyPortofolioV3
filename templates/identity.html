@@ -101,7 +101,7 @@
         {% for p in projects %}
         <li class="col-md-6">
           <div class="mnp-card">
-            <h3 class="h6 fw-bold mb-1"><a href="{% url 'portfolio_detail' p.slug %}">{{ p.title }}</a></h3>
+            <h3 class="h6 fw-bold mb-1 mnp-link-list"><a href="{% url 'portfolio_detail' p.slug %}">{{ p.title }}</a></h3>
             <p class="small text-body-secondary mb-1">{{ p.client_name }}</p>
             <p class="mb-0 small">{{ p.short_description }}</p>
           </div>
@@ -152,7 +152,7 @@
       <div class="mnp-card">
         <h2 id="profiles" class="h4 fw-bold">{% if seo.lang == 'ar' %}الحسابات الرسمية لمحمد نبيل{% else %}Official profiles of Mohamed Nabil{% endif %}</h2>
         <p class="text-body-secondary small">{% if seo.lang == 'ar' %}هذه هي الحسابات الوحيدة التي تخصه؛ أي حساب آخر بنفس الاسم لا يمثله.{% else %}These are the only profiles that belong to him; other accounts with the same name do not represent him.{% endif %}</p>
-        <ul class="list-unstyled mb-0 row g-2">
+        <ul class="list-unstyled mb-0 row g-2 mnp-link-list">
           {% for p in brand.profiles %}
           <li class="col-sm-6 col-lg-4"><a href="{{ p.url }}" target="_blank" rel="noopener noreferrer me"><i class="bi {{ p.icon }}" aria-hidden="true"></i> {{ p.label }}</a> <span class="small text-body-secondary d-block text-break" dir="ltr">{{ p.url|cut:'https://' }}</span></li>
           {% endfor %}

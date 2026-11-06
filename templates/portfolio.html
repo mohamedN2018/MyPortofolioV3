@@ -1,615 +1,68 @@
 {% extends 'base.html' %}
 {% load static i18n %}
 
-{% block title %}{% trans "Portfolio" %} | {{ brand.name }} — {{ brand.brand }}{% endblock %}
+{% block title %}{% if seo.lang == 'ar' %}المشاريع{% else %}Projects{% endif %} | {{ brand.name }} — {{ brand.brand }}{% endblock %}
+{% block description %}{% if seo.lang == 'ar' %}مشاريع وأنظمة برمجية من تطوير محمد نبيل: موارد بشرية ورواتب، تجارة إلكترونية، نقاط بيع ومنصات شركات.{% else %}Software projects by Mohamed Nabil: HR & payroll, e-commerce, point of sale and company platforms built with Python and Django.{% endif %}{% endblock %}
 
 {% block content %}
-
-<!-- Page Title with animation -->
-<div class="page-title dark-background">
-  <div class="container d-lg-flex justify-content-between align-items-center">
-    <h1 class="mb-2 mb-lg-0 animate__animated animate__fadeInUp">{% trans "Portfolio" %}</h1>
-    <nav class="breadcrumbs animate__animated animate__fadeInRight">
-      <ol>
-        <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
-        <li class="current">{% trans "Portfolio" %}</li>
-      </ol>
-    </nav>
+{% with ar=seo.lang %}
+<header class="mnp-page-head">
+  <div class="container">
+    <nav class="mnp-breadcrumbs" aria-label="breadcrumb"><ol><li><a href="{% url 'home' %}">{% trans "Home" %}</a></li><li aria-current="page">{% if ar == 'ar' %}المشاريع{% else %}Projects{% endif %}</li></ol></nav>
+    <span class="mnp-kicker mt-3">{% if ar == 'ar' %}الأعمال{% else %}Work{% endif %}</span>
+    <h1>{% if ar == 'ar' %}مشاريع محمد نبيل{% else %}Projects by Mohamed Nabil{% endif %}</h1>
+    <p>{% if ar == 'ar' %}أنظمة أعمال ومنصات بُنيت ونُشرت على الإنتاج — مع توضيح الجهة المالكة ودوري في كل مشروع.{% else %}Business systems and platforms built and shipped to production — with the owner and my role stated for each.{% endif %}</p>
   </div>
-</div>
+</header>
 
-<!-- Portfolio Section -->
-<section id="portfolio" class="portfolio section">
-  <div class="container" data-aos="fade-up">
-    <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
-      <div class="row">
-        <!-- Sidebar Filters -->
-        <div class="col-lg-3">
-          <div class="filters-wrapper" data-aos="fade-right" data-aos-delay="150">
-            <h4 class="filters-title">
-              <i class="bi bi-funnel"></i> {% trans "Filter Projects" %}
-            </h4>
-            <ul class="portfolio-filters isotope-filters">
-              <li data-filter="*" class="filter-active">
-                <i class="bi bi-grid-3x3-gap-fill"></i> {% trans "All Projects" %}
-                <span class="filter-count">{{ total_projects|default:portfolios.paginator.count }}</span>
-              </li>
-              {% for category in categories %}
-                <li data-filter=".filter-{{ category.slug }}">
-                  <i class="bi bi-folder"></i> {{ category.name }}
-                  <span class="filter-count">{{ category.portfolios.count }}</span>
-                </li>
-              {% endfor %}
-            </ul>
-            
-            <!-- Search Box -->
-            <div class="search-box mt-4">
-              <h5><i class="bi bi-search"></i> {% trans "Search Projects" %}</h5>
-              <form method="get" action="{% url 'portfolio' %}" class="search-form">
-                <div class="input-group">
-                  <input type="text" name="search" class="form-control" placeholder="{% trans 'Search by title, client...' %}" value="{{ search_query }}">
-                  <button class="btn btn-primary" type="submit">
-                    <i class="bi bi-search"></i>
-                  </button>
-                </div>
-              </form>
-              {% if search_query %}
-                <div class="search-results-info mt-2">
-                  <small class="text-muted">
-                    {% trans "Found" %} {{ portfolios.paginator.count }} {% trans "results for" %} "{{ search_query }}"
-                    <a href="{% url 'portfolio' %}" class="clear-search">
-                      <i class="bi bi-x-circle"></i> {% trans "Clear" %}
-                    </a>
-                  </small>
-                </div>
-              {% endif %}
-            </div>
-            
-            <!-- Statistics -->
-            <div class="stats-box mt-4 p-3 rounded">
-              <h5><i class="bi bi-bar-chart"></i> {% trans "Statistics" %}</h5>
-              <div class="stat-item">
-                <span class="stat-label">{% trans "Total Projects" %}:</span>
-                <span class="stat-value">{{ total_projects|default:portfolios.paginator.count }}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-label">{% trans "Categories" %}:</span>
-                <span class="stat-value">{{ categories|length }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Portfolio Grid -->
-        <div class="col-lg-9">
-          <div class="row gy-4 portfolio-container isotope-container">
-            {% for item in portfolios %}
-              <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-{{ item.category.slug|default:'all' }}">
-                <div class="portfolio-card">
-                  <div class="card-img-wrapper">
-                    {% if item.cover_image and item.cover_image.url %}
-                      <img src="{{ item.cover_image.url }}" class="img-fluid" alt="{{ item.title }}" loading="lazy" onerror="this.src='{% static 'assets/img/portfolio/placeholder.jpg' %}'">
-                    {% else %}
-                      <img src="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="img-fluid" alt="{{ item.title }}" loading="lazy">
-                    {% endif %}
-                    <div class="card-overlay">
-                      <div class="overlay-buttons">
-                        {% if item.cover_image and item.cover_image.url %}
-                          <a href="{{ item.cover_image.url }}" class="glightbox btn-icon" title="{{ item.title }}">
-                            <i class="bi bi-zoom-in"></i>
-                          </a>
-                        {% else %}
-                          <a href="{% static 'assets/img/portfolio/placeholder.jpg' %}" class="glightbox btn-icon" title="{{ item.title }}">
-                            <i class="bi bi-zoom-in"></i>
-                          </a>
-                        {% endif %}
-                        <a href="{% url 'portfolio_detail' item.slug %}" class="btn-icon" title="{% trans 'View Details' %}">
-                          <i class="bi bi-link-45deg"></i>
-                        </a>
-                      </div>
-                    </div>
-                    {% if item.is_featured %}
-                      <span class="featured-badge">
-                        <i class="bi bi-star-fill"></i> {% trans "Featured" %}
-                      </span>
-                    {% endif %}
-                  </div>
-                  <div class="card-content">
-                    <span class="project-category">{{ item.category.name|default:_('Portfolio') }}</span>
-                    <h3 class="project-title">
-                      <a href="{% url 'portfolio_detail' item.slug %}">{{ item.title }}</a>
-                    </h3>
-                    <p class="project-description">{{ item.short_description|truncatechars:100 }}</p>
-                    
-                    <!-- Rating Display - CORRECTED VERSION -->
-                    <div class="project-rating mb-2">
-                      <div class="d-flex align-items-center gap-2">
-                        <div class="rating-stars">
-                          {% with rating=item.average_rating|default:0 %}
-                            {% for i in "12345"|make_list %}
-                              {% if forloop.counter <= rating|floatformat:"0"|add:0 %}
-                                <i class="bi bi-star-fill text-warning small"></i>
-                              {% elif forloop.counter <= rating|add:0.5 %}
-                                <i class="bi bi-star-half text-warning small"></i>
-                              {% else %}
-                                <i class="bi bi-star text-warning small"></i>
-                              {% endif %}
-                            {% endfor %}
-                          {% endwith %}
-                        </div>
-                        <span class="small text-muted">
-                          {% if item.ratings_count > 0 %}
-                            ({{ item.ratings_count }})
-                          {% else %}
-                            {% trans "No reviews yet" %}
-                          {% endif %}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div class="card-footer">
-                      <a href="{% url 'portfolio_detail' item.slug %}" class="btn-details">
-                        {% trans "View Details" %}
-                        <i class="bi bi-arrow-right"></i>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {% empty %}
-              <div class="col-12">
-                <div class="empty-state text-center py-5">
-                  <i class="bi bi-inbox display-1 text-muted"></i>
-                  <h4 class="mt-3">{% trans "No projects found" %}</h4>
-                  <p class="text-muted">{% trans "Try adjusting your search or filter criteria." %}</p>
-                  <a href="{% url 'portfolio' %}" class="btn btn-primary">
-                    <i class="bi bi-arrow-repeat"></i> {% trans "Reset Filters" %}
-                  </a>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-          
-          <!-- Pagination -->
-          {% if portfolios.has_other_pages %}
-            <div class="pagination-wrapper mt-5">
-              <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                  {% if portfolios.has_previous %}
-                    <li class="page-item">
-                      <a class="page-link" href="?page={{ portfolios.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">
-                        <i class="bi bi-chevron-{% if current_language.direction == 'rtl' %}right{% else %}left{% endif %}"></i>
-                      </a>
-                    </li>
-                  {% else %}
-                    <li class="page-item disabled">
-                      <span class="page-link"><i class="bi bi-chevron-{% if current_language.direction == 'rtl' %}right{% else %}left{% endif %}"></i></span>
-                    </li>
-                  {% endif %}
-                  
-                  {% for i in portfolios.paginator.page_range %}
-                    {% if portfolios.number == i %}
-                      <li class="page-item active"><span class="page-link">{{ i }}</span></li>
-                    {% elif i > portfolios.number|add:'-3' and i < portfolios.number|add:'3' %}
-                      <li class="page-item">
-                        <a class="page-link" href="?page={{ i }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">{{ i }}</a>
-                      </li>
-                    {% endif %}
-                  {% endfor %}
-                  
-                  {% if portfolios.has_next %}
-                    <li class="page-item">
-                      <a class="page-link" href="?page={{ portfolios.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}">
-                        <i class="bi bi-chevron-{% if current_language.direction == 'rtl' %}left{% else %}right{% endif %}"></i>
-                      </a>
-                    </li>
-                  {% else %}
-                    <li class="page-item disabled">
-                      <span class="page-link"><i class="bi bi-chevron-{% if current_language.direction == 'rtl' %}left{% else %}right{% endif %}"></i></span>
-                    </li>
-                  {% endif %}
-                </ul>
-              </nav>
-            </div>
-          {% endif %}
-        </div>
-      </div>
+<section class="mnp-section pt-2" aria-label="{% if ar == 'ar' %}قائمة المشاريع{% else %}Project list{% endif %}">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <nav class="mnp-filters" aria-label="{% if ar == 'ar' %}تصفية حسب التصنيف{% else %}Filter by category{% endif %}">
+        <a href="{% url 'portfolio' %}" class="mnp-filter{% if not current_category %} active{% endif %}"{% if not current_category %} aria-current="true"{% endif %}>{% if ar == 'ar' %}الكل{% else %}All{% endif %}</a>
+        {% for c in categories %}
+          <a href="{% url 'portfolio' %}?category={{ c.slug }}" class="mnp-filter{% if current_category == c.slug %} active{% endif %}"{% if current_category == c.slug %} aria-current="true"{% endif %}>{{ c.name }}</a>
+        {% endfor %}
+      </nav>
+      <form class="mnp-search" method="get" action="{% url 'portfolio' %}" role="search">
+        {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
+        <label class="visually-hidden" for="pf-search">{% if ar == 'ar' %}ابحث في المشاريع{% else %}Search projects{% endif %}</label>
+        <input id="pf-search" class="form-control" type="search" name="search" value="{{ search_query }}" placeholder="{% if ar == 'ar' %}ابحث في المشاريع…{% else %}Search projects…{% endif %}">
+        <button class="mnp-icon-btn" type="submit" aria-label="{% if ar == 'ar' %}بحث{% else %}Search{% endif %}" style="width:44px;height:44px"><i class="bi bi-search" aria-hidden="true"></i></button>
+      </form>
     </div>
+
+    {% if search_query %}<p class="text-body-secondary">{% if ar == 'ar' %}نتائج البحث عن{% else %}Results for{% endif %} «{{ search_query }}» — {{ total_projects }}</p>{% endif %}
+
+    <div class="row g-4">
+      {% for item in portfolios %}
+      <div class="col-md-6 col-xl-4" data-reveal>
+        <article class="mnp-card mnp-project" data-tilt="5">
+          <div class="shot">{% if item.cover_image %}<img src="{{ item.cover_image.url }}" alt="{{ item.title }} — {% if ar == 'ar' %}لقطة شاشة{% else %}screenshot{% endif %}" loading="lazy" decoding="async" width="800" height="500">{% endif %}</div>
+          <div class="body">
+            <span class="meta">{{ item.category.name|default:'' }}{% if item.client_name %} · {{ item.client_name }}{% endif %}</span>
+            <h2 class="h5 fw-bold m-0"><a class="text-reset text-decoration-none stretched-link" href="{% url 'portfolio_detail' item.slug %}">{{ item.title }}</a></h2>
+            <p>{{ item.short_description }}</p>
+            <div class="pt-1">{% for t in item.technologies|slice:":4" %}<span class="mnp-chip">{{ t }}</span>{% endfor %}</div>
+            <span class="go">{% if ar == 'ar' %}تفاصيل المشروع{% else %}Case study{% endif %} <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+          </div>
+        </article>
+      </div>
+      {% empty %}
+      <div class="col-12"><div class="mnp-card text-center py-5"><p class="mb-3">{% if ar == 'ar' %}لا توجد مشاريع مطابقة.{% else %}No matching projects.{% endif %}</p><a href="{% url 'portfolio' %}" class="mnp-btn mnp-btn-outline">{% if ar == 'ar' %}عرض الكل{% else %}Show all{% endif %}</a></div></div>
+      {% endfor %}
+    </div>
+
+    {% if portfolios.has_other_pages %}
+    <nav aria-label="pagination"><ul class="mnp-pagination">
+      {% if portfolios.has_previous %}<li><a href="?page={{ portfolios.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" aria-label="{% if ar == 'ar' %}السابق{% else %}Previous{% endif %}">‹</a></li>{% endif %}
+      {% for n in portfolios.paginator.page_range %}
+        <li>{% if n == portfolios.number %}<span class="current" aria-current="page">{{ n }}</span>{% else %}<a href="?page={{ n }}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}">{{ n }}</a>{% endif %}</li>
+      {% endfor %}
+      {% if portfolios.has_next %}<li><a href="?page={{ portfolios.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if search_query %}&search={{ search_query|urlencode }}{% endif %}" aria-label="{% if ar == 'ar' %}التالي{% else %}Next{% endif %}">›</a></li>{% endif %}
+    </ul></nav>
+    {% endif %}
   </div>
 </section>
-
-<style>
-  /* Portfolio Page Styles */
-  
-  .filters-wrapper {
-    background: var(--surface-color);
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-    position: sticky;
-    top: 100px;
-  }
-  
-  .filters-title {
-    font-size: 1.2rem;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid var(--accent-color);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .portfolio-filters {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .portfolio-filters li {
-    padding: 12px 15px;
-    cursor: pointer;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 5px;
-  }
-  
-  .portfolio-filters li i {
-    margin-right: 10px;
-    font-size: 18px;
-  }
-  
-  .portfolio-filters li:hover {
-    background: color-mix(in srgb, var(--accent-color), transparent 88%);
-    transform: translateX(5px);
-  }
-  
-  body[dir="rtl"] .portfolio-filters li:hover {
-    transform: translateX(-5px);
-  }
-  
-  .portfolio-filters li.filter-active {
-    background: var(--accent-color);
-    color: var(--contrast-color);
-  }
-  
-  .filter-count {
-    background: color-mix(in srgb, var(--default-color), transparent 85%);
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-  }
-  
-  .filter-active .filter-count {
-    background: rgba(255, 255, 255, 0.2);
-    color: var(--contrast-color);
-  }
-  
-  .search-box h5 {
-    font-size: 1rem;
-    margin-bottom: 12px;
-  }
-  
-  .clear-search {
-    margin-left: 10px;
-    color: var(--accent-color);
-    text-decoration: none;
-  }
-  
-  .stats-box {
-    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-color), transparent 90%), var(--surface-color));
-    border: 1px solid color-mix(in srgb, var(--accent-color), transparent 80%);
-  }
-  
-  .stat-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px dashed color-mix(in srgb, var(--default-color), transparent 85%);
-  }
-  
-  .stat-item:last-child {
-    border-bottom: none;
-  }
-  
-  .stat-value {
-    font-weight: 700;
-    color: var(--accent-color);
-  }
-  
-  /* Portfolio Card */
-  .portfolio-card {
-    background: var(--surface-color);
-    border-radius: 16px;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    height: 100%;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-  }
-  
-  .portfolio-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-  }
-  
-  .card-img-wrapper {
-    position: relative;
-    overflow: hidden;
-    height: 250px;
-  }
-  
-  .card-img-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-  }
-  
-  .portfolio-card:hover .card-img-wrapper img {
-    transform: scale(1.1);
-  }
-  
-  .card-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .card-img-wrapper:hover .card-overlay {
-    opacity: 1;
-  }
-  
-  .overlay-buttons {
-    display: flex;
-    gap: 15px;
-    transform: translateY(20px);
-    transition: transform 0.3s ease;
-  }
-  
-  .card-img-wrapper:hover .overlay-buttons {
-    transform: translateY(0);
-  }
-  
-  .btn-icon {
-    width: 45px;
-    height: 45px;
-    background: var(--accent-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 20px;
-    transition: all 0.3s ease;
-  }
-  
-  .btn-icon:hover {
-    transform: scale(1.1);
-    background: color-mix(in srgb, var(--accent-color), black 10%);
-    color: white;
-  }
-  
-  .featured-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: linear-gradient(135deg, #ffc107, #ff9800);
-    color: white;
-    padding: 5px 12px;
-    border-radius: 30px;
-    font-size: 12px;
-    font-weight: 600;
-    z-index: 2;
-  }
-  
-  .featured-badge i {
-    margin-right: 5px;
-  }
-  
-  .card-content {
-    padding: 20px;
-  }
-  
-  .project-category {
-    display: inline-block;
-    font-size: 12px;
-    color: var(--accent-color);
-    margin-bottom: 10px;
-  }
-  
-  .project-title {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-    line-height: 1.4;
-  }
-  
-  .project-title a {
-    color: var(--heading-color);
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-  
-  .project-title a:hover {
-    color: var(--accent-color);
-  }
-  
-  .project-description {
-    color: color-mix(in srgb, var(--default-color), transparent 20%);
-    font-size: 0.9rem;
-    line-height: 1.5;
-    margin-bottom: 15px;
-  }
-  
-  .card-footer {
-    padding-top: 15px;
-    border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
-  }
-  
-  .btn-details {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--accent-color);
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: gap 0.3s ease;
-  }
-  
-  .btn-details:hover {
-    gap: 12px;
-  }
-  
-  /* Empty State */
-  .empty-state {
-    background: var(--surface-color);
-    border-radius: 20px;
-    padding: 60px 20px;
-  }
-  
-  /* Pagination */
-  .pagination-wrapper {
-    margin-top: 40px;
-  }
-  
-  .pagination {
-    gap: 8px;
-  }
-  
-  .page-link {
-    border-radius: 12px !important;
-    padding: 10px 16px;
-    background: var(--surface-color);
-    color: var(--default-color);
-    border: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
-    transition: all 0.3s ease;
-  }
-  
-  .page-link:hover {
-    background: var(--accent-color);
-    color: var(--contrast-color);
-    border-color: var(--accent-color);
-    transform: translateY(-2px);
-  }
-  
-  .page-item.active .page-link {
-    background: var(--accent-color);
-    border-color: var(--accent-color);
-    color: var(--contrast-color);
-  }
-  
-  /* Responsive */
-  @media (max-width: 992px) {
-    .filters-wrapper {
-      position: static;
-      margin-bottom: 30px;
-    }
-    
-    .portfolio-filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    
-    .portfolio-filters li {
-      margin-bottom: 0;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .card-img-wrapper {
-      height: 200px;
-    }
-    
-    .project-title {
-      font-size: 1rem;
-    }
-  }
-</style>
-
-{% endblock %}
-
-{% block extra_js %}
-<script>
-  (function() {
-    'use strict';
-    
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize Isotope for portfolio filtering
-      const portfolioContainer = document.querySelector('.portfolio-container');
-      if (portfolioContainer && typeof Isotope !== 'undefined') {
-        // Wait for images to load
-        if (typeof imagesLoaded !== 'undefined') {
-          imagesLoaded(portfolioContainer, function() {
-            const iso = new Isotope(portfolioContainer, {
-              itemSelector: '.portfolio-item',
-              layoutMode: 'masonry',
-              percentPosition: true,
-              masonry: {
-                columnWidth: '.portfolio-item'
-              },
-              transitionDuration: '0.4s'
-            });
-            
-            // Filter buttons
-            const filters = document.querySelectorAll('.isotope-filters li');
-            filters.forEach(filter => {
-              filter.addEventListener('click', function(e) {
-                e.preventDefault();
-                const filterValue = this.getAttribute('data-filter');
-                filters.forEach(f => f.classList.remove('filter-active'));
-                this.classList.add('filter-active');
-                iso.arrange({ filter: filterValue });
-                
-                // Smooth scroll to top of portfolio section
-                const portfolioSection = document.getElementById('portfolio');
-                if (portfolioSection) {
-                  portfolioSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              });
-            });
-          });
-        } else {
-          // Fallback if imagesLoaded is not available
-          const iso = new Isotope(portfolioContainer, {
-            itemSelector: '.portfolio-item',
-            layoutMode: 'masonry',
-            percentPosition: true
-          });
-        }
-      }
-      
-      // Initialize GLightbox
-      if (typeof GLightbox !== 'undefined') {
-        const lightbox = GLightbox({
-          selector: '.glightbox',
-          touchNavigation: true,
-          loop: true,
-          autoplayVideos: true
-        });
-      }
-      
-      // Handle image loading errors
-      document.querySelectorAll('img').forEach(img => {
-        img.addEventListener('error', function() {
-          if (!this.hasAttribute('data-fallback')) {
-            this.setAttribute('data-fallback', 'true');
-            this.src = '{% static "assets/img/portfolio/placeholder.jpg" %}';
-          }
-        });
-      });
-    });
-  })();
-</script>
+{% endwith %}
 {% endblock %}

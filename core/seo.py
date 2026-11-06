@@ -16,12 +16,24 @@ from . import identity
 PERSON_ID = "/#person"
 WEBSITE_ID = "/#website"
 
-PORTRAIT_STATIC = "brand/mohamed-nabil-software-engineer.jpg"
-PORTRAIT_400_WEBP = "brand/mohamed-nabil-software-engineer-400.webp"
-PORTRAIT_800_WEBP = "brand/mohamed-nabil-software-engineer-800.webp"
-PORTRAIT_400_JPG = "brand/mohamed-nabil-software-engineer-400.jpg"
-PORTRAIT_800_JPG = "brand/mohamed-nabil-software-engineer-800.jpg"
-OG_IMAGE_STATIC = "brand/mohamed-nabil-pro-og.jpg"
+# Two portrait sets; choose with the BRAND_PORTRAIT env/setting:
+#   "studio" — the stylised studio portrait the owner prefers (default)
+#   "camera" — the unedited camera photo (IMG_20260129_192328.jpg)
+PORTRAIT_SETS = {
+    "studio": {"base": "brand/mohamed-nabil-software-engineer", "size": 768, "og": "brand/mohamed-nabil-pro-og.jpg"},
+    "camera": {"base": "brand/mohamed-nabil-photo", "size": 1200, "og": "brand/mohamed-nabil-pro-og-photo.jpg"},
+}
+
+
+def portrait_set():
+    from django.conf import settings
+    return PORTRAIT_SETS.get(getattr(settings, "BRAND_PORTRAIT", "studio"), PORTRAIT_SETS["studio"])
+
+
+def portrait_path(variant=""):
+    """variant: '' (full jpg), '400.webp', '800.webp', '400.jpg', '800.jpg'."""
+    base = portrait_set()["base"]
+    return f"{base}.jpg" if not variant else f"{base}-{variant}"
 
 # Pages whose single URL serves both languages (switch via ?lang=xx), so
 # hreflang alternates are meaningful. Detail pages use per-language slugs.
@@ -85,7 +97,7 @@ def person_entity(site_settings=None, lang=None):
     lang = lang or current_lang()
     ar = lang == "ar"
     profiles = identity.get_profiles(site_settings)
-    portrait = static_abs(PORTRAIT_STATIC)
+    portrait = static_abs(portrait_path())
     person = {
         "@type": "Person",
         "@id": absolute(PERSON_ID),
@@ -98,8 +110,8 @@ def person_entity(site_settings=None, lang=None):
             "@id": absolute("/#portrait"),
             "url": portrait,
             "contentUrl": portrait,
-            "width": 1200,
-            "height": 1200,
+            "width": portrait_set()["size"],
+            "height": portrait_set()["size"],
             "caption": "Mohamed Nabil (محمد نبيل) — Software Engineer",
         },
         "jobTitle": identity.JOB_TITLE_AR if ar else identity.JOB_TITLE_EN,
@@ -196,11 +208,13 @@ def seo_context(request):
             "roles": identity.ROLES_AR if ar else identity.ROLES_EN,
             "country": identity.COUNTRY_AR if ar else identity.COUNTRY_EN,
             "profiles": identity.get_profiles(site_settings),
-            "portrait": static(PORTRAIT_STATIC),
-            "portrait_400_webp": static(PORTRAIT_400_WEBP),
-            "portrait_800_webp": static(PORTRAIT_800_WEBP),
-            "portrait_400_jpg": static(PORTRAIT_400_JPG),
-            "portrait_800_jpg": static(PORTRAIT_800_JPG),
+            "portrait": static(portrait_path()),
+            "portrait_400_webp": static(portrait_path("400.webp")),
+            "portrait_800_webp": static(portrait_path("800.webp")),
+            "portrait_400_jpg": static(portrait_path("400.jpg")),
+            "portrait_800_jpg": static(portrait_path("800.jpg")),
+            # the other portrait set (shown in the gallery as an additional photo)
+            "alt_portrait_800_jpg": static(next(v["base"] for k, v in PORTRAIT_SETS.items() if v is not portrait_set()) + "-800.jpg"),
             "portrait_alt": (
                 "صورة محمد نبيل (Mohamed Nabil) — مهندس برمجيات" if ar
                 else "Photo of Mohamed Nabil (محمد نبيل) — Software Engineer"
@@ -215,7 +229,7 @@ def seo_context(request):
             "alternates": alternates_for(request),
             "default_title": default_title,
             "default_description": default_description,
-            "og_image": static_abs(OG_IMAGE_STATIC),
+            "og_image": static_abs(portrait_set()["og"]),
             "og_locale": "ar_EG" if ar else "en_US",
             "og_locale_alt": "en_US" if ar else "ar_EG",
             "lang": lang,

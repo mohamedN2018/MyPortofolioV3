@@ -4,16 +4,18 @@
 {% block title %}{{ seo.default_title }}{% endblock %}
 
 {% block content %}
+{% with ar=seo.lang %}
 
-<!-- Hero: identity first (server-rendered, no JS needed) -->
+<!-- ===================== HERO ===================== -->
 <section id="hero" class="mnp-hero" aria-labelledby="hero-title">
+  <div class="mnp-hero-grid-bg" aria-hidden="true"></div>
   <div class="container">
-    <div class="row align-items-center g-4">
-      <div class="col-lg-7">
-        <span class="mnp-eyebrow"><span class="dot" aria-hidden="true"></span>{% if seo.lang == 'ar' %}مهندس برمجيات · مصر{% else %}Software Engineer · Egypt{% endif %}</span>
-        <h1 id="hero-title">{{ brand.name }}</h1>
+    <div class="row align-items-center g-4 g-lg-5">
+      <div class="col-lg-6 order-2 order-lg-1">
+        <span class="mnp-eyebrow"><span class="dot" aria-hidden="true"></span>{% if ar == 'ar' %}متاح لفرص عمل ومشاريع جديدة{% else %}Open to new roles & projects{% endif %}</span>
+        <h1 id="hero-title" class="mnp-hero-title"><span class="mnp-gradient-text">{{ brand.name }}</span></h1>
         <p class="mnp-names">
-          {% if seo.lang == 'ar' %}<span class="alt" lang="en" dir="ltr">{{ brand.name_en }}</span>{% else %}<span class="alt" lang="ar" dir="rtl">{{ brand.name_ar }}</span>{% endif %}
+          {% if ar == 'ar' %}<span class="alt" lang="en" dir="ltr">{{ brand.name_en }}</span>{% else %}<span class="alt" lang="ar" dir="rtl">{{ brand.name_ar }}</span>{% endif %}
           <span class="sep" aria-hidden="true">·</span>
           <span class="brand">{{ brand.brand }}</span>
         </p>
@@ -21,78 +23,40 @@
         <p class="mnp-lead">{% if personal_info.short_bio %}{{ personal_info.short_bio }}{% else %}{{ brand.tagline }}{% endif %}</p>
 
         <div class="mnp-actions">
-          <a href="{% url 'portfolio' %}" class="mnp-btn mnp-btn-primary"><i class="bi bi-kanban" aria-hidden="true"></i> {% if seo.lang == 'ar' %}استكشف أعمالي{% else %}Explore My Work{% endif %}</a>
-          {% if brand.cv_available %}<a href="{% url 'cv_download' %}" class="mnp-btn mnp-btn-outline" download><i class="bi bi-download" aria-hidden="true"></i> {% if seo.lang == 'ar' %}تحميل السيرة الذاتية{% else %}Download CV{% endif %}</a>{% endif %}
-          <a href="{% url 'cv' %}" class="mnp-btn mnp-btn-ghost"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> {% if seo.lang == 'ar' %}عرض السيرة الذاتية{% else %}View My CV{% endif %}</a>
-          <a href="{% url 'contact' %}" class="mnp-btn mnp-btn-ghost"><i class="bi bi-chat-dots" aria-hidden="true"></i> {% if seo.lang == 'ar' %}تواصل معي{% else %}Contact Me{% endif %}</a>
+          <a href="{% url 'cv' %}" class="mnp-btn mnp-btn-primary"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> {% if ar == 'ar' %}عرض السيرة الذاتية{% else %}View My CV{% endif %}</a>
+          <a href="{% url 'portfolio' %}" class="mnp-btn mnp-btn-outline"><i class="bi bi-kanban" aria-hidden="true"></i> {% if ar == 'ar' %}استكشف مشاريعي{% else %}Explore My Projects{% endif %}</a>
+          {% if brand.cv_available %}<a href="{% url 'cv_download' %}" class="mnp-btn mnp-btn-outline" download><i class="bi bi-download" aria-hidden="true"></i> {% if ar == 'ar' %}تحميل PDF{% else %}Download CV{% endif %}</a>{% endif %}
+          <a href="{% url 'contact' %}" class="mnp-btn mnp-btn-ghost"><i class="bi bi-chat-dots" aria-hidden="true"></i> {% if ar == 'ar' %}وظّفني / تواصل{% else %}Hire me{% endif %}</a>
         </div>
 
-        <nav class="mnp-profiles" aria-label="{% if seo.lang == 'ar' %}الحسابات الرسمية{% else %}Official profiles{% endif %}">
-          {% for p in brand.profiles %}
-          <a href="{{ p.url }}" target="_blank" rel="noopener noreferrer me"><i class="bi {{ p.icon }}" aria-hidden="true"></i> {{ p.label }}</a>
-          {% endfor %}
+        <ul class="mnp-hero-stats" aria-label="{% if ar == 'ar' %}أرقام من السيرة الذاتية{% else %}Facts from the CV{% endif %}">
+          <li><strong>3+</strong><span>{% if ar == 'ar' %}سنوات خبرة{% else %}years experience{% endif %}</span></li>
+          <li><strong>13+</strong><span>{% if ar == 'ar' %}منصة على الإنتاج{% else %}production platforms{% endif %}</span></li>
+          <li><strong>Q-Tech</strong><span>{% if ar == 'ar' %}مهندس برمجيات{% else %}Software Engineer{% endif %}</span></li>
+        </ul>
+
+        <nav class="mnp-profiles" aria-label="{% if ar == 'ar' %}الحسابات الرسمية{% else %}Official profiles{% endif %}">
+          {% for p in brand.profiles %}<a href="{{ p.url }}" target="_blank" rel="noopener noreferrer me"><i class="bi {{ p.icon }}" aria-hidden="true"></i> {{ p.label }}</a>{% endfor %}
         </nav>
       </div>
-      <div class="col-lg-5">
-        <figure class="mnp-portrait">
-          <picture>
-            <source type="image/webp" srcset="{{ brand.portrait_400_webp }} 400w, {{ brand.portrait_800_webp }} 800w" sizes="(max-width: 991px) 300px, 420px">
-            <img src="{{ brand.portrait_800_jpg }}" srcset="{{ brand.portrait_400_jpg }} 400w, {{ brand.portrait_800_jpg }} 800w" sizes="(max-width: 991px) 300px, 420px"
-                 alt="{{ brand.portrait_alt }}" width="800" height="800" fetchpriority="high">
-          </picture>
-          <figcaption><strong>{{ brand.name }}</strong>{{ brand.job_title }}</figcaption>
-        </figure>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- About (short) -->
-<section id="about" class="mnp-section" aria-labelledby="about-title">
-  <div class="container">
-    <div class="row g-4">
-      <div class="col-lg-7">
-        <div class="mnp-section-head">
-          <span class="kicker">{% if seo.lang == 'ar' %}من أنا{% else %}About{% endif %}</span>
-          <h2 id="about-title">{% if seo.lang == 'ar' %}من هو محمد نبيل؟{% else %}Who is Mohamed Nabil?{% endif %}</h2>
-        </div>
-        <div class="about-bio">{{ personal_info.bio|default:brand.tagline|linebreaks }}</div>
-        <a href="{% url 'identity' %}" class="mnp-btn mnp-btn-outline mt-2">{% if seo.lang == 'ar' %}الملف الشخصي الكامل{% else %}Full profile{% endif %} <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
-      </div>
-      <div class="col-lg-5">
-        <div class="mnp-card">
-          <dl class="mnp-facts">
-            <dt>{% if seo.lang == 'ar' %}الاسم{% else %}Name{% endif %}</dt><dd>{{ brand.name_en }} · <span lang="ar">{{ brand.name_ar }}</span></dd>
-            <dt>{% if seo.lang == 'ar' %}العلامة{% else %}Brand{% endif %}</dt><dd>{{ brand.brand }}</dd>
-            <dt>{% if seo.lang == 'ar' %}المسمى{% else %}Role{% endif %}</dt><dd>{{ brand.job_title }}</dd>
-            <dt>{% if seo.lang == 'ar' %}الدولة{% else %}Based in{% endif %}</dt><dd>{{ brand.country }}</dd>
-            <dt>{% if seo.lang == 'ar' %}المشاريع المنشورة{% else %}Published projects{% endif %}</dt><dd>{{ portfolios_count }}</dd>
-            {% if brand.email %}<dt>{% if seo.lang == 'ar' %}البريد{% else %}Email{% endif %}</dt><dd><a href="mailto:{{ brand.email }}">{{ brand.email }}</a></dd>{% endif %}
-          </dl>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CV / Resume — primary recruiter destination -->
-<section id="cv" class="mnp-section pt-0" aria-labelledby="cv-title">
-  <div class="container">
-    <div class="mnp-cv-band">
-      <div class="row g-4 align-items-center">
-        <div class="col-lg-7">
-          <span class="mnp-eyebrow">{% if seo.lang == 'ar' %}للمسؤولين عن التوظيف{% else %}For recruiters & hiring managers{% endif %}</span>
-          <h2 id="cv-title" class="mt-3">{% if seo.lang == 'ar' %}السيرة الذاتية لمحمد نبيل{% else %}Mohamed Nabil — CV / Resume{% endif %}</h2>
-          <p class="mb-2">{% if seo.lang == 'ar' %}ملخص مهني، الخبرات، المهارات التقنية، المشاريع والتعليم — في صفحة واحدة ونسخة PDF.{% else %}Professional summary, experience, technical skills, projects and education — on one page and as a PDF.{% endif %}</p>
-          <ul class="mb-0">
-            <li>Python · Django · Django REST Framework · PostgreSQL · Docker</li>
-            <li>{% if seo.lang == 'ar' %}أنظمة نقاط بيع، منصات أعمال، APIs ونشر على الإنتاج{% else %}POS & business systems, APIs, production deployment{% endif %}</li>
-          </ul>
-        </div>
-        <div class="col-lg-5">
-          <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
-            {% if brand.cv_available %}<a href="{% url 'cv_download' %}" class="mnp-btn mnp-btn-primary" download><i class="bi bi-download" aria-hidden="true"></i> {% if seo.lang == 'ar' %}تحميل PDF{% else %}Download CV (PDF){% endif %}</a>{% endif %}
-            <a href="{% url 'cv' %}" class="mnp-btn mnp-btn-outline"><i class="bi bi-eye" aria-hidden="true"></i> {% if seo.lang == 'ar' %}عرض السيرة الذاتية{% else %}View CV{% endif %}</a>
+      <div class="col-lg-6 order-1 order-lg-2">
+        <div class="mnp-scene">
+          <canvas id="mnp-sphere" class="mnp-sphere" aria-hidden="true"></canvas>
+          <div class="mnp-stage" data-tilt="10">
+            <figure class="mnp-portrait-3d">
+              <picture>
+                <source type="image/webp" srcset="{{ brand.portrait_400_webp }} 400w, {{ brand.portrait_800_webp }} 800w" sizes="(max-width: 991px) 300px, 400px">
+                <img src="{{ brand.portrait_800_jpg }}" srcset="{{ brand.portrait_400_jpg }} 400w, {{ brand.portrait_800_jpg }} 800w" sizes="(max-width: 991px) 300px, 400px"
+                     alt="{{ brand.portrait_alt }}" width="800" height="800" fetchpriority="high">
+              </picture>
+              <span class="mnp-portrait-shine" aria-hidden="true"></span>
+            </figure>
+            <div class="mnp-float mnp-float-1" aria-hidden="true"><i class="bi bi-filetype-py"></i> Python · Django</div>
+            <div class="mnp-float mnp-float-2" aria-hidden="true"><i class="bi bi-diagram-3"></i> REST APIs · DRF</div>
+            <div class="mnp-float mnp-float-3" aria-hidden="true"><i class="bi bi-database"></i> PostgreSQL</div>
+            <div class="mnp-float mnp-float-4" aria-hidden="true"><i class="bi bi-box-seam"></i> Docker · Dokploy</div>
+            <div class="mnp-badge-card" aria-hidden="true"><strong>{{ brand.name }}</strong><span>{{ brand.job_title }} · Q-Tech Solutions</span></div>
           </div>
         </div>
       </div>
@@ -100,18 +64,102 @@
   </div>
 </section>
 
-<!-- Skills (from the CV, no self-rated percentages) -->
+<!-- ===================== PROJECTS ===================== -->
+<section id="portfolio" class="mnp-section alt" aria-labelledby="projects-title">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mnp-section-head mw-100" data-reveal>
+      <div style="max-width:720px">
+        <span class="kicker">{% if ar == 'ar' %}مشاريع مختارة{% else %}Selected work{% endif %}</span>
+        <h2 id="projects-title">{% if ar == 'ar' %}أنظمة حقيقية على الإنتاج{% else %}Real systems, in production{% endif %}</h2>
+        <p>{% if ar == 'ar' %}موارد بشرية ورواتب، تجارة إلكترونية، نقاط بيع ومنصات شركات — مع دوري الفعلي والتقنيات المستخدمة.{% else %}HR & payroll, e-commerce, point of sale and company platforms — with my actual role and the stack behind each.{% endif %}</p>
+      </div>
+      <a href="{% url 'portfolio' %}" class="mnp-btn mnp-btn-outline">{% if ar == 'ar' %}كل المشاريع{% else %}All projects{% endif %} <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+    </div>
+    <div class="row g-4">
+      {% for portfolio in featured_portfolios %}
+      <div class="col-md-6 col-xl-4" data-reveal>
+        <article class="mnp-card mnp-project" data-tilt="5">
+          <div class="shot">{% if portfolio.cover_image %}<img src="{{ portfolio.cover_image.url }}" alt="{{ portfolio.title }} — {% if ar == 'ar' %}لقطة شاشة{% else %}screenshot{% endif %}" loading="lazy" decoding="async" width="800" height="500">{% endif %}</div>
+          <div class="body">
+            <span class="meta">{{ portfolio.client_name }}</span>
+            <h3><a href="{% url 'portfolio_detail' portfolio.slug %}">{{ portfolio.title }}</a></h3>
+            <p>{{ portfolio.short_description }}</p>
+            <div class="pt-1">{% for t in portfolio.technologies|slice:":4" %}<span class="mnp-chip">{{ t }}</span>{% endfor %}</div>
+            <span class="go">{% if ar == 'ar' %}تفاصيل المشروع{% else %}Case study{% endif %} <i class="bi bi-arrow-right" aria-hidden="true"></i></span>
+          </div>
+        </article>
+      </div>
+      {% empty %}
+      <p class="text-body-secondary">{% if ar == 'ar' %}لا توجد مشاريع مميزة بعد.{% else %}No featured projects yet.{% endif %}</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ABOUT ===================== -->
+<section id="about" class="mnp-section" aria-labelledby="about-title">
+  <div class="container">
+    <div class="row g-4 g-lg-5 align-items-start">
+      <div class="col-lg-7" data-reveal>
+        <div class="mnp-section-head mb-3">
+          <span class="kicker">{% if ar == 'ar' %}من أنا{% else %}About{% endif %}</span>
+          <h2 id="about-title">{% if ar == 'ar' %}من هو محمد نبيل؟{% else %}Who is Mohamed Nabil?{% endif %}</h2>
+        </div>
+        <div class="mnp-prose">{{ personal_info.bio|default:brand.tagline|linebreaks }}</div>
+        <a href="{% url 'identity' %}" class="mnp-btn mnp-btn-outline mt-2">{% if ar == 'ar' %}الملف الشخصي الكامل{% else %}Full profile{% endif %} <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+      </div>
+      <div class="col-lg-5" data-reveal>
+        <div class="mnp-card">
+          <dl class="mnp-facts">
+            <dt>{% if ar == 'ar' %}الاسم{% else %}Name{% endif %}</dt><dd>{{ brand.name_en }} · <span lang="ar">{{ brand.name_ar }}</span></dd>
+            <dt>{% if ar == 'ar' %}العلامة{% else %}Brand{% endif %}</dt><dd>{{ brand.brand }}</dd>
+            <dt>{% if ar == 'ar' %}الوظيفة{% else %}Role{% endif %}</dt><dd>{{ brand.job_title }} · Q-Tech Solutions</dd>
+            <dt>{% if ar == 'ar' %}الدولة{% else %}Based in{% endif %}</dt><dd>{{ brand.country }}</dd>
+            {% if brand.email %}<dt>{% if ar == 'ar' %}البريد{% else %}Email{% endif %}</dt><dd><a href="mailto:{{ brand.email }}">{{ brand.email }}</a></dd>{% endif %}
+          </dl>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CV ===================== -->
+<section id="cv" class="mnp-section pt-0" aria-labelledby="cv-title">
+  <div class="container">
+    <div class="mnp-cv-band" data-reveal>
+      <div class="row g-4 align-items-center">
+        <div class="col-lg-7">
+          <span class="mnp-eyebrow">{% if ar == 'ar' %}لمسؤولي التوظيف{% else %}For recruiters & hiring managers{% endif %}</span>
+          <h2 id="cv-title" class="mt-3">{% if ar == 'ar' %}السيرة الذاتية لمحمد نبيل{% else %}Mohamed Nabil — CV / Resume{% endif %}</h2>
+          <p class="mb-2">{% if ar == 'ar' %}الملخص المهني، الخبرات، المهارات التقنية، المشاريع والتعليم — في صفحة واحدة.{% else %}Professional summary, experience, technical skills, projects and education — on one page.{% endif %}</p>
+          <ul class="mb-0">
+            <li>Python · Django · Django REST Framework · PostgreSQL · Docker</li>
+            <li>{% if ar == 'ar' %}موارد بشرية ورواتب، تجارة إلكترونية، نقاط بيع، منصات شركات{% else %}HR & payroll, e-commerce, POS, company platforms{% endif %}</li>
+          </ul>
+        </div>
+        <div class="col-lg-5">
+          <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+            <a href="{% url 'cv' %}" class="mnp-btn mnp-btn-primary"><i class="bi bi-eye" aria-hidden="true"></i> {% if ar == 'ar' %}عرض السيرة الذاتية{% else %}View CV{% endif %}</a>
+            {% if brand.cv_available %}<a href="{% url 'cv_download' %}" class="mnp-btn mnp-btn-outline" download><i class="bi bi-download" aria-hidden="true"></i> {% if ar == 'ar' %}تحميل PDF{% else %}Download PDF{% endif %}</a>{% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SKILLS ===================== -->
 <section id="skills" class="mnp-section pt-0" aria-labelledby="skills-title">
   <div class="container">
-    <div class="mnp-section-head">
-      <span class="kicker">{% if seo.lang == 'ar' %}المهارات{% else %}Skills{% endif %}</span>
-      <h2 id="skills-title">{% if seo.lang == 'ar' %}المهارات التقنية{% else %}Technical skills{% endif %}</h2>
+    <div class="mnp-section-head" data-reveal>
+      <span class="kicker">{% if ar == 'ar' %}المهارات{% else %}Skills{% endif %}</span>
+      <h2 id="skills-title">{% if ar == 'ar' %}الأدوات التي أبني بها{% else %}What I build with{% endif %}</h2>
     </div>
     <div class="row g-3">
       {% for category in skill_categories %}
-      <div class="col-md-6 col-lg-4">
+      <div class="col-md-6 col-lg-4" data-reveal>
         <div class="mnp-card">
-          <h3 class="h6 fw-bold">{% if category.icon %}<i class="bi {{ category.icon }} me-1" aria-hidden="true"></i>{% endif %}{{ category.name }}</h3>
+          <h3 class="h6 fw-bold mb-3">{% if category.icon %}<i class="bi {{ category.icon }} me-1" style="color:var(--accent-text)" aria-hidden="true"></i> {% endif %}{{ category.name }}</h3>
           {% for skill in skills %}{% if skill.category_id == category.id %}<span class="mnp-chip">{{ skill.name }}</span>{% endif %}{% endfor %}
         </div>
       </div>
@@ -120,196 +168,101 @@
   </div>
 </section>
 
-<!-- Experience & education -->
-<section id="resume" class="mnp-section pt-0" aria-labelledby="exp-title">
+<!-- ===================== EXPERIENCE ===================== -->
+<section id="resume" class="mnp-section alt" aria-labelledby="exp-title">
   <div class="container">
-    <div class="row g-4">
-      <div class="col-lg-7">
-        <div class="mnp-section-head mb-3">
-          <span class="kicker">{% if seo.lang == 'ar' %}الخبرة{% else %}Experience{% endif %}</span>
-          <h2 id="exp-title">{% if seo.lang == 'ar' %}الخبرة المهنية{% else %}Professional experience{% endif %}</h2>
+    <div class="row g-4 g-lg-5">
+      <div class="col-lg-7" data-reveal>
+        <div class="mnp-section-head mb-4">
+          <span class="kicker">{% if ar == 'ar' %}الخبرة{% else %}Experience{% endif %}</span>
+          <h2 id="exp-title">{% if ar == 'ar' %}الخبرة المهنية{% else %}Professional experience{% endif %}</h2>
         </div>
         <ol class="mnp-timeline">
           {% for e in work_experiences %}
           <li>
             <h3>{{ e.job_title }}</h3>
-            <p class="when mb-1">{{ e.company_name }} · {{ e.start_date|date:"m/Y" }} – {% if e.is_current %}{% if seo.lang == 'ar' %}الآن{% else %}Present{% endif %}{% else %}{{ e.end_date|date:"m/Y" }}{% endif %}</p>
+            <p class="when mb-1">{{ e.company_name }} · {{ e.start_date|date:"m/Y" }} – {% if e.is_current %}{% if ar == 'ar' %}الآن{% else %}Present{% endif %}{% else %}{{ e.end_date|date:"m/Y" }}{% endif %}</p>
             {% if e.achievements %}<ul class="small mb-0">{% for a in e.achievements|slice:":3" %}<li>{{ a }}</li>{% endfor %}</ul>{% endif %}
           </li>
           {% endfor %}
         </ol>
       </div>
-      <div class="col-lg-5">
-        <div class="mnp-section-head mb-3">
-          <span class="kicker">{% if seo.lang == 'ar' %}التعليم{% else %}Education{% endif %}</span>
-          <h2 class="h3">{% if seo.lang == 'ar' %}التعليم{% else %}Education{% endif %}</h2>
+      <div class="col-lg-5" data-reveal>
+        <div class="mnp-section-head mb-4">
+          <span class="kicker">{% if ar == 'ar' %}التعليم{% else %}Education{% endif %}</span>
+          <h2 class="h3">{% if ar == 'ar' %}التعليم والتدريب{% else %}Education & training{% endif %}</h2>
         </div>
         <ol class="mnp-timeline">
           {% for ed in educations %}
           <li><h3>{{ ed.degree }}</h3><p class="when mb-0">{{ ed.institution }} · {{ ed.start_year|stringformat:"d" }}–{% if ed.end_year %}{{ ed.end_year|stringformat:"d" }}{% endif %}</p></li>
           {% endfor %}
         </ol>
-        <a href="{% url 'cv' %}" class="mnp-btn mnp-btn-outline mt-2"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> {% if seo.lang == 'ar' %}السيرة الذاتية الكاملة{% else %}Full CV{% endif %}</a>
+        <a href="{% url 'cv' %}" class="mnp-btn mnp-btn-outline mt-4"><i class="bi bi-file-earmark-person" aria-hidden="true"></i> {% if ar == 'ar' %}السيرة الذاتية الكاملة{% else %}Full CV{% endif %}</a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Featured projects -->
-<section id="portfolio" class="mnp-section" aria-labelledby="projects-title">
+<!-- ===================== SERVICES ===================== -->
+{% if services %}
+<section id="services" class="mnp-section" aria-labelledby="services-title">
   <div class="container">
-    <div class="mnp-section-head">
-      <span class="kicker">{% if seo.lang == 'ar' %}المشاريع{% else %}Projects{% endif %}</span>
-      <h2 id="projects-title">{% if seo.lang == 'ar' %}أنظمة حقيقية بناها محمد نبيل{% else %}Real systems built by Mohamed Nabil{% endif %}</h2>
-      <p>{% if seo.lang == 'ar' %}أنظمة أعمال ومنصات — مع دوري الفعلي والتقنيات المستخدمة في كل مشروع.{% else %}Business systems and platforms — with my actual role and the technologies used in each.{% endif %}</p>
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mnp-section-head mw-100" data-reveal>
+      <div style="max-width:720px">
+        <span class="kicker">{% trans "Services" %}</span>
+        <h2 id="services-title">{% if ar == 'ar' %}كيف أساعدك{% else %}How I can help{% endif %}</h2>
+      </div>
+      <a href="{% url 'services' %}" class="mnp-btn mnp-btn-outline">{% if ar == 'ar' %}كل الخدمات{% else %}All services{% endif %} <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
     </div>
-    <div class="row g-4">
-      {% for portfolio in featured_portfolios %}
-      <div class="col-md-6 col-xl-4">
-        <article class="mnp-card mnp-project">
-          <div class="shot">
-            {% if portfolio.cover_image %}<img src="{{ portfolio.cover_image.url }}" alt="{{ portfolio.title }} — {% if seo.lang == 'ar' %}لقطة شاشة{% else %}screenshot{% endif %}" loading="lazy" decoding="async">{% endif %}
-          </div>
-          <div class="body">
-            <span class="meta">{{ portfolio.category.name|default:'' }}{% if portfolio.client_name %} · {{ portfolio.client_name }}{% endif %}</span>
-            <h3><a href="{% url 'portfolio_detail' portfolio.slug %}">{{ portfolio.title }}</a></h3>
-            <p>{{ portfolio.short_description }}</p>
-            <div class="mt-auto pt-2">{% for t in portfolio.technologies|slice:":5" %}<span class="mnp-chip">{{ t }}</span>{% endfor %}</div>
-          </div>
+    <div class="row g-3">
+      {% for service in services|slice:":6" %}
+      <div class="col-md-6 col-lg-4" data-reveal>
+        <article class="mnp-card mnp-service">
+          <span class="mnp-service-icon"><i class="bi bi-{{ service.icon|default:'code-slash' }}" aria-hidden="true"></i></span>
+          <h3 class="h5 fw-bold mt-3"><a class="stretched-link text-reset text-decoration-none" href="{% url 'service_detail' service.slug %}">{{ service.title }}</a></h3>
+          <p class="mb-0 text-body-secondary">{{ service.short_description|truncatechars:120 }}</p>
         </article>
       </div>
-      {% empty %}
-      <p class="text-body-secondary">{% if seo.lang == 'ar' %}لا توجد مشاريع مميزة بعد.{% else %}No featured projects yet.{% endif %}</p>
       {% endfor %}
     </div>
-    <div class="mt-4"><a href="{% url 'portfolio' %}" class="mnp-btn mnp-btn-outline">{% if seo.lang == 'ar' %}كل المشاريع{% else %}All projects{% endif %} <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
   </div>
 </section>
+{% endif %}
 
-<!-- Services Section -->
-<section id="services" class="services section">
-  <div class="container section-title" data-aos="fade-up">
-    <h2>{% trans "Services" %}</h2>
-    <p>{% trans "What I offer to help your business grow" %}</p>
-  </div>
-
-  <div class="container" data-aos="fade-up" data-aos-delay="100">
-    <div class="service-header">
-      <div class="row align-items-center">
-        <div class="col-lg-8 col-md-12">
-          <div class="service-intro">
-            <h2 class="service-heading">
-              <div>{% trans "Innovative Business" %}</div>
-              <div><span>{% trans "Performance Solutions" %}</span></div>
-            </h2>
-          </div>
-        </div>
-        <div class="col-lg-4 col-md-12">
-          <div class="service-summary">
-            <p>{% trans "I provide innovative solutions that help your business grow and succeed" %}</p>
-            <a href="{% url 'services' %}" class="service-btn">
-              {% trans "View All Services" %}
-              <i class="bi bi-arrow-right"></i>
-            </a>
-          </div>
-        </div>
+<!-- ===================== REVIEWS (only real, approved ones) ===================== -->
+{% if approved_ratings %}
+<section id="testimonials" class="mnp-section pt-0" aria-labelledby="reviews-title">
+  <div class="container">
+    <div class="mnp-section-head" data-reveal>
+      <span class="kicker">{% if ar == 'ar' %}آراء{% else %}Feedback{% endif %}</span>
+      <h2 id="reviews-title">{% if ar == 'ar' %}تقييمات على المشاريع{% else %}Project reviews{% endif %}</h2>
+    </div>
+    <div class="row g-3">
+      {% for rating in approved_ratings %}{% if rating.comment %}
+      <div class="col-md-6 col-lg-4" data-reveal>
+        <figure class="mnp-card m-0">
+          <div class="mb-2" style="color:#f59e0b" aria-label="{{ rating.rating }}/5">{% for i in "12345"|make_list %}{% if forloop.counter <= rating.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}{% endfor %}</div>
+          <blockquote class="mb-3">{{ rating.comment|truncatechars:220 }}</blockquote>
+          <figcaption class="small text-body-secondary">{{ rating.name }} · {{ rating.portfolio.title }}</figcaption>
+        </figure>
       </div>
-    </div>
-
-    <div class="row justify-content-center">
-      {% for service in services|slice:":6" %}
-        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-          <div class="service-card position-relative z-1">
-            <div class="service-icon">
-              <i class="bi bi-{{ service.icon|default:'palette' }}"></i>
-            </div>
-            <a href="{% url 'service_detail' service.slug %}" class="card-action d-flex align-items-center justify-content-center rounded-circle">
-              <i class="bi bi-arrow-up-right"></i>
-            </a>
-            <h3>
-              <a href="{% url 'service_detail' service.slug %}">
-                {{ service.title }}
-              </a>
-            </h3>
-            <p>{{ service.short_description|truncatechars:100 }}</p>
-          </div>
-        </div>
-      {% endfor %}
+      {% endif %}{% endfor %}
     </div>
   </div>
 </section>
+{% endif %}
 
-<!-- Testimonials / Client Reviews Section -->
-<section id="testimonials" class="testimonials section light-background">
-  <div class="container section-title" data-aos="fade-up">
-    <h2>{% trans "Client Reviews" %}</h2>
-    <p>{% trans "What our clients say about our projects" %}</p>
-  </div>
-
+<!-- ===================== CONTACT ===================== -->
+<section id="contact" class="mnp-section alt" aria-labelledby="contact-title">
   <div class="container">
-    <div class="testimonial-masonry">
-      {% for rating in approved_ratings %}
-        <div class="testimonial-item {% if forloop.counter|divisibleby:2 %}highlight{% endif %}" data-aos="fade-up" data-aos-delay="{% widthratio forloop.counter 1 80 %}">
-          <div class="testimonial-content">
-            <div class="quote-pattern">
-              <i class="bi bi-quote"></i>
-            </div>
-            <!-- Professional Rating Stars in Testimonials -->
-            <div class="rating-stars mb-2">
-              {% for i in "12345"|make_list %}
-                {% if forloop.counter <= rating.rating %}
-                  <i class="bi bi-star-fill"></i>
-                {% else %}
-                  <i class="bi bi-star"></i>
-                {% endif %}
-              {% endfor %}
-            </div>
-            <p>{{ rating.comment|default:_("Excellent project! Very professional work.")|truncatechars:150 }}</p>
-            <div class="client-info">
-              <div class="client-image">
-                {% if rating.client_image %}
-                  <img src="{{ rating.client_image.url }}" alt="{{ rating.name }}">
-                {% else %}
-                  <div class="client-initial">{{ rating.name|slice:":1"|upper }}</div>
-                {% endif %}
-              </div>
-              <div class="client-details">
-                <h3>{{ rating.name }}</h3>
-                <span class="position">
-                  <i class="bi bi-star-fill"></i> {{ rating.rating }}/5
-                  <span class="separator">•</span>
-                  <i class="bi bi-calendar"></i> {{ rating.created_at|date:"M d, Y" }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      {% empty %}
-        <div class="testimonial-item" data-aos="fade-up">
-          <div class="testimonial-content text-center">
-            <div class="quote-pattern">
-              <i class="bi bi-chat-dots"></i>
-            </div>
-            <p>{% trans "No reviews yet. Be the first to review a project!" %}</p>
-            <a href="{% url 'portfolio' %}" class="btn-view-projects">
-              <i class="bi bi-grid-3x3-gap-fill"></i> {% trans "View Our Projects" %}
-            </a>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
-</section>
-
-<!-- Contact Section -->
-<section id="contact" class="mnp-section" aria-labelledby="contact-title">
-  <div class="container">
-    <div class="mnp-section-head">
+    <div class="mnp-section-head" data-reveal>
       <span class="kicker">{% trans "Contact" %}</span>
-      <h2 id="contact-title">{% if seo.lang == 'ar' %}لنعمل معاً{% else %}Let's work together{% endif %}</h2>
+      <h2 id="contact-title">{% if ar == 'ar' %}لنبنِ شيئاً معاً{% else %}Let's build something together{% endif %}</h2>
+      <p>{% if ar == 'ar' %}وظيفة، مشروع، أو استشارة تقنية في Python و Django.{% else %}A role, a project or technical consulting on Python & Django.{% endif %}</p>
     </div>
     {% include 'includes/contact_block.html' with form_id='home' %}
   </div>
 </section>
 
+{% endwith %}
 {% endblock %}
