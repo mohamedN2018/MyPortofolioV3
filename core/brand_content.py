@@ -141,8 +141,8 @@ SKILL_GROUPS = [
 
 STATIC_PROJECTS = "brand/projects/"
 
-# Projects exactly as listed in the CV. `url` is set only for sites that answered
-# HTTP 200 on 2026-11-06 (qshop / walaee / qtechpharmasyst returned 404 that day).
+# Projects exactly as listed in the CV, with the live links the owner asked to keep
+# (2026-11-07). qshop / walaee / qtechpharmasyst may be offline until restarted.
 PROJECTS = [
     {"slug": "hr-payroll-system", "order": 1, "cover": "hr-payroll-system.webp", "gallery": [], "url": "https://hrs.deplois.net/",
      "tech": ["Django", "Django REST Framework", "PostgreSQL", "JWT", "Vue.js", "Docker"], "cat": "business-systems",
@@ -173,7 +173,7 @@ PROJECTS = [
             "challenge": "منصة واحدة تخدم الموقع العام والموظفين والعملاء.",
             "solution": "بوابة موظفين بالملفات وكشوف الرواتب ولوحة معيارية تُحمَّل فيها أدوات كل قسم كوحدة مستقلة؛ بوابة عملاء لمتابعة المشاريع والفواتير وتذاكر الدعم؛ موقع عام بالفريق والوظائف والمدونة ومتجر المنتجات والأعمال؛ شات مباشر وتأكيد البريد واستعادة كلمة المرور و API لتحليلات الزوار.",
             "result": "يعمل على q-tech-solutions.com وتستخدمه الإدارة وكل الأقسام."}},
-    {"slug": "qshop-multi-vendor-marketplace", "order": 3, "cover": "qshop-marketplace-cover.webp", "gallery": [], "url": "",
+    {"slug": "qshop-multi-vendor-marketplace", "order": 3, "cover": "qshop-marketplace-cover.webp", "gallery": [], "url": "https://qshop.deplois.net/",
      "tech": ["Django", "Django REST Framework", "PostgreSQL", "Redis", "Vue.js", "Docker"], "cat": "e-commerce",
      "en": {"title": "q-shop — Multi-Vendor Marketplace", "client": "Own product (concept & delivery)",
             "short": "80+ REST endpoints across 20+ modules serving a customer storefront, a seller console and a platform admin.",
@@ -203,7 +203,7 @@ PROJECTS = [
             "challenge": "المتاجر تحتاج كاشير لا يتوقف عند انقطاع الاتصال، مع إمكانية الترخيص والنسخ الاحتياطي عن بُعد.",
             "solution": "معمارية تعمل أولاً دون اتصال: المبيعات والمخزون والتقارير على قاعدة بيانات محلية مشفّرة، والسحابة للترخيص والنسخ الاحتياطي المشفّر مع مزامنة تلقائية عند عودة الاتصال. كاشير (باركود، دفع مقسّم، فواتير معلّقة، مرتجعات، إيصالات حرارية)، مخزون (متغيرات، تحويل وحدات، أوامر شراء، تحويلات بين المخازن، جرد، تتبع الصلاحية FEFO)، إدارة الورديات ومطابقة الدرج، صلاحيات، سجلات تدقيق و12 نوع تقرير بصيغ CSV و Excel و PDF.",
             "result": "ترخيص لكل جهاز (تجريبي، سنوي، مدى الحياة)؛ موقع المنتج seshat.deplois.net."}},
-    {"slug": "walaee-loyalty-network", "order": 5, "cover": "walaee-loyalty-cover.webp", "gallery": [], "url": "",
+    {"slug": "walaee-loyalty-network", "order": 5, "cover": "walaee-loyalty-cover.webp", "gallery": [], "url": "https://walaee.deplois.net/",
      "tech": ["Django REST Framework", "PostgreSQL", "JWT", "Vue.js"], "cat": "platforms",
      "en": {"title": "Walaee — Multi-Store Loyalty Network", "client": "Client project (freelance)",
             "short": "One shared loyalty program across a network of partner stores, with merchant dashboards and customer accounts.",
@@ -217,7 +217,7 @@ PROJECTS = [
             "challenge": "المتاجر المستقلة تريد برنامج ولاء يستخدمه عملاؤها عبر الشبكة كلها.",
             "solution": "برنامج ولاء مشترك بلوحات للتجار وحسابات للعملاء و REST API بإصدارات (v1) مؤمّن بـ JWT.",
             "result": ""}},
-    {"slug": "qtech-pharmasyst", "order": 6, "cover": "qtech-pharmasyst-cover.webp", "gallery": [], "url": "",
+    {"slug": "qtech-pharmasyst", "order": 6, "cover": "qtech-pharmasyst-cover.webp", "gallery": [], "url": "https://qtechpharmasyst.deplois.net/",
      "tech": ["Django", "Django REST Framework", "PostgreSQL"], "cat": "business-systems",
      "en": {"title": "Q-Tech PharmaSyst — Pharmacy Management System", "client": "Q-Tech Solutions",
             "short": "Medicine inventory with batch and expiry tracking, sales, purchasing, suppliers and reporting.",
