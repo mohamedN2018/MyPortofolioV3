@@ -182,6 +182,22 @@ class IdentitySeoTests(BrandTestBase):
 
 
 class CvTests(BrandTestBase):
+    """DB-resume behaviour; the committed static CV is patched away here."""
+
+    def setUp(self):
+        super().setUp()
+        from pathlib import Path
+        from unittest import mock
+        from core import brand_views
+        patcher = mock.patch.object(brand_views, "CV_STATIC", Path("/nonexistent/cv.pdf"))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def test_committed_static_cv_is_a_pdf(self):
+        from django.conf import settings
+        cv = settings.BASE_DIR / "static" / "brand" / "cv" / "Mohamed-Nabil-CV.pdf"
+        self.assertTrue(cv.read_bytes().startswith(b"%PDF-"))
+
     def test_cv_page_without_pdf(self):
         r = self.client.get("/cv/")
         self.assertEqual(r.status_code, 200)
