@@ -43,7 +43,8 @@
       <button id="theme-toggle" type="button" class="mnp-icon-btn" aria-label="{% if ar == 'ar' %}تبديل الوضع الليلي{% else %}Toggle dark mode{% endif %}"><i class="bi bi-moon-stars" aria-hidden="true"></i></button>
       <a href="{% url 'cv' %}" class="mnp-btn mnp-btn-primary mnp-nav-cv{% if un == 'cv' %} active{% endif %}"><i class="bi bi-file-earmark-person" aria-hidden="true"></i><span>{% if ar == 'ar' %}سيرتي الذاتية{% else %}My CV{% endif %}</span></a>
       {% if user.is_authenticated and user.is_superuser %}
-        <a href="{% url 'dashboard:index' %}" class="mnp-icon-btn" aria-label="Dashboard"><i class="bi bi-speedometer2" aria-hidden="true"></i></a>
+        <a href="{% url 'dashboard:index' %}" class="mnp-icon-btn" aria-label="Content dashboard" title="Content dashboard"><i class="bi bi-speedometer2" aria-hidden="true"></i></a>
+        <a href="{% url 'hub:overview' %}" class="mnp-icon-btn" aria-label="AI Hub" title="AI Hub"><i class="bi bi-robot" aria-hidden="true"></i></a>
       {% endif %}
       <button type="button" class="mnp-icon-btn mnp-burger" aria-controls="mnp-menu" aria-expanded="false" aria-label="{% if ar == 'ar' %}فتح القائمة{% else %}Open menu{% endif %}">
         <span></span><span></span><span></span>

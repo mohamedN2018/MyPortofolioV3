@@ -58,7 +58,7 @@ class HubBase(TestCase):
 
 # ====================================================================== access control
 class AccessControlTests(HubBase):
-    PAGES = ["/hub/", "/hub/profile/", "/hub/documents/", "/hub/jobs/", "/hub/jobs/preferences/", "/hub/applications/",
+    PAGES = ["/hub/", "/hub/guide/", "/hub/profile/", "/hub/documents/", "/hub/jobs/", "/hub/jobs/preferences/", "/hub/applications/",
              "/hub/applications/export.csv", "/hub/accounts/", "/hub/accounts/jobs/", "/hub/accounts/jobs/add/",
              "/hub/accounts/jobs/add/greenhouse/", "/hub/agent/", "/hub/approvals/", "/hub/activity/", "/hub/content/", "/hub/security/"]
 
@@ -662,3 +662,14 @@ class OwnerBootstrapTests(TestCase):
         with mock.patch.dict(os.environ, {"HUB_OWNER_USERNAME": "newbie", "HUB_OWNER_INITIAL_PASSWORD": "short"}):
             call_command("hub_setup", stdout=open(os.devnull, "w"), stderr=open(os.devnull, "w"))
         self.assertFalse(User.objects.filter(username="newbie").exists())
+
+
+class NavigationTests(HubBase):
+    def test_dashboards_link_to_each_other(self):
+        self.login_owner()
+        self.assertContains(self.client.get("/dashboard/"), 'href="/hub/"')
+        self.assertContains(self.client.get("/hub/"), 'href="/dashboard/"')
+        self.assertContains(self.client.get("/"), 'href="/hub/"')
+
+    def test_public_header_hides_hub_link_from_visitors(self):
+        self.assertNotContains(self.client.get("/"), 'href="/hub/"')

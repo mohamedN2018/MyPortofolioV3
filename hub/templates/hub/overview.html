@@ -2,7 +2,7 @@
 {% block title %}Overview{% endblock %}
 {% block content %}
 <div class="head"><div><h1>Overview</h1><p>Agent status, approvals and your job pipeline at a glance.</p></div>
-  <div class="row"><a class="btn" href="{% url 'hub:jobs' %}">Add a job</a><a class="btn primary" href="{% url 'hub:approvals' %}">Review approvals</a></div></div>
+  <div class="row"><a class="btn" href="{% url 'hub:guide' %}">ابدأ هنا · How to apply</a><a class="btn" href="{% url 'hub:jobs' %}">Add a job</a><a class="btn primary" href="{% url 'hub:approvals' %}">Review approvals</a></div></div>
 {% if not key_ok %}<div class="banner warn">HUB_ENCRYPTION_KEYS is not set on this server — tokens are encrypted with a development key derived from SECRET_KEY. Set a dedicated key before connecting real accounts (see docs/AI-HUB-SECURITY.md).</div>{% endif %}
 <div class="grid g4">
   <div class="card stat"><div class="n">{{ online|length }}/{{ devices|length }}</div><div class="l">Agents online</div></div>

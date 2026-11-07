@@ -16,6 +16,7 @@
     {% with p=request.path %}
     <nav>
       <a href="{% url 'hub:overview' %}" {% if p == '/hub/' %}aria-current="page"{% endif %}>Overview</a>
+      <a href="{% url 'hub:guide' %}" {% if '/hub/guide/' in p %}aria-current="page"{% endif %}>ابدأ هنا · How to apply</a>
       <div class="group">Me</div>
       <a href="{% url 'hub:profile' %}" {% if '/hub/profile/' in p %}aria-current="page"{% endif %}>Personal profile</a>
       <a href="{% url 'hub:documents' %}" {% if '/hub/documents/' in p %}aria-current="page"{% endif %}>CV &amp; documents</a>
@@ -31,6 +32,7 @@
       <div class="group">System</div>
       <a href="{% url 'hub:integrations' %}" {% if p == '/hub/accounts/' or '/hub/accounts/oauth' in p %}aria-current="page"{% endif %}>Connected accounts</a>
       <a href="{% url 'hub:content' %}" {% if '/hub/content/' in p %}aria-current="page"{% endif %}>Website content</a>
+      <a href="/dashboard/">Content dashboard ↗</a>
       <a href="{% url 'hub:security' %}" {% if '/hub/security/' in p %}aria-current="page"{% endif %}>Security</a>
     </nav>
     {% endwith %}
@@ -45,6 +47,7 @@
         </span>
       </div>
       <div class="row">
+        <a class="btn hide-sm" href="/dashboard/">Content dashboard</a>
         <a class="btn hide-sm" href="/" target="_blank" rel="noopener">Public site ↗</a>
         <form method="post" action="{% url 'hub:logout' %}">{% csrf_token %}<button class="btn" type="submit">Sign out</button></form>
       </div>

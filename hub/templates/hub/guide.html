@@ -1,0 +1,57 @@
+{% extends "hub/base.html" %}
+{% block title %}ابدأ هنا — How to apply{% endblock %}
+{% block content %}
+<div dir="rtl" lang="ar" style="text-align:right">
+<div class="head"><div><h1>إزاي تقدّم على وظيفة من الـ Hub</h1><p>خطوات بسيطة بالترتيب. كل زرار مذكور هنا موجود فعلاً في اللوحة.</p></div></div>
+
+<section class="card stack">
+  <h2>✅ تجهيز مرة واحدة</h2>
+  <div class="table-wrap"><table><tbody>
+    <tr><td>نسخة سيرة ذاتية مرفوعة</td><td>{% if cv_count %}<span class="pill ok">موجودة ({{ cv_count }})</span>{% else %}<span class="pill warn">ارفع واحدة</span>{% endif %}</td><td><a class="btn" href="{% url 'hub:documents' %}">CV &amp; documents</a></td></tr>
+    <tr><td>تفضيلات البحث (الوظيفة، الدولة، الراتب)</td><td>{% if pref %}<span class="pill ok">موجودة</span>{% else %}<span class="pill warn">مش متظبطة</span>{% endif %}</td><td><a class="btn" href="{% url 'hub:preferences' %}">Job preferences</a></td></tr>
+    <tr><td>مصادر وظائف متصلة (اختياري)</td><td>{% if sources %}<span class="pill ok">{{ sources }}</span>{% else %}<span class="pill">ولا واحد</span>{% endif %}</td><td><a class="btn" href="{% url 'hub:job_account_add' %}">Add account</a></td></tr>
+    <tr><td>التحقق بخطوتين</td><td>{% if mfa_on %}<span class="pill ok">مفعّل</span>{% else %}<span class="pill warn">مش مفعّل</span>{% endif %}</td><td><a class="btn" href="{% url 'hub:security' %}">Security</a></td></tr>
+  </tbody></table></div>
+</section>
+
+<section class="card stack" style="margin-top:16px">
+  <h2>🧭 الطريقة الأولى: انت بنفسك من اللوحة (من غير Claude)</h2>
+  <ol style="line-height:2">
+    <li><b>هات الوظيفة:</b> لقيت وظيفة على LinkedIn أو وظّف أو بيت؟ انسخ رابطها وافتح <a href="{% url 'hub:jobs' %}">Job center</a> ← املأ <b>Add a job by link</b> (الرابط، المسمى، الشركة، والوصف لو تحب) ← <b>Save job</b>.<br>
+      <span class="small muted">أو اربط لوحة شركة (Greenhouse / Lever) أو Remote OK من <a href="{% url 'hub:job_account_add' %}">Job accounts</a> واضغط <b>Sync</b> عشان الوظائف تيجي لوحدها.</span></li>
+    <li><b>شوف مدى التوافق:</b> افتح الوظيفة — هتلاقي <b>Match score</b> من 100 وسبب كل جزء (المهارات الناقصة، الخبرة، المكان، الراتب).</li>
+    <li><b>جهّز الطلب:</b> اضغط <b>Prepare application</b> — الـ Hub يختار نسخة الـ CV المناسبة (الخليج للسعودية والإمارات، مصر لمصر)، ويكتب خطاب تقديم من بياناتك الموثّقة، ويطلع لك تنبيهات باللي ناقص.</li>
+    <li><b>راجع وعدّل:</b> في صفحة الطلب عدّل الخطاب والإجابات براحتك ← <b>Save draft</b>. أي سؤال حساس (الراتب المتوقع، الإقامة، فترة الإشعار) لازم انت اللي تكتب إجابته.</li>
+    <li><b>اطلب الموافقة:</b> <b>Request approval to apply</b> ← هتظهر لك معاينة نهائية بكل اللي هيتبعت ← <b>Approve</b>.</li>
+    <li><b>قدّم:</b> اضغط <b>Official page ↗</b> وقدّم على موقع الشركة بنفسك (المواقع دي ما بتسمحش بالتقديم الآلي — وده بيحمي حساباتك من الحظر).</li>
+    <li><b>سجّل النتيجة:</b> في صفحة الطلب ← <b>Record outcome</b> ← اختار <b>Submitted</b> واكتب الدليل (رقم الطلب أو إيميل التأكيد) وتاريخ المتابعة.</li>
+    <li><b>تابع:</b> <a href="{% url 'hub:applications' %}">Applications</a> فيها لوحة بكل المراحل (مقابلة، عرض، رفض…) وتقدر تصدّرها Excel.</li>
+  </ol>
+</section>
+
+<section class="card stack" style="margin-top:16px">
+  <h2>🤖 الطريقة الثانية: Claude يشتغل لك (أسرع)</h2>
+  <ol style="line-height:2">
+    <li>من <a href="{% url 'hub:agent' %}">AI agent</a> ← <b>Register device</b> وانسخ المفتاح اللي بيظهر مرة واحدة. {% if devices %}<span class="pill ok">عندك {{ devices }} جهاز</span>{% endif %}</li>
+    <li>على جهازك، في PowerShell:
+<pre dir="ltr" style="text-align:left">cd "F:\4_docker-composer\Django Project\1-Online\MyPortofolioV3\agent"
+py -3.11 -m venv .venv
+.venv\Scripts\pip install -e .
+mkdir $env:USERPROFILE\.mnp-agent
+copy config.example.yaml $env:USERPROFILE\.mnp-agent\config.yaml
+.venv\Scripts\mnp-agent login
+claude mcp add mnp-hub --scope user -- "$PWD\.venv\Scripts\mnp-agent.exe" mcp</pre></li>
+    <li>افتح Claude Code وقوله مثلاً:<br>
+      <span class="secret" style="display:block;margin-top:6px">«ابحث لي عن وظائف Django في السعودية مناسبة لي، وجهّز أفضل 3 واطلب موافقتي»</span></li>
+    <li>Claude هيجيب الوظائف ويحسب التوافق ويجهّز الطلبات ويبعت لك <b>طلبات موافقة</b> — هتلاقيها في <a href="{% url 'hub:approvals' %}">Approvals</a>.</li>
+    <li>توافق ← Claude يفتح لك صفحة التقديم الرسمية ← انت تضغط إرسال ← تقوله "قدّمت، رقم الطلب كذا" وهو يسجّلها.</li>
+  </ol>
+  <p class="small muted">Claude مش بيقدر يقدّم من غير موافقتك، ومش بياخد أي باسورد، ومش بيقدر يشغّل أوامر على جهازك.</p>
+</section>
+
+<section class="card" style="margin-top:16px">
+  <h2>❓ ليه مفيش تقديم أوتوماتيك على LinkedIn؟</h2>
+  <p>LinkedIn وIndeed ووظّف وبيت ما عندهمش طريقة رسمية تسمح لبرنامج يقدّم بدالك، والأتمتة ممنوعة في شروطهم وممكن تقفل حسابك. عشان كده الـ Hub بيعمل كل الشغل التقيل (البحث، التقييم، كتابة الخطاب، الإجابات، المتابعة) ويسيب لك ضغطة الإرسال الأخيرة. شوف <a href="{% url 'hub:job_accounts' %}">جدول قدرات كل موقع</a>.</p>
+</section>
+</div>
+{% endblock %}

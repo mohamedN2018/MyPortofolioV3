@@ -10,6 +10,7 @@ urlpatterns = [
     path("logout/", views.hub_logout, name="logout"),
 
     path("", views.overview, name="overview"),
+    path("guide/", views.guide, name="guide"),
     path("profile/", views.profile, name="profile"),
     path("profile/<int:pk>/", views.profile, name="fact_edit"),
     path("profile/<int:pk>/delete/", views.fact_delete, name="fact_delete"),

@@ -678,8 +678,8 @@
     <!-- Sidebar -->
     <div class="dashboard-sidebar" id="dashboardSidebar">
         <div class="sidebar-header">
-            <h3><i class="bi bi-grid-1x2-fill"></i> SnapFolio</h3>
-            <p>Admin Dashboard</p>
+            <h3><i class="bi bi-grid-1x2-fill"></i> Mohamed Nabil Pro</h3>
+            <p>Content Dashboard · V4</p>
         </div>
         
         <nav class="nav flex-column">
@@ -729,6 +729,11 @@
                 <i class="bi bi-people-fill"></i> <span>Users</span>
             </a>
             <hr>
+            {% if user.is_superuser %}
+            <a class="nav-link" href="{% url 'hub:overview' %}" style="background:linear-gradient(135deg,#4f46e5,#8b8dff);color:#fff;font-weight:600">
+                <i class="bi bi-robot"></i> <span>AI Hub (jobs &amp; agent)</span>
+            </a>
+            {% endif %}
             <a class="nav-link" href="{% url 'home' %}" target="_blank">
                 <i class="bi bi-globe"></i> <span>View Site</span>
             </a>
@@ -747,6 +752,7 @@
                 </button>
             </div>
             <div class="user-menu">
+                {% if user.is_superuser %}<a href="{% url 'hub:overview' %}" class="btn btn-sm btn-primary hide-on-mobile" style="background:#4f46e5;border-color:#4f46e5"><i class="bi bi-robot"></i> AI Hub</a>{% endif %}
                 <button class="theme-toggle-btn" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
                     <i class="bi bi-moon-stars"></i>
                 </button>
@@ -762,6 +768,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{% url 'dashboard:index' %}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+                        {% if user.is_superuser %}<li><a class="dropdown-item" href="{% url 'hub:overview' %}"><i class="bi bi-robot"></i> AI Hub</a></li>{% endif %}
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'dashboard:logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
                     </ul>

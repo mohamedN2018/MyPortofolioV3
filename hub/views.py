@@ -114,6 +114,17 @@ def overview(request):
     return render(request, "hub/overview.html", ctx)
 
 
+@owner_required
+def guide(request):
+    return render(request, "hub/guide.html", {
+        "cv_count": CVDocument.objects.filter(kind="cv", is_active=True).count(),
+        "pref": JobPreference.active(),
+        "sources": ConnectedAccount.objects.filter(status="connected").count(),
+        "devices": AgentDevice.objects.filter(is_revoked=False).count(),
+        "mfa_on": OwnerMFA.objects.filter(user=request.user, enabled=True).exists(),
+    })
+
+
 # ------------------------------------------------------------------ personal data
 @owner_required
 def profile(request, pk=None):
