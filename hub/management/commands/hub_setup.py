@@ -3,6 +3,7 @@ Idempotent setup: provider catalog, default job preferences, verified CV facts,
 and (optionally) the published CV imported as a private CV version.
 Never deletes anything.
 """
+import os
 from datetime import date
 from pathlib import Path
 
@@ -45,6 +46,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         HubSettings.get()
+        self._owner()
         n = providers.seed_catalog()
         self.stdout.write(f"providers: {n} new, catalog size {len(providers.CATALOG)}")
         if not JobPreference.objects.exists():
@@ -75,3 +77,26 @@ class Command(BaseCommand):
                 self.stdout.write(f"cv: imported ({len(data)} bytes)")
         if not crypto.explicit_key_configured():
             self.stdout.write(self.style.WARNING("HUB_ENCRYPTION_KEYS is not set — using a key derived from SECRET_KEY (dev only)."))
+
+    def _owner(self):
+        """HUB_OWNER_USERNAME: make sure this account exists and is a superuser.
+        HUB_OWNER_INITIAL_PASSWORD is used ONLY when the account is created (never overwrites a password)."""
+        from django.contrib.auth import get_user_model
+        username = os.environ.get("HUB_OWNER_USERNAME", "").strip()
+        if not username:
+            return
+        User = get_user_model()
+        user = User.objects.filter(username=username).first()
+        if user is None:
+            pw = os.environ.get("HUB_OWNER_INITIAL_PASSWORD", "")
+            if len(pw) < 16:
+                self.stderr.write("owner: not created (HUB_OWNER_INITIAL_PASSWORD missing or shorter than 16 chars)")
+                return
+            User.objects.create_superuser(username=username, email="", password=pw)
+            self.stdout.write("owner: created")
+        elif not (user.is_superuser and user.is_staff and user.is_active):
+            user.is_superuser = user.is_staff = user.is_active = True
+            user.save(update_fields=["is_superuser", "is_staff", "is_active"])
+            self.stdout.write("owner: promoted to superuser")
+        else:
+            self.stdout.write("owner: ok")

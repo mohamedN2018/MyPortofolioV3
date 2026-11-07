@@ -635,3 +635,30 @@ class AgentContractTests(TestCase):
         spec.loader.exec_module(mod)
         self.assertEqual(mod.SERVER_TOOLS, set(tools.REGISTRY))
         self.assertEqual(mod.LOCAL_TOOLS, set(tools.LOCAL_TOOLS))
+
+
+@override_settings(HUB_PRIVATE_ROOT=TMP_PRIVATE)
+class OwnerBootstrapTests(TestCase):
+    def test_creates_then_never_overwrites_password(self):
+        import os
+        User = get_user_model()
+        with mock.patch.dict(os.environ, {"HUB_OWNER_USERNAME": "boss", "HUB_OWNER_INITIAL_PASSWORD": "x" * 20}):
+            call_command("hub_setup", stdout=open(os.devnull, "w"))
+        u = User.objects.get(username="boss")
+        self.assertTrue(u.is_superuser and u.check_password("x" * 20))
+        u.set_password("changed-by-owner-123")
+        u.save()
+        with mock.patch.dict(os.environ, {"HUB_OWNER_USERNAME": "boss", "HUB_OWNER_INITIAL_PASSWORD": "y" * 20}):
+            call_command("hub_setup", stdout=open(os.devnull, "w"))
+        self.assertTrue(User.objects.get(username="boss").check_password("changed-by-owner-123"))
+
+    def test_promotes_existing_and_refuses_weak_password(self):
+        import os
+        User = get_user_model()
+        User.objects.create_user("staffer", password="pw-123456789")
+        with mock.patch.dict(os.environ, {"HUB_OWNER_USERNAME": "staffer"}):
+            call_command("hub_setup", stdout=open(os.devnull, "w"))
+        self.assertTrue(User.objects.get(username="staffer").is_superuser)
+        with mock.patch.dict(os.environ, {"HUB_OWNER_USERNAME": "newbie", "HUB_OWNER_INITIAL_PASSWORD": "short"}):
+            call_command("hub_setup", stdout=open(os.devnull, "w"), stderr=open(os.devnull, "w"))
+        self.assertFalse(User.objects.filter(username="newbie").exists())
