@@ -197,10 +197,13 @@ body[dir="rtl"] .mnp-section-head .kicker, body[dir="rtl"] .mnp-kicker { letter-
 
 .mnp-card {
   position: relative; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-lg);
-  padding: clamp(18px, 2.4vw, 26px); height: 100%; box-shadow: var(--shadow-1);
+  padding: clamp(18px, 2.4vw, 26px); box-shadow: var(--shadow-1);
   transition: border-color .25s, box-shadow .3s var(--ease), transform .35s var(--ease);
 }
 .mnp-card:hover { border-color: var(--line-strong); }
+/* Equal-height cards only when a card is the single child of a grid column;
+   stacked cards keep their natural height (fixes CV/about/project pages). */
+.row > [class*="col"] > .mnp-card:only-child { height: 100%; }
 .mnp-chip {
   display: inline-flex; align-items: center; font-size: .8rem; font-weight: 500; padding: 4px 10px; border-radius: 999px;
   background: var(--bg-sunken); color: var(--text); border: 1px solid var(--line); margin: 0 6px 6px 0; white-space: nowrap;
@@ -451,3 +454,4 @@ details[open] > summary::after { content: "–"; }
 
 /* container padding must cover the largest row gutter (g-lg-5 = 1.5rem each side) */
 @media (min-width: 992px) { .container { padding-inline: 24px; } }
+.cv-page .mnp-pdf { position: sticky; top: calc(var(--nav-h) + 16px); }

@@ -12,7 +12,7 @@
 {% block body %}
 <div class="hub">
   <aside class="side" id="side" aria-label="Hub navigation">
-    <div class="brand"><b>MN</b><span>AI Hub<small>Private workspace</small></span></div>
+    <div class="brand"><b>MN</b><span>AI Hub<small>Private workspace · V4</small></span></div>
     {% with p=request.path %}
     <nav>
       <a href="{% url 'hub:overview' %}" {% if p == '/hub/' %}aria-current="page"{% endif %}>Overview</a>

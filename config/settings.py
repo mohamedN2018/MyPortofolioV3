@@ -39,6 +39,9 @@ ALLOWED_HOSTS = [MAIN_DOMAIN, f'www.{MAIN_DOMAIN}', '127.0.0.1', 'localhost', 't
 # Which portrait set the site uses: 'studio' (default) or 'camera'. See core/seo.py.
 BRAND_PORTRAIT = config('BRAND_PORTRAIT', default='studio')
 
+# Project generations: V2 (old app), V3 (SnapFolio design), V4 (premium redesign + AI Hub, 2026-11-07)
+SITE_VERSION = '4.0.0'
+
 SITE_URL = config('SITE_URL', default=f'https://{MAIN_DOMAIN}').rstrip('/')
 
 # =========================
