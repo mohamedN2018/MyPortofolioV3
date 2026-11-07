@@ -1,0 +1,10 @@
+{% extends "hub/base.html" %}
+{% block title %}Tool permissions{% endblock %}
+{% block content %}
+<div class="head"><div><p><a href="{% url 'hub:agent' %}">← AI agent</a></p><h1>Tool permissions · {{ device.name }}</h1><p>Unticked tools are refused for this device. External tools additionally require a single-use approval; critical tools can only create approval requests.</p></div></div>
+<section class="card"><form method="post" action="{% url 'hub:device_action' device.pk %}">{% csrf_token %}<input type="hidden" name="action" value="tools">
+<div class="table-wrap"><table><thead><tr><th>Allow</th><th>Tool</th><th>Level</th><th>Description</th></tr></thead><tbody>
+{% for name, level, desc, on in rows %}<tr><td><input type="checkbox" name="tools" value="{{ name }}" aria-label="Allow {{ name }}" {% if on %}checked{% endif %}></td><td class="mono">{{ name }}</td>
+<td><span class="pill {% if level == 'external' or level == 'critical' %}bad{% elif level == 'write' %}warn{% else %}ok{% endif %}">{{ level }}</span></td><td class="small">{{ desc }}</td></tr>{% endfor %}
+</tbody></table></div><button class="btn primary" type="submit" style="margin-top:12px">Save</button></form></section>
+{% endblock %}

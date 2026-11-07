@@ -1,0 +1,11 @@
+{% extends "hub/base.html" %}
+{% block title %}Website content{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Website content</h1><p>The public portfolio is managed by the existing dashboard. The hub reuses it instead of duplicating editors.</p></div></div>
+<div class="grid g3">
+  <div class="card stat"><div class="n">{{ projects }}</div><div class="l">Projects (EN)</div></div>
+  <div class="card stat"><div class="n">{{ posts }}</div><div class="l">Blog posts</div></div>
+  <div class="card stack"><a class="btn primary" href="/dashboard/">Open content dashboard</a><a class="btn" href="/admin/">Django admin</a><a class="btn" href="/" target="_blank" rel="noopener">View public site ↗</a></div>
+</div>
+<p class="small muted" style="margin-top:16px">Agent write access to website records is not enabled in this phase; it will be added as WRITE tools that require explicit per-device permission.</p>
+{% endblock %}

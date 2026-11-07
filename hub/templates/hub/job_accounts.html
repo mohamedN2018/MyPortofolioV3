@@ -1,0 +1,24 @@
+{% extends "hub/base.html" %}{% load hub_extras %}
+{% block title %}Job accounts{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Job accounts &amp; connections</h1><p>Your job-site accounts in one place, with what each platform <em>really</em> supports. No passwords, codes or cookies are ever collected.</p></div>
+  <div class="row"><a class="btn primary" href="{% url 'hub:job_account_add' %}">Add new account</a>
+  <form method="post" action="{% url 'hub:job_accounts_emergency' %}" onsubmit="return confirm('Disable ALL job-platform connections and stop pending agent tasks?')">{% csrf_token %}<button class="btn danger solid" type="submit">Emergency stop</button></form></div></div>
+
+<div class="grid g2">
+<section class="card"><h2>Connected ({{ connected|length }})</h2>
+{% for a in connected %}{% include "hub/_account_row.html" %}{% empty %}<p class="muted">None yet.</p>{% endfor %}</section>
+<section class="card"><h2>Pending / disconnected / errors ({{ other|length }})</h2>
+{% for a in other %}{% include "hub/_account_row.html" %}{% empty %}<p class="muted">Nothing here.</p>{% endfor %}</section>
+</div>
+
+<section class="card" style="margin-top:16px"><h2>Platform capability registry</h2>
+<p class="small muted">What each provider officially offers a job seeker (reviewed {{ providers.0.reviewed_at|default:"—" }}). "Connector" = implemented in this hub. Being listed here does not mean automation exists.</p>
+<div class="table-wrap"><table class="caps"><thead><tr><th>Platform</th>{% for k, label in capabilities %}<th>{{ label }}</th>{% endfor %}<th>Connector</th></tr></thead><tbody>
+{% for p in providers %}<tr><td><div class="row"><span class="logo">{{ p.logo_text }}</span><b>{{ p.name }}</b></div></td>
+{% for k, label in capabilities %}<td>{% with v=p.capabilities|get:k %}<span class="pill {{ v|default:'unknown' }}">{{ v|default:'unknown' }}</span>{% endwith %}</td>{% endfor %}
+<td>{% if p.connector %}<span class="pill ok">{{ p.connector }}</span>{% else %}<span class="pill">manual</span>{% endif %}</td></tr>
+{% endfor %}</tbody></table></div>
+<p class="small muted">Legend: <span class="pill supported">supported</span> official · <span class="pill assisted">assisted</span> you act on the official page · <span class="pill local">local</span> done by the hub · <span class="pill unsupported">unsupported</span> · <span class="pill unknown">unknown</span> not confirmed.</p>
+</section>
+{% endblock %}

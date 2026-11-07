@@ -1,0 +1,17 @@
+{% extends "hub/base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block body %}
+<main class="login" id="main">
+  <div class="card stack">
+    <div><span class="logo">MN</span></div>
+    <div><h1>AI Hub sign in</h1><p class="muted">Private workspace of Mohamed Nabil. Owner account only.</p></div>
+    {% if error %}<ul class="msgs"><li class="error">{{ error }}</li></ul>{% endif %}
+    <form method="post">{% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+      <p><label for="u">Username</label><input id="u" name="username" autocomplete="username" required></p>
+      <p><label for="pw">Password</label><input id="pw" type="password" name="password" autocomplete="current-password" required></p>
+      <button class="btn primary" type="submit">Sign in</button>
+    </form>
+  </div>
+</main>
+{% endblock %}

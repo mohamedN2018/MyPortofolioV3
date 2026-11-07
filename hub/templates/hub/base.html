@@ -1,0 +1,66 @@
+{% load static %}<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{% block title %}AI Hub{% endblock %} · Mohamed Nabil AI Hub</title>
+<link rel="stylesheet" href="{% static 'hub/hub.css' %}">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+{% block body %}
+<div class="hub">
+  <aside class="side" id="side" aria-label="Hub navigation">
+    <div class="brand"><b>MN</b><span>AI Hub<small>Private workspace</small></span></div>
+    {% with p=request.path %}
+    <nav>
+      <a href="{% url 'hub:overview' %}" {% if p == '/hub/' %}aria-current="page"{% endif %}>Overview</a>
+      <div class="group">Me</div>
+      <a href="{% url 'hub:profile' %}" {% if '/hub/profile/' in p %}aria-current="page"{% endif %}>Personal profile</a>
+      <a href="{% url 'hub:documents' %}" {% if '/hub/documents/' in p %}aria-current="page"{% endif %}>CV &amp; documents</a>
+      <div class="group">Jobs</div>
+      <a href="{% url 'hub:jobs' %}" {% if p == '/hub/jobs/' or '/hub/jobs/' in p and 'preferences' not in p %}aria-current="page"{% endif %}>Job center</a>
+      <a href="{% url 'hub:preferences' %}" {% if 'preferences' in p %}aria-current="page"{% endif %}>Job preferences</a>
+      <a href="{% url 'hub:applications' %}" {% if '/hub/applications/' in p %}aria-current="page"{% endif %}>Applications</a>
+      <a href="{% url 'hub:job_accounts' %}" {% if '/hub/accounts/jobs/' in p %}aria-current="page"{% endif %}>Job accounts</a>
+      <div class="group">Agent</div>
+      <a href="{% url 'hub:agent' %}" {% if '/hub/agent/' in p %}aria-current="page"{% endif %}>AI agent</a>
+      <a href="{% url 'hub:approvals' %}" {% if '/hub/approvals/' in p %}aria-current="page"{% endif %}>Approvals {% if hub_pending %}<span class="count">{{ hub_pending }}</span>{% endif %}</a>
+      <a href="{% url 'hub:activity' %}" {% if '/hub/activity/' in p %}aria-current="page"{% endif %}>Activity log</a>
+      <div class="group">System</div>
+      <a href="{% url 'hub:integrations' %}" {% if p == '/hub/accounts/' or '/hub/accounts/oauth' in p %}aria-current="page"{% endif %}>Connected accounts</a>
+      <a href="{% url 'hub:content' %}" {% if '/hub/content/' in p %}aria-current="page"{% endif %}>Website content</a>
+      <a href="{% url 'hub:security' %}" {% if '/hub/security/' in p %}aria-current="page"{% endif %}>Security</a>
+    </nav>
+    {% endwith %}
+  </aside>
+  <div class="main">
+    <header class="top">
+      <div class="row">
+        <button class="btn burger" type="button" aria-controls="side" aria-expanded="false" id="burger">Menu</button>
+        <span class="status">
+          {% if hub_kill %}<span class="pill bad">Kill switch ON</span>{% else %}<span class="pill ok">Agents allowed</span>{% endif %}
+          <span class="pill hide-sm"><span class="dot {% if hub_online %}on{% endif %}"></span>{{ hub_online|default:0 }} agent{{ hub_online|pluralize }} online</span>
+        </span>
+      </div>
+      <div class="row">
+        <a class="btn hide-sm" href="/" target="_blank" rel="noopener">Public site ↗</a>
+        <form method="post" action="{% url 'hub:logout' %}">{% csrf_token %}<button class="btn" type="submit">Sign out</button></form>
+      </div>
+    </header>
+    <main class="content" id="main">
+      {% if hub_kill %}<div class="banner kill">Kill switch is active: agent tokens are revoked, new tasks and external actions are blocked. Audit logs are preserved. <a style="color:#fff;text-decoration:underline" href="{% url 'hub:security' %}">Security settings</a></div>{% endif %}
+      {% if messages %}<ul class="msgs">{% for m in messages %}<li class="{{ m.tags }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+<script>
+(function(){var b=document.getElementById('burger'),s=document.getElementById('side');if(!b)return;
+b.addEventListener('click',function(){var o=s.classList.toggle('open');b.setAttribute('aria-expanded',o)});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){s.classList.remove('open');b.setAttribute('aria-expanded','false')}});})();
+</script>
+{% endblock %}
+</body>
+</html>

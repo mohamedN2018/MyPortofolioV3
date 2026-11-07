@@ -1,0 +1,18 @@
+{% extends "hub/base.html" %}
+{% block title %}Applications{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Applications</h1><p>One application per job — duplicates are blocked.</p></div>
+  <div class="row"><a class="btn {% if view != 'table' %}primary{% endif %}" href="?view=board">Board</a><a class="btn {% if view == 'table' %}primary{% endif %}" href="?view=table">Table</a><a class="btn" href="{% url 'hub:applications_csv' %}">Export CSV</a></div></div>
+{% if view == 'table' %}
+<section class="card"><div class="table-wrap"><table><thead><tr><th>Job</th><th>Status</th><th>CV</th><th>Applied</th><th>Follow-up</th><th>Updated</th></tr></thead><tbody>
+{% for a in apps %}<tr><td><a href="{% url 'hub:application' a.pk %}"><b>{{ a.job.title }}</b></a><div class="small muted">{{ a.job.company }} · {{ a.job.source }}</div></td>
+<td><span class="pill {{ a.status }}">{{ a.get_status_display }}</span></td><td>{{ a.cv.title|default:"—" }}</td><td>{{ a.applied_at|date:"Y-m-d"|default:"—" }}</td><td>{{ a.follow_up_at|default:"—" }}</td><td class="small muted">{{ a.updated_at|timesince }} ago</td></tr>
+{% empty %}<tr><td colspan="6" class="muted">No applications yet.</td></tr>{% endfor %}</tbody></table></div></section>
+{% else %}
+<div class="board" role="list">
+{% for key, label, items in columns %}<section class="col" role="listitem" aria-label="{{ label }}"><h3><span>{{ label }}</span><span>{{ items|length }}</span></h3>
+  {% for a in items %}<a class="kcard" href="{% url 'hub:application' a.pk %}"><b>{{ a.job.title }}</b><div class="small muted">{{ a.job.company }}</div>{% if a.follow_up_at %}<div class="small">Follow up {{ a.follow_up_at }}</div>{% endif %}</a>{% endfor %}
+</section>{% endfor %}
+</div>
+{% endif %}
+{% endblock %}

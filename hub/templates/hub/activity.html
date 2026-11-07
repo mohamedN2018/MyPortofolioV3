@@ -1,0 +1,17 @@
+{% extends "hub/base.html" %}
+{% block title %}Activity log{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Activity log</h1><p>Append-only audit trail. Secrets are never written here.</p></div>
+<form class="row" method="get">
+  <input name="q" value="{{ request.GET.q }}" placeholder="Action contains…" aria-label="Action contains" style="width:180px">
+  <select name="actor_type" aria-label="Actor"><option value="">Any actor</option><option value="user">User</option><option value="agent">Agent</option><option value="system">System</option></select>
+  <select name="outcome" aria-label="Outcome"><option value="">Any outcome</option><option value="ok">OK</option><option value="denied">Denied</option><option value="error">Error</option></select>
+  <select name="level" aria-label="Level"><option value="">Any level</option><option value="read">Read</option><option value="prepare">Prepare</option><option value="write">Write</option><option value="external">External</option><option value="critical">Critical</option></select>
+  <button class="btn" type="submit">Filter</button></form></div>
+<section class="card"><div class="table-wrap"><table><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Level</th><th>Outcome</th><th>Target</th><th>IP</th></tr></thead><tbody>
+{% for e in page %}<tr><td class="small mono">{{ e.created_at|date:"Y-m-d H:i:s" }}</td><td>{{ e.actor_type }} · {{ e.actor_label }}</td><td class="mono">{{ e.action }}</td><td>{{ e.level }}</td>
+<td><span class="pill {% if e.outcome == 'ok' %}ok{% elif e.outcome == 'denied' %}bad{% else %}warn{% endif %}">{{ e.outcome }}</span></td><td class="small">{{ e.target_type }} {{ e.target_id|slice:":12" }}</td><td class="small muted">{{ e.ip|default:"" }}</td></tr>
+{% empty %}<tr><td colspan="7" class="muted">No events.</td></tr>{% endfor %}</tbody></table></div>
+{% if page.has_other_pages %}<div class="row" style="margin-top:10px">{% if page.has_previous %}<a class="btn" href="?page={{ page.previous_page_number }}">← Newer</a>{% endif %}<span class="muted">{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a class="btn" href="?page={{ page.next_page_number }}">Older →</a>{% endif %}</div>{% endif %}
+</section>
+{% endblock %}

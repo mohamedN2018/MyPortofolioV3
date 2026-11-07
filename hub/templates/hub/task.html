@@ -1,0 +1,17 @@
+{% extends "hub/base.html" %}
+{% block title %}Task{% endblock %}
+{% block content %}
+<div class="head"><div><p><a href="{% url 'hub:agent' %}">← AI agent</a></p><h1 class="mono">{{ task.tool }}</h1><p><span class="pill {{ task.status }}">{{ task.get_status_display }}</span> · {{ task.level }} · {{ task.get_initiator_display }} · {{ task.device|default:"no device" }}</p></div>
+{% if not task.finished %}<form method="post">{% csrf_token %}<input type="hidden" name="action" value="cancel"><button class="btn danger" type="submit">Cancel task</button></form>{% endif %}</div>
+<div class="grid g2">
+<section class="card"><h2>Details</h2>
+  <p><b>ID:</b> <span class="mono">{{ task.pk }}</span></p><p><b>Created:</b> {{ task.created_at }}</p><p><b>Started:</b> {{ task.started_at|default:"—" }}</p><p><b>Finished:</b> {{ task.finished_at|default:"—" }}</p>
+  <p><b>Progress:</b> {{ task.progress }}%</p><div class="bar"><i style="width:{{ task.progress }}%"></i></div>
+  {% if task.error %}<p><b>Error:</b> {{ task.error }}</p>{% endif %}{% if task.cancel_requested %}<p><span class="pill warn">cancel requested</span></p>{% endif %}
+  <h3>Arguments</h3><pre>{{ task.payload }}</pre><h3>Result</h3><pre>{{ task.result|default:"—" }}</pre>
+  {% for a in approvals %}<p>Approval: <a href="{% url 'hub:approval' a.pk %}">{{ a.title }}</a> <span class="pill {{ a.status }}">{{ a.get_status_display }}</span></p>{% endfor %}
+</section>
+<section class="card"><h2>Execution log</h2>{% for l in task.log %}<p class="small"><span class="muted mono">{{ l.at|slice:":19" }}</span> {{ l.msg }}</p>{% empty %}<p class="muted">No log lines.</p>{% endfor %}
+<h3>Audit</h3>{% for e in events %}<p class="small">{{ e.created_at }} · {{ e.action }} · {{ e.outcome }}</p>{% endfor %}</section>
+</div>
+{% endblock %}

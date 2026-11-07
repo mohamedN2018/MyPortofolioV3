@@ -1,0 +1,35 @@
+{% extends "hub/base.html" %}
+{% block title %}Security{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Security</h1><p>Kill switch, two-factor authentication and recent critical events.</p></div></div>
+<div class="grid g2">
+<section class="card stack"><h2>Global kill switch</h2>
+{% if hs.kill_switch %}
+  <p><span class="pill bad">ACTIVE</span> since {{ hs.kill_switch_at }}{% if hs.kill_switch_reason %} — {{ hs.kill_switch_reason }}{% endif %}</p>
+  <form method="post">{% csrf_token %}<input type="hidden" name="action" value="kill_off"><p><label for="kp">Confirm your password</label><input id="kp" type="password" name="confirm_password" autocomplete="current-password" required></p><button class="btn" type="submit">Turn off kill switch</button></form>
+{% else %}
+  <p>Stops new agent tasks, revokes every agent session, expires pending approvals and turns off external permissions. Audit logs are kept.</p>
+  <form method="post" onsubmit="return confirm('Activate the kill switch now?')">{% csrf_token %}<input type="hidden" name="action" value="kill_on"><p><label for="kr">Reason (optional)</label><input id="kr" name="reason" maxlength="300"></p><button class="btn danger solid" type="submit">Activate kill switch</button></form>
+{% endif %}
+</section>
+<section class="card stack"><h2>Two-factor authentication</h2>
+{% if mfa and mfa.enabled %}
+  <p><span class="pill ok">Enabled</span> TOTP authenticator required at every sign-in.</p>
+  <form method="post">{% csrf_token %}<input type="hidden" name="action" value="mfa_disable"><p><label for="mp">Confirm your password</label><input id="mp" type="password" name="confirm_password" autocomplete="current-password" required></p><button class="btn danger" type="submit">Disable 2FA</button></form>
+{% elif pending_secret %}
+  <p>Add this key to Google Authenticator, Microsoft Authenticator or 1Password, then enter a code.</p>
+  <div class="secret"><b>Secret:</b> <span class="mono">{{ pending_secret }}</span><br><span class="small">URI: <span class="mono">{{ otp_uri }}</span></span></div>
+  <form method="post">{% csrf_token %}<input type="hidden" name="action" value="mfa_enable"><p><label for="mc">6-digit code</label><input id="mc" name="code" inputmode="numeric" autocomplete="one-time-code" required></p><button class="btn primary" type="submit">Enable</button></form>
+{% else %}
+  <p><span class="pill warn">Off</span> Strongly recommended before connecting real accounts.</p>
+  <form method="post">{% csrf_token %}<input type="hidden" name="action" value="mfa_setup"><button class="btn primary" type="submit">Set up 2FA</button></form>
+{% endif %}
+</section>
+<section class="card"><h2>Server checks</h2>
+  <p>{% if key_ok %}<span class="pill ok">Dedicated encryption key set</span>{% else %}<span class="pill warn">HUB_ENCRYPTION_KEYS not set</span> (dev key derived from SECRET_KEY){% endif %}</p>
+  <p class="small muted">Run <code>python manage.py hub_check</code> on the server for the full list.</p>
+</section>
+<section class="card"><h2>Recent critical events</h2>
+{% for e in security_events %}<p class="small"><span class="mono muted">{{ e.created_at|date:"Y-m-d H:i" }}</span> {{ e.action }} · {{ e.actor_label }} · {{ e.outcome }}</p>{% empty %}<p class="muted">None.</p>{% endfor %}
+</section></div>
+{% endblock %}

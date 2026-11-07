@@ -1,0 +1,32 @@
+{% extends "hub/base.html" %}
+{% block title %}Personal profile{% endblock %}
+{% block content %}
+<div class="head"><div><h1>Personal profile</h1><p>Verified facts with provenance. Private facts never appear on the public site; sensitive ones are never sent to the agent.</p></div></div>
+<div class="grid g2">
+  <section class="card stack">
+    <h2>Public identity (from the portfolio)</h2>
+    <p><b>{{ identity.NAME_EN }}</b> · {{ identity.NAME_AR }} · {{ identity.BRAND }}</p>
+    <p class="muted">{{ identity.HEADLINE_EN }}</p>
+    <div class="row">{% for p in profiles %}<a class="pill" href="{{ p.url }}" target="_blank" rel="noopener">{{ p.label }}</a>{% endfor %}</div>
+    <h3>Verified skills used for matching</h3>
+    <div class="row">{% for s in skills %}<span class="pill">{{ s }}</span>{% endfor %}</div>
+    <p class="small muted">Edit public data from <a href="{% url 'hub:content' %}">Website content</a>.</p>
+  </section>
+  <section class="card">
+    <h2>{% if editing %}Edit {{ editing }}{% else %}Add a fact{% endif %}</h2>
+    <form method="post" action="{% if editing %}{% url 'hub:fact_edit' editing.pk %}{% else %}{% url 'hub:profile' %}{% endif %}">{% csrf_token %}{{ form.as_p }}
+      <button class="btn primary" type="submit">Save</button> {% if editing %}<a class="btn" href="{% url 'hub:profile' %}">Cancel</a>{% endif %}</form>
+  </section>
+</div>
+<section class="card" style="margin-top:16px"><h2>Facts</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Section</th><th>Key</th><th>English</th><th>Arabic</th><th>Provenance</th><th>Visibility</th><th></th></tr></thead>
+<tbody>{% for f in facts %}<tr>
+  <td>{{ f.get_section_display }}</td><td class="mono">{{ f.key }}</td><td>{{ f.value_en|truncatechars:90 }}</td><td dir="rtl">{{ f.value_ar|truncatechars:60 }}</td>
+  <td><span class="pill {% if f.status == 'verified' %}ok{% else %}warn{% endif %}">{{ f.get_status_display }}</span><div class="small muted">{{ f.source }}{% if f.verified_at %} · {{ f.verified_at }}{% endif %}</div></td>
+  <td>{{ f.get_visibility_display }}{% if f.sensitive %} · <span class="pill bad">sensitive</span>{% endif %}</td>
+  <td class="row"><a class="btn" href="{% url 'hub:fact_edit' f.pk %}">Edit</a>
+    <form method="post" action="{% url 'hub:fact_delete' f.pk %}" class="row">{% csrf_token %}<input name="confirm" placeholder="DELETE" aria-label="Type DELETE to confirm" style="width:90px"><button class="btn danger" type="submit">Delete</button></form></td>
+</tr>{% empty %}<tr><td colspan="7" class="muted">No facts yet. Run <code>python manage.py hub_setup</code> to import the verified CV facts.</td></tr>{% endfor %}</tbody>
+</table></div></section>
+{% endblock %}

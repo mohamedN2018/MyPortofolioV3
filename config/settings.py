@@ -41,6 +41,18 @@ BRAND_PORTRAIT = config('BRAND_PORTRAIT', default='studio')
 
 SITE_URL = config('SITE_URL', default=f'https://{MAIN_DOMAIN}').rstrip('/')
 
+# =========================
+# AI HUB (private, /hub/)
+# =========================
+# Comma-separated Fernet keys, newest first (generate: python manage.py hub_check --new-key).
+HUB_ENCRYPTION_KEYS = config('HUB_ENCRYPTION_KEYS', default='')
+# Private files live OUTSIDE MEDIA_ROOT and are only streamed by authenticated views.
+HUB_PRIVATE_ROOT = Path(config('HUB_PRIVATE_ROOT', default=str(BASE_DIR / 'private')))
+HUB_AGENT_RATE_LIMIT = config('HUB_AGENT_RATE_LIMIT', default=120, cast=int)
+for _p in ('GITHUB', 'GITLAB', 'GOOGLE'):
+    globals()[f'HUB_OAUTH_{_p}_CLIENT_ID'] = config(f'HUB_OAUTH_{_p}_CLIENT_ID', default='')
+    globals()[f'HUB_OAUTH_{_p}_CLIENT_SECRET'] = config(f'HUB_OAUTH_{_p}_CLIENT_SECRET', default='')
+
 if DEBUG:
     ALLOWED_HOSTS += ['127.0.0.1', 'localhost', 'https://mohamednabilpro.deplois.net/', 'http://mohamednabilpro.deplois.net/']
 
@@ -92,6 +104,7 @@ INSTALLED_APPS = [
     # 'import_export',
 
     'core',
+    'hub',
 ]
 
 # Debug Toolbar
@@ -138,6 +151,7 @@ TEMPLATES = [
                 'core.context_processors.global_settings',
                 'core.context_processors.dashboard_stats',
                 'core.seo.seo_context',
+                'hub.context_processors.hub',
 
             ],
         },

@@ -1,0 +1,34 @@
+{% extends "hub/base.html" %}
+{% block title %}AI agent{% endblock %}
+{% block content %}
+<div class="head"><div><h1>AI agent</h1><p>Your local agent connects <em>outbound</em> to this server with a device credential and can only use the allowlisted tools below. See <code>agent/README.md</code>.</p></div></div>
+{% if new_credential %}<div class="secret"><b>Device credential for “{{ new_credential.device }}” — shown once.</b> Store it with <code>mnp-agent login</code> (Windows Credential Manager). Only its hash is kept on the server.<pre style="margin-top:8px">{{ new_credential.credential }}</pre></div>{% endif %}
+<div class="grid g2" style="margin-top:16px">
+<section class="card"><h2>Devices</h2>
+{% for d in devices %}<div style="padding:8px 0;border-bottom:1px solid var(--line)">
+  <div class="row between"><span class="row"><span class="dot {% if d.online %}on{% endif %}"></span><b>{{ d.name }}</b>{% if d.is_revoked %}<span class="pill revoked">revoked</span>{% endif %}</span><span class="small muted mono">mnpdev_{{ d.token_prefix }}_…</span></div>
+  <div class="small muted">{% if d.last_heartbeat %}Last heartbeat {{ d.last_heartbeat|timesince }} ago{% if d.agent_version %} · v{{ d.agent_version }}{% endif %}{% if d.status_note %} · {{ d.status_note }}{% endif %}{% else %}Never connected{% endif %}</div>
+  {% if not d.is_revoked %}<div class="row" style="margin-top:6px"><a class="btn" href="{% url 'hub:device_tools' d.pk %}">Tool permissions</a>
+    <form method="post" action="{% url 'hub:device_action' d.pk %}" class="row">{% csrf_token %}<input type="hidden" name="action" value="rotate"><input type="password" name="confirm_password" placeholder="Your password" aria-label="Confirm password" autocomplete="current-password" style="width:150px"><button class="btn" type="submit">Rotate credential</button></form>
+    <form method="post" action="{% url 'hub:device_action' d.pk %}" onsubmit="return confirm('Revoke this device now?')">{% csrf_token %}<input type="hidden" name="action" value="revoke"><button class="btn danger" type="submit">Revoke</button></form></div>{% endif %}
+</div>{% empty %}<p class="muted">No devices yet.</p>{% endfor %}
+<form method="post" action="{% url 'hub:device_register' %}" style="margin-top:14px">{% csrf_token %}
+  <p><label for="dn">Register a device</label><input id="dn" name="name" value="Windows PC" maxlength="80"></p>
+  <p><label for="cp">Confirm your password</label><input id="cp" type="password" name="confirm_password" autocomplete="current-password" required></p>
+  <button class="btn primary" type="submit" {% if kill %}disabled{% endif %}>Register device</button></form>
+</section>
+<section class="card"><h2>Assign a task</h2>
+<p class="small muted">The agent picks it up on its next poll. External and critical operations are not allowed here — they go through approvals.</p>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="task">{{ task_form.as_p }}<button class="btn primary" type="submit" {% if kill %}disabled{% endif %}>Queue task</button></form>
+<details style="margin-top:12px"><summary>Allowlisted tools ({{ tool_defs|length }})</summary>
+<div class="table-wrap"><table><tbody>{% for t in tool_defs %}<tr><td class="mono">{{ t.name }}</td><td><span class="pill {% if t.level == 'external' or t.level == 'critical' %}bad{% elif t.level == 'write' %}warn{% else %}ok{% endif %}">{{ t.level }}</span></td><td class="small">{{ t.description }}</td></tr>{% endfor %}</tbody></table></div></details>
+</section></div>
+<section class="card" style="margin-top:16px"><div class="row between"><h2>Tasks &amp; tool calls</h2>
+  <form class="row" method="get"><select name="status" aria-label="Filter by status"><option value="">All</option><option value="queued">Queued</option><option value="running">Running</option><option value="succeeded">Succeeded</option><option value="failed">Failed</option><option value="denied">Denied</option><option value="cancelled">Cancelled</option></select><button class="btn" type="submit">Filter</button></form></div>
+<div class="table-wrap"><table><thead><tr><th>Task</th><th>Level</th><th>Initiator</th><th>Status</th><th>Device</th><th>Created</th></tr></thead><tbody>
+{% for t in tasks %}<tr><td><a class="mono" href="{% url 'hub:task' t.pk %}">{{ t.tool }}</a><div class="small muted mono">{{ t.pk|stringformat:"s"|slice:":8" }}</div></td><td>{{ t.level }}</td><td>{{ t.get_initiator_display }}</td>
+<td><span class="pill {{ t.status }}">{{ t.get_status_display }}</span>{% if t.status == 'running' %} {{ t.progress }}%{% endif %}{% if t.error %}<div class="small muted">{{ t.error }}</div>{% endif %}</td><td>{{ t.device|default:"—" }}</td><td class="small muted">{{ t.created_at|timesince }} ago</td></tr>
+{% empty %}<tr><td colspan="6" class="muted">No tasks yet.</td></tr>{% endfor %}</tbody></table></div>
+{% if tasks.has_other_pages %}<div class="row" style="margin-top:10px">{% if tasks.has_previous %}<a class="btn" href="?page={{ tasks.previous_page_number }}">← Newer</a>{% endif %}{% if tasks.has_next %}<a class="btn" href="?page={{ tasks.next_page_number }}">Older →</a>{% endif %}</div>{% endif %}
+</section>
+{% endblock %}

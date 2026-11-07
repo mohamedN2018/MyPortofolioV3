@@ -5,15 +5,25 @@ services:
     volumes:
       # - ./:/usr/src/app
       - django-media:/usr/src/app/media
+      - hub-private:/usr/src/app/private
     environment:
       DB_ENGINE: django.db.backends.postgresql
+      HUB_ENCRYPTION_KEYS: ${HUB_ENCRYPTION_KEYS:-}
+      HUB_OWNER_USERNAME: ${HUB_OWNER_USERNAME:-}
+      HUB_OWNER_INITIAL_PASSWORD: ${HUB_OWNER_INITIAL_PASSWORD:-}
+      HUB_OAUTH_GITHUB_CLIENT_ID: ${HUB_OAUTH_GITHUB_CLIENT_ID:-}
+      HUB_OAUTH_GITHUB_CLIENT_SECRET: ${HUB_OAUTH_GITHUB_CLIENT_SECRET:-}
+      HUB_OAUTH_GITLAB_CLIENT_ID: ${HUB_OAUTH_GITLAB_CLIENT_ID:-}
+      HUB_OAUTH_GITLAB_CLIENT_SECRET: ${HUB_OAUTH_GITLAB_CLIENT_SECRET:-}
+      HUB_OAUTH_GOOGLE_CLIENT_ID: ${HUB_OAUTH_GOOGLE_CLIENT_ID:-}
+      HUB_OAUTH_GOOGLE_CLIENT_SECRET: ${HUB_OAUTH_GOOGLE_CLIENT_SECRET:-}
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       DB_HOST: config-db
       DB_PORT: 5432
     # Apply pending migrations (additive) before starting the app server.
-    command: sh -c "python manage.py migrate --noinput && exec gunicorn --chdir /usr/src/app --timeout 320 --workers 25 --access-logfile /dev/stdout --error-logfile /dev/stderr --bind :80 config.wsgi:application"
+    command: sh -c "python manage.py migrate --noinput && (python manage.py hub_setup --import-cv || true) && exec gunicorn --chdir /usr/src/app --timeout 320 --workers 25 --access-logfile /dev/stdout --error-logfile /dev/stderr --bind :80 config.wsgi:application"
     depends_on:
       config-db:
         condition: service_healthy
@@ -70,6 +80,7 @@ services:
 
 volumes:
   django-media:
+  hub-private:
   postgresql_data:
   pgadmin_data:
 
