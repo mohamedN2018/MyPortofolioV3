@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}{% load thumbs %}
 {% load static i18n %}
 
 {% block title %}{% if seo.lang == 'ar' %}المشاريع{% else %}Projects{% endif %} | {{ brand.name }} — {{ brand.brand }}{% endblock %}
@@ -38,7 +38,7 @@
       {% for item in portfolios %}
       <div class="col-md-6 col-xl-4" data-reveal>
         <article class="mnp-card mnp-project" data-tilt="5">
-          <div class="shot">{% if item.cover_image %}<img src="{{ item.cover_image.url }}" alt="{{ item.title }} — {% if ar == 'ar' %}لقطة شاشة{% else %}screenshot{% endif %}" loading="lazy" decoding="async" width="800" height="500">{% endif %}</div>
+          <div class="shot">{% if item.cover_image %}<img src="{{ item.cover_image|thumb:800 }}" alt="{{ item.title }} — {% if ar == 'ar' %}لقطة شاشة{% else %}screenshot{% endif %}" loading="lazy" decoding="async" width="800" height="500">{% endif %}</div>
           <div class="body">
             <span class="meta">{{ item.category.name|default:'' }}{% if item.client_name %} · {{ item.client_name }}{% endif %}</span>
             <h2 class="h5 fw-bold m-0"><a class="text-reset text-decoration-none stretched-link" href="{% url 'portfolio_detail' item.slug %}">{{ item.title }}</a></h2>

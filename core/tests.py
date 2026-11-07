@@ -301,3 +301,30 @@ class StaticCvTests(BrandTestBase):
         self.pi_en.refresh_from_db()
         self.assertEqual(self.pi_en.name, "Mohamed Nabil")
         self.assertEqual(WorkExperience.objects.filter(language=self.en, is_active=True).count(), 2)
+
+
+class ThumbFilterTests(TestCase):
+    def test_thumb_resizes_to_webp_and_falls_back(self):
+        import tempfile
+        from io import BytesIO
+        from PIL import Image
+        from django.core.files.base import ContentFile
+        from django.core.files.storage import FileSystemStorage
+        from django.db.models.fields.files import ImageFieldFile
+        from core.models import Portfolio
+        from core.templatetags.thumbs import thumb
+        tmp = tempfile.mkdtemp()
+        with self.settings(MEDIA_ROOT=tmp, MEDIA_URL="/media/"):
+            buf = BytesIO()
+            Image.new("RGB", (2000, 1000), "red").save(buf, "PNG")
+            storage = FileSystemStorage(location=tmp, base_url="/media/")
+            name = storage.save("big.png", ContentFile(buf.getvalue()))
+            f = ImageFieldFile(None, Portfolio._meta.get_field("cover_image"), name)
+            f.storage = storage
+            url = thumb(f, 800)
+            self.assertTrue(url.startswith("/media/_thumbs/") and url.endswith("-800.webp"))
+            with Image.open(tmp + url[len("/media"):]) as im:
+                self.assertEqual(im.size, (800, 400))
+            missing = ImageFieldFile(None, Portfolio._meta.get_field("cover_image"), "nope.png")
+            missing.storage = storage
+            self.assertEqual(thumb(missing, 800), "/media/nope.png")

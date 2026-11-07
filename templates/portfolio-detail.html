@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}{% load thumbs %}
 {% load static i18n %}
 
 {% block title %}{{ portfolio.meta_title|default:portfolio.title }}{% endblock %}
@@ -39,7 +39,7 @@
     {% if portfolio.cover_image %}
     <div class="mnp-cover mb-4" data-reveal>
       <a href="{{ portfolio.cover_image.url }}" class="glightbox" data-gallery="project" aria-label="{% if ar == 'ar' %}تكبير الصورة{% else %}Enlarge image{% endif %}">
-        <img src="{{ portfolio.cover_image.url }}" alt="{{ portfolio.title }} — {% if ar == 'ar' %}لقطة شاشة رئيسية{% else %}main screenshot{% endif %}" width="1600" height="1000" fetchpriority="high">
+        <img src="{{ portfolio.cover_image|thumb:1600 }}" alt="{{ portfolio.title }} — {% if ar == 'ar' %}لقطة شاشة رئيسية{% else %}main screenshot{% endif %}" width="1600" height="1000" fetchpriority="high">
       </a>
     </div>
     {% endif %}
@@ -141,7 +141,7 @@
       {% for item in related_portfolios %}
       <div class="col-md-6 col-xl-4">
         <article class="mnp-card mnp-project" data-tilt="5">
-          <div class="shot">{% if item.cover_image %}<img src="{{ item.cover_image.url }}" alt="{{ item.title }}" loading="lazy" width="800" height="500">{% endif %}</div>
+          <div class="shot">{% if item.cover_image %}<img src="{{ item.cover_image|thumb:800 }}" alt="{{ item.title }}" loading="lazy" width="800" height="500">{% endif %}</div>
           <div class="body">
             <span class="meta">{{ item.client_name }}</span>
             <h3><a href="{% url 'portfolio_detail' item.slug %}">{{ item.title }}</a></h3>

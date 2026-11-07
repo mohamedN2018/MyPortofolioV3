@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}{% load thumbs %}
 {% load static i18n %}
 
 {% block title %}{{ service.meta_title|default:service.title }} | {{ brand.name }} — {{ brand.brand }}{% endblock %}
@@ -18,7 +18,7 @@
   <div class="container">
     <div class="row g-4 g-lg-5">
       <div class="col-lg-8">
-        {% if service.image %}<div class="mnp-cover mb-4"><img src="{{ service.image.url }}" alt="{{ service.title }}" loading="lazy"></div>{% endif %}
+        {% if service.image %}<div class="mnp-cover mb-4"><img src="{{ service.image|thumb:1200 }}" alt="{{ service.title }}" loading="lazy"></div>{% endif %}
         <div class="mnp-prose">
           {{ service.full_description|linebreaks }}
           {% if service.features %}

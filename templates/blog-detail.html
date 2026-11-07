@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}{% load thumbs %}
 {% load static i18n blog_extras %}
 
 {% block title %}{{ post.meta_title|default:post.title }} | {{ brand.name }}{% endblock %}
@@ -21,7 +21,7 @@
     </div>
   </header>
   <div class="container" style="max-width:860px">
-    {% if post.featured_image %}<div class="mnp-cover mb-4"><img src="{{ post.featured_image.url }}" alt="{{ post.title }}" fetchpriority="high"></div>{% endif %}
+    {% if post.featured_image %}<div class="mnp-cover mb-4"><img src="{{ post.featured_image|thumb:1400 }}" alt="{{ post.title }}" fetchpriority="high"></div>{% endif %}
     <p class="small text-body-secondary">{% if ar == 'ar' %}وقت القراءة:{% else %}Reading time:{% endif %} {{ post.content|reading_time }} {% if ar == 'ar' %}دقيقة{% else %}min{% endif %}</p>
     <div class="mnp-prose mx-auto">{{ post.content|safe|linebreaks }}</div>
     {% if post.tags %}<div class="mt-4"><span class="text-body-secondary small me-1">{% if ar == 'ar' %}الوسوم:{% else %}Tags:{% endif %}</span>{% for tag in post.tags|split_tags %}<span class="mnp-chip">{{ tag }}</span>{% endfor %}</div>{% endif %}

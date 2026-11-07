@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}{% load thumbs %}
 {% load static i18n %}
 
 {% block title %}{{ seo.default_title }}{% endblock %}
@@ -79,7 +79,7 @@
       {% for portfolio in featured_portfolios %}
       <div class="col-md-6 col-xl-4" data-reveal>
         <article class="mnp-card mnp-project" data-tilt="5">
-          <div class="shot">{% if portfolio.cover_image %}<img src="{{ portfolio.cover_image.url }}" alt="{{ portfolio.title }} — {% if ar == 'ar' %}لقطة شاشة{% else %}screenshot{% endif %}" loading="lazy" decoding="async" width="800" height="500">{% endif %}</div>
+          <div class="shot">{% if portfolio.cover_image %}<img src="{{ portfolio.cover_image|thumb:800 }}" alt="{{ portfolio.title }} — {% if ar == 'ar' %}لقطة شاشة{% else %}screenshot{% endif %}" loading="lazy" decoding="async" width="800" height="500">{% endif %}</div>
           <div class="body">
             <span class="meta">{{ portfolio.client_name }}</span>
             <h3><a href="{% url 'portfolio_detail' portfolio.slug %}">{{ portfolio.title }}</a></h3>

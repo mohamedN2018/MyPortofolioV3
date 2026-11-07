@@ -213,3 +213,6 @@ __marimo__/
 /private/
 agent/.venv/
 agent/src/*.egg-info/
+
+# generated image thumbnails
+/media/_thumbs/
